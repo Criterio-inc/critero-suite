@@ -1,0 +1,427 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ============================================================
+// CASE - top-level container for a procurement
+// ============================================================
+model Case {
+  id               String   @id // e.g. "CASE-000001"
+  name             String
+  domainProfile    String   @default("generisk_lou") // generisk_lou | avfall_nyanskaffning | socialtjanst_byte
+  orgName          String   @default("")
+  procurementType  String   @default("nyanskaffning") // nyanskaffning | byte | utokning
+  estimatedValueSek Float   @default(0)
+  timeline         String   @default("{}") // JSON: {startDate, targetAwardDate, targetContractDate}
+  goals            String   @default("[]") // JSON array of strings
+  scopeIn          String   @default("[]") // JSON array
+  scopeOut         String   @default("[]") // JSON array
+  dependencies     String   @default("[]") // JSON array
+  governance       String   @default("{}") // JSON: {steeringGroup[], projectGroup[], decisionForums[]}
+  status           String   @default("draft") // draft | active | completed | archived
+  currentPhase     String   @default("A_start_styrning")
+  owner            String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  stakeholders  Stakeholder[]
+  workshops     Workshop[]
+  evidence      Evidence[]
+  needs         Need[]
+  risks         Risk[]
+  requirements  Requirement[]
+  criteria      Criterion[]
+  bids          Bid[]
+  bidResponses  BidResponse[]
+  scores        Score[]
+  decisions     Decision[]
+  documents     Document[]
+  traceLinks    TraceLink[]
+  libraryItems  LibraryItem[] @relation("CaseLibraryItems")
+}
+
+// ============================================================
+// STAKEHOLDER
+// ============================================================
+model Stakeholder {
+  id                 String   @id // "STAK-000001"
+  caseId             String
+  title              String
+  status             String   @default("draft")
+  version            Int      @default(1)
+  owner              String   @default("")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  tags               String   @default("[]") // JSON array
+
+  role               String   @default("")
+  unit               String   @default("")
+  influence          Int      @default(3) // 1-5
+  interest           Int      @default(3) // 1-5
+  engagementStrategy String   @default("")
+  contact            String   @default("")
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+// ============================================================
+// WORKSHOP
+// ============================================================
+model Workshop {
+  id           String   @id // "WS-000001"
+  caseId       String
+  title        String
+  status       String   @default("draft")
+  version      Int      @default(1)
+  owner        String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tags         String   @default("[]")
+
+  date         String   @default("") // ISO date string
+  participants String   @default("[]") // JSON array of strings
+  agenda       String   @default("[]") // JSON array of strings
+  outputs      String   @default("[]") // JSON array of evidenceRef objects
+  notes        String   @default("")
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+// ============================================================
+// EVIDENCE
+// ============================================================
+model Evidence {
+  id           String   @id // "EVID-000001"
+  caseId       String
+  title        String
+  status       String   @default("draft")
+  version      Int      @default(1)
+  owner        String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tags         String   @default("[]")
+
+  type         String   @default("other") // interview | workshop_output | statistics | contract | market_note | demo_note | policy | other
+  source       String   @default("")
+  uri          String   @default("")
+  filePath     String   @default("")
+  fileName     String   @default("")
+  fileSize     Int      @default(0)
+  mimeType     String   @default("")
+  summary      String   @default("")
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+// ============================================================
+// NEED
+// ============================================================
+model Need {
+  id                   String   @id // "NEED-000001"
+  caseId               String
+  title                String
+  status               String   @default("draft")
+  version              Int      @default(1)
+  owner                String   @default("")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  tags                 String   @default("[]")
+
+  cluster              String   @default("")
+  statement            String   @default("")
+  asOutcome            String   @default("")
+  priority             String   @default("P2") // P1 | P2 | P3
+  consequenceIfNotMet  String   @default("")
+  sources              String   @default("[]") // JSON array of evidenceRef objects
+  metrics              String   @default("[]") // JSON array of {indicator, baseline, target}
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([priority])
+  @@index([cluster])
+  @@index([status])
+}
+
+// ============================================================
+// RISK
+// ============================================================
+model Risk {
+  id                    String   @id // "RISK-000001"
+  caseId                String
+  title                 String
+  status                String   @default("draft")
+  version               Int      @default(1)
+  owner                 String   @default("")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  tags                  String   @default("[]")
+
+  category              String   @default("verksamhet") // verksamhet | teknik | juridik | leverans | sakerhet | ekonomi | forandring | data_exit
+  description           String   @default("")
+  likelihood            Int      @default(3) // 1-5
+  impact                Int      @default(3) // 1-5
+  score                 Int      @default(9) // likelihood * impact, auto-calculated
+  mitigation            String   @default("")
+  riskOwner             String   @default("")
+  relatedNeeds          String   @default("[]") // JSON array of Need IDs
+  relatedRequirements   String   @default("[]") // JSON array of Requirement IDs
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([category])
+}
+
+// ============================================================
+// REQUIREMENT
+// ============================================================
+model Requirement {
+  id                String   @id // "REQ-000001"
+  caseId            String
+  title             String
+  status            String   @default("draft")
+  version           Int      @default(1)
+  owner             String   @default("")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  tags              String   @default("[]")
+
+  reqType           String   @default("funktion") // funktion | nfr | leverantor | kontraktsvillkor
+  cluster           String   @default("")
+  level             String   @default("BOR") // SKA | BOR
+  text              String   @default("")
+  rationale         String   @default("")
+  linkedNeeds       String   @default("[]") // JSON array of Need IDs
+  linkedRisks       String   @default("[]") // JSON array of Risk IDs
+  verification      String   @default("{}") // JSON: {bidEvidence, implementationProof, opsFollowUp}
+  conflictPriority  String   @default("P2") // P1 | P2 | P3
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([reqType])
+  @@index([level])
+  @@index([cluster])
+  @@index([status])
+}
+
+// ============================================================
+// CRITERION
+// ============================================================
+model Criterion {
+  id                  String   @id // "CRIT-000001"
+  caseId              String
+  title               String
+  status              String   @default("draft")
+  version             Int      @default(1)
+  owner               String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  tags                String   @default("[]")
+
+  weight              Float    @default(0) // 0-100
+  scale               String   @default("0-5") // "0-5" | "0-10"
+  anchors             String   @default("[]") // JSON array of strings
+  evidenceRequired    String   @default("")
+  scoringGuidance     String   @default("")
+  linkedRequirements  String   @default("[]") // JSON array of Requirement IDs
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+// ============================================================
+// BID
+// ============================================================
+model Bid {
+  id                  String   @id // "BID-000001"
+  caseId              String
+  title               String
+  status              String   @default("draft")
+  version             Int      @default(1)
+  owner               String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  tags                String   @default("[]")
+
+  supplierName        String   @default("")
+  receivedAt          String   @default("") // ISO datetime
+  qualified           Boolean  @default(false)
+  qualificationNotes  String   @default("")
+
+  case      Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  responses BidResponse[]
+  scores    Score[]
+
+  @@index([caseId])
+}
+
+// ============================================================
+// BID RESPONSE (per requirement per bid)
+// ============================================================
+model BidResponse {
+  id                String   @id @default(cuid())
+  caseId            String
+  bidId             String
+  requirementId     String
+  meets             String   @default("no") // yes | partial | no
+  supplierStatement String   @default("")
+  evidenceRefs      String   @default("[]") // JSON array of evidenceRef
+  reviewNotes       String   @default("")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  bid  Bid  @relation(fields: [bidId], references: [id], onDelete: Cascade)
+
+  @@unique([bidId, requirementId])
+  @@index([caseId])
+  @@index([bidId])
+}
+
+// ============================================================
+// SCORE (per criterion per bid)
+// ============================================================
+model Score {
+  id              String   @id @default(cuid())
+  caseId          String
+  bidId           String
+  criterionId     String
+  rawScore        Float    @default(0)
+  normalizedScore Float    @default(0)
+  justification   String   @default("")
+  scorer          String   @default("")
+  scoredAt        String   @default("") // ISO datetime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  bid  Bid  @relation(fields: [bidId], references: [id], onDelete: Cascade)
+
+  @@unique([bidId, criterionId])
+  @@index([caseId])
+  @@index([bidId])
+}
+
+// ============================================================
+// DECISION
+// ============================================================
+model Decision {
+  id                 String   @id // "DEC-000001"
+  caseId             String
+  title              String
+  status             String   @default("draft")
+  version            Int      @default(1)
+  owner              String   @default("")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  tags               String   @default("[]")
+
+  decisionType       String   @default("kravprincip") // forfarande | kravprincip | utvarderingsmodell | tilldelning | avbrytande | kontrakt
+  alternatives       String   @default("[]") // JSON array of strings
+  chosen             String   @default("")
+  rationale          String   @default("")
+  impactsCompetition String   @default("")
+  attachments        String   @default("[]") // JSON array of evidenceRef
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([decisionType])
+}
+
+// ============================================================
+// DOCUMENT
+// ============================================================
+model Document {
+  id            String   @id // "DOC-000001"
+  caseId        String
+  title         String
+  status        String   @default("draft")
+  version       Int      @default(1)
+  owner         String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tags          String   @default("[]")
+
+  docType       String   @default("other") // behovsrapport | marknadsanalys | kravbilaga | utvarderingsprotokoll | qna_logg | versionslogg | implementation_plan | forvaltningsplan | defensibility_pack
+  format        String   @default("pdf") // pdf | docx | xlsx | csv | json
+  generatedFrom String   @default("[]") // JSON array of IDs
+  uri           String   @default("")
+  filePath      String   @default("")
+  fileName      String   @default("")
+  fileSize      Int      @default(0)
+  checksum      String   @default("")
+  description   String   @default("")
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([docType])
+}
+
+// ============================================================
+// TRACE LINK - Generic relation between any entities
+// ============================================================
+model TraceLink {
+  id        String   @id @default(cuid())
+  caseId    String
+  fromType  String // need | risk | requirement | criterion | workshop | decision | evidence | bid
+  fromId    String
+  toType    String
+  toId      String
+  relation  String // addresses | derives_from | evaluated_by | mitigated_by | validated_by | depends_on | explains
+  note      String @default("")
+  createdAt DateTime @default(now())
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId, relation])
+  @@index([caseId])
+  @@index([fromType, fromId])
+  @@index([toType, toId])
+}
+
+// ============================================================
+// ID COUNTER - Sequential ID generation per entity prefix
+// ============================================================
+model IdCounter {
+  prefix  String @id // e.g. "CASE", "NEED", "REQ"
+  counter Int    @default(0)
+}
+
+// ============================================================
+// LIBRARY ITEM - Reusable requirement blocks, risk templates, workshop templates
+// ============================================================
+model LibraryItem {
+  id          String   @id @default(cuid())
+  type        String   // requirement_block | risk_template | workshop_template
+  profile     String   @default("") // "" = generisk, "avfall_nyanskaffning", "socialtjanst_byte"
+  cluster     String   @default("")
+  title       String
+  description String   @default("")
+  content     String   @default("{}") // JSON with the actual template data
+  tags        String   @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Optional: link to a case if imported
+  caseId      String?
+  case        Case?    @relation("CaseLibraryItems", fields: [caseId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([profile])
+  @@index([cluster])
+}

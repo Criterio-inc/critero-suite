@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --primary: #1e40af;
+  --primary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --accent: #f0f9ff;
+  --accent-foreground: #1e40af;
+  --destructive: #dc2626;
+  --success: #16a34a;
+  --warning: #d97706;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+/* Status badge colors */
+.badge-draft { background-color: #e2e8f0; color: #475569; }
+.badge-in_review { background-color: #dbeafe; color: #1e40af; }
+.badge-approved { background-color: #dcfce7; color: #15803d; }
+.badge-locked { background-color: #fef3c7; color: #92400e; }
+.badge-archived { background-color: #f3f4f6; color: #6b7280; }
+
+/* Priority colors */
+.priority-P1 { color: #dc2626; font-weight: 600; }
+.priority-P2 { color: #d97706; font-weight: 500; }
+.priority-P3 { color: #6b7280; }
+
+/* Level badges */
+.level-SKA { background-color: #fecaca; color: #991b1b; font-weight: 600; }
+.level-BOR { background-color: #e0e7ff; color: #3730a3; }
