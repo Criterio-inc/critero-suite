@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { Check, X, Info, AlertTriangle, type LucideProps } from "lucide-react";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
@@ -12,25 +13,25 @@ export interface Toast {
   duration?: number;
 }
 
-const icons: Record<ToastType, string> = {
-  success: "✓",
-  error: "✕",
-  info: "ℹ",
-  warning: "⚠",
+const icons: Record<ToastType, React.ComponentType<LucideProps>> = {
+  success: Check,
+  error: X,
+  info: Info,
+  warning: AlertTriangle,
 };
 
 const styles: Record<ToastType, string> = {
-  success: "border-green-200 bg-green-50 text-green-800",
-  error: "border-red-200 bg-red-50 text-red-800",
-  info: "border-blue-200 bg-blue-50 text-blue-800",
-  warning: "border-yellow-200 bg-yellow-50 text-yellow-800",
+  success: "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200",
+  error: "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200",
+  info: "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200",
+  warning: "border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-200",
 };
 
 const iconStyles: Record<ToastType, string> = {
-  success: "bg-green-100 text-green-600",
-  error: "bg-red-100 text-red-600",
-  info: "bg-blue-100 text-blue-600",
-  warning: "bg-yellow-100 text-yellow-600",
+  success: "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400",
+  error: "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400",
+  info: "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400",
+  warning: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400",
 };
 
 interface ToastItemProps {
@@ -40,6 +41,7 @@ interface ToastItemProps {
 
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
   const [exiting, setExiting] = useState(false);
+  const IconComponent = icons[toast.type];
 
   useEffect(() => {
     const duration = toast.duration ?? 4000;
@@ -59,15 +61,15 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
         exiting ? "translate-x-full opacity-0" : "translate-x-0 opacity-100"
       )}
     >
-      <span className={cn("flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold", iconStyles[toast.type])}>
-        {icons[toast.type]}
+      <span className={cn("flex h-5 w-5 items-center justify-center rounded-full", iconStyles[toast.type])}>
+        <IconComponent size={12} />
       </span>
       <p className="flex-1 text-sm">{toast.message}</p>
       <button
         onClick={() => onDismiss(toast.id)}
         className="text-current opacity-60 hover:opacity-100 transition-opacity"
       >
-        ✕
+        <X size={14} />
       </button>
     </div>
   );

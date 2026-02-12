@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 
 // ============================================================
 // Glossary terms
@@ -45,7 +46,7 @@ interface RoleInfo {
 const ROLES: RoleInfo[] = [
   {
     title: "Verksamhetsföreträdare",
-    icon: "👤",
+    icon: "user",
     description: "Du representerar de som ska ANVÄNDA det upphandlade systemet/tjänsten i vardagen. Din kunskap om verksamhetens behov, arbetsflöden och utmaningar är avgörande.",
     responsibilities: [
       "Formulera och prioritera verksamhetsbehov (Fas A–B)",
@@ -60,7 +61,7 @@ const ROLES: RoleInfo[] = [
   },
   {
     title: "Upphandlare / Projektledare",
-    icon: "📋",
+    icon: "clipboard-list",
     description: "Du leder upphandlingsprocessen och säkerställer att allt följer LOU. Du ansvarar för att processen är korrekt, dokumenterad och försvarbar.",
     responsibilities: [
       "Driva upphandlingsprocessen genom alla faser",
@@ -75,7 +76,7 @@ const ROLES: RoleInfo[] = [
   },
   {
     title: "IT-ansvarig / Teknisk expert",
-    icon: "💻",
+    icon: "monitor",
     description: "Du bedömer tekniska aspekter: integration, säkerhet, datamigrering och arkitektur. Din insats är kritisk för att krav blir tekniskt realistiska.",
     responsibilities: [
       "Kartlägga befintligt IT-landskap och integrationer",
@@ -90,7 +91,7 @@ const ROLES: RoleInfo[] = [
   },
   {
     title: "Ekonom / Controller",
-    icon: "💰",
+    icon: "coins",
     description: "Du ansvarar för budgetfrågor, TCO-analys och prisutvärderings-aspekter.",
     responsibilities: [
       "Sätta budgetram och uppskattat värde",
@@ -104,7 +105,7 @@ const ROLES: RoleInfo[] = [
   },
   {
     title: "Jurist",
-    icon: "⚖️",
+    icon: "scale",
     description: "Du granskar juridiska aspekter: LOU-efterlevnad, avtal, GDPR och överprövningsrisk.",
     responsibilities: [
       "Granska förfarandeval och kvalificeringskrav",
@@ -137,7 +138,7 @@ const PHASE_GUIDES: PhaseGuide[] = [
   {
     id: "A",
     label: "Fas A: Start & styrning",
-    icon: "🏁",
+    icon: "flag",
     purpose: "Definiera VAD som ska upphandlas, VEM som berörs och VILKA ramar som gäller.",
     keyQuestion: "Varför gör vi denna upphandling och vad vill vi uppnå?",
     verksamhetRole: "Formulera övergripande mål, identifiera kollegor som bör involveras, påbörja riskidentifiering.",
@@ -147,7 +148,7 @@ const PHASE_GUIDES: PhaseGuide[] = [
   {
     id: "B",
     label: "Fas B: Förbered upphandlingen",
-    icon: "📝",
+    icon: "pen-line",
     purpose: "Analysera behov, marknad och utforma kravspecifikation med utvärderingsmodell.",
     keyQuestion: "Vilka behov har vi, vilka krav ställer vi, och hur utvärderar vi anbuden?",
     verksamhetRole: "Delta aktivt i behovsworkshops, granska och validera krav, bidra till utvärderingsmodell. DIN INSATS ÄR MEST KRITISK HÄR.",
@@ -157,7 +158,7 @@ const PHASE_GUIDES: PhaseGuide[] = [
   {
     id: "C",
     label: "Fas C: Genomför upphandlingen",
-    icon: "📨",
+    icon: "inbox",
     purpose: "Publicera, ta emot anbud, utvärdera och fatta tilldelningsbeslut.",
     keyQuestion: "Vilket anbud ger bäst värde enligt vår utvärderingsmodell?",
     verksamhetRole: "Bedöma kravuppfyllelse i anbud, delta i poängsättning av kvalitetskriterier, granska utvärderingsresultat.",
@@ -167,7 +168,7 @@ const PHASE_GUIDES: PhaseGuide[] = [
   {
     id: "D",
     label: "Fas D: Kontrakt → förvaltning",
-    icon: "🤝",
+    icon: "handshake",
     purpose: "Teckna avtal, implementera och sätta upp löpande förvaltning.",
     keyQuestion: "Hur säkerställer vi att det vi upphandlat verkligen levereras och fungerar?",
     verksamhetRole: "Delta i acceptanstest, utbilda kollegor, äga förvaltningsprocessen efter go-live.",
@@ -183,10 +184,10 @@ const PHASE_GUIDES: PhaseGuide[] = [
 type HelpTab = "overview" | "phases" | "roles" | "glossary";
 
 const TABS: { id: HelpTab; label: string; icon: string }[] = [
-  { id: "overview", label: "Översikt", icon: "🏠" },
-  { id: "phases", label: "Faserna", icon: "🔄" },
-  { id: "roles", label: "Roller", icon: "👥" },
-  { id: "glossary", label: "Ordlista", icon: "📖" },
+  { id: "overview", label: "Översikt", icon: "home" },
+  { id: "phases", label: "Faserna", icon: "refresh-cw" },
+  { id: "roles", label: "Roller", icon: "users" },
+  { id: "glossary", label: "Ordlista", icon: "book-open" },
 ];
 
 export default function HelpPage() {
@@ -221,7 +222,7 @@ export default function HelpPage() {
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
-              <span>{t.icon}</span>
+              <Icon name={t.icon} size={14} />
               {t.label}
             </button>
           ))}
@@ -256,9 +257,9 @@ export default function HelpPage() {
                         {i > 0 && <span className="text-muted-foreground">→</span>}
                         <button
                           onClick={() => setTab("phases")}
-                          className="px-3 py-1.5 bg-primary/10 text-primary rounded-md text-xs font-medium hover:bg-primary/20 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-md text-xs font-medium hover:bg-primary/20 transition-colors"
                         >
-                          {p.icon} {p.label.split(":")[0]}
+                          <Icon name={p.icon} size={12} /> {p.label.split(":")[0]}
                         </button>
                       </div>
                     ))}
@@ -275,15 +276,25 @@ export default function HelpPage() {
                   Utan spårbarhet riskerar krav att vara oproportionerliga och utvärderingar kan överprövas.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap text-sm">
-                  <span className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded font-medium">💡 Behov</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-800 rounded font-medium">
+                    <Icon name="lightbulb" size={14} className="text-blue-800" /> Behov
+                  </span>
                   <span className="text-muted-foreground">→</span>
-                  <span className="px-3 py-1.5 bg-purple-100 text-purple-800 rounded font-medium">⚠️ Risk</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 text-purple-800 rounded font-medium">
+                    <Icon name="shield-alert" size={14} className="text-purple-800" /> Risk
+                  </span>
                   <span className="text-muted-foreground">→</span>
-                  <span className="px-3 py-1.5 bg-green-100 text-green-800 rounded font-medium">📐 Krav</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded font-medium">
+                    <Icon name="ruler" size={14} className="text-green-800" /> Krav
+                  </span>
                   <span className="text-muted-foreground">→</span>
-                  <span className="px-3 py-1.5 bg-orange-100 text-orange-800 rounded font-medium">⚖️ Kriterium</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-800 rounded font-medium">
+                    <Icon name="scale" size={14} className="text-orange-800" /> Kriterium
+                  </span>
                   <span className="text-muted-foreground">→</span>
-                  <span className="px-3 py-1.5 bg-red-100 text-red-800 rounded font-medium">📊 Poäng</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-800 rounded font-medium">
+                    <Icon name="layout-dashboard" size={14} className="text-red-800" /> Poäng
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -339,7 +350,7 @@ export default function HelpPage() {
               <Card key={phase.id}>
                 <CardContent>
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">{phase.icon}</span>
+                    <Icon name={phase.icon} size={24} className="text-muted-foreground" />
                     <div>
                       <CardTitle>{phase.label}</CardTitle>
                       <div className="text-xs text-muted-foreground">Typisk längd: {phase.duration}</div>
@@ -379,7 +390,7 @@ export default function HelpPage() {
               <Card key={role.title}>
                 <CardContent>
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">{role.icon}</span>
+                    <Icon name={role.icon} size={24} className="text-muted-foreground" />
                     <div>
                       <CardTitle>{role.title}</CardTitle>
                       <div className="text-xs text-muted-foreground">{role.phases}</div>
@@ -427,9 +438,9 @@ export default function HelpPage() {
               {glossaryFilter && (
                 <button
                   onClick={() => setGlossaryFilter("")}
-                  className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground text-sm"
+                  className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
                 >
-                  ✕
+                  <Icon name="x" size={14} />
                 </button>
               )}
             </div>

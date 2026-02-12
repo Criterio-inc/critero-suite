@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Icon } from "@/components/ui/icon";
+import { Search } from "lucide-react";
 import type { SearchResult } from "@/types/api";
 
 const ENTITY_PATHS: Record<string, string> = {
@@ -18,16 +20,16 @@ const ENTITY_PATHS: Record<string, string> = {
 };
 
 const ENTITY_ICONS: Record<string, string> = {
-  need: "\u{1F4A1}",
-  requirement: "\u{1F4D0}",
-  risk: "\u26A0\uFE0F",
-  criterion: "\u2696\uFE0F",
-  stakeholder: "\u{1F465}",
-  decision: "\u{1F528}",
-  document: "\u{1F4C4}",
-  workshop: "\u{1F3DB}\uFE0F",
-  bid: "\u{1F4E8}",
-  evidence: "\u{1F4CE}",
+  need: "lightbulb",
+  requirement: "ruler",
+  risk: "shield-alert",
+  criterion: "scale",
+  stakeholder: "users",
+  decision: "gavel",
+  document: "file-text",
+  workshop: "presentation",
+  bid: "inbox",
+  evidence: "paperclip",
 };
 
 const ENTITY_LABELS: Record<string, string> = {
@@ -162,14 +164,10 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
           placeholder="S\u00f6k i upphandlingen... (\u2318K)"
           className="w-72 rounded-xl border border-input bg-card pl-8 pr-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-shadow duration-150"
         />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"
-        >
-          <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
-        </svg>
+        <Search
+          size={14}
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+        />
       </div>
 
       {showDropdown && (
@@ -177,7 +175,7 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
           {/* Smart queries (show when empty) */}
           {query.length === 0 && !loading && (
             <div className="p-3 border-b border-border">
-              <p className="text-xs text-muted-foreground mb-2">Smarta s\u00f6kningar</p>
+              <p className="text-xs text-muted-foreground mb-2">Smarta s&ouml;kningar</p>
               <div className="flex flex-wrap gap-1.5">
                 {SMART_QUERIES.map((sq) => (
                   <button
@@ -209,11 +207,12 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
                   <button
                     key={type}
                     onClick={() => setActiveFilter(activeFilter === type ? null : type)}
-                    className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
+                    className={`text-xs px-2 py-0.5 rounded-full transition-colors inline-flex items-center gap-1 ${
                       activeFilter === type ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
                     }`}
                   >
-                    {ENTITY_ICONS[type]} {ENTITY_LABELS[type] ?? type} ({count})
+                    <Icon name={ENTITY_ICONS[type] ?? "file-text"} size={12} />
+                    {ENTITY_LABELS[type] ?? type} ({count})
                   </button>
                 );
               })}
@@ -223,7 +222,7 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
           {loading && (
             <div className="px-3 py-3 text-sm text-muted-foreground flex items-center gap-2">
               <span className="inline-block h-3 w-3 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-              S\u00f6ker...
+              S&ouml;ker...
             </div>
           )}
 
@@ -237,7 +236,9 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
                       idx === selectedIdx ? "bg-primary/10" : "hover:bg-muted"
                     }`}
                   >
-                    <span className="text-sm mt-0.5 shrink-0">{ENTITY_ICONS[r.entityType] ?? "\u{1F4CB}"}</span>
+                    <span className="mt-0.5 shrink-0">
+                      <Icon name={ENTITY_ICONS[r.entityType] ?? "file-text"} size={14} className="text-muted-foreground" />
+                    </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="truncate font-medium">{r.title}</span>
@@ -261,8 +262,8 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
 
           {!loading && results.length === 0 && query.length >= 2 && (
             <div className="px-3 py-4 text-sm text-muted-foreground text-center">
-              <p>Inga resultat f\u00f6r &quot;{query}&quot;</p>
-              <p className="text-xs mt-1">Prova en av de smarta s\u00f6kningarna nedan</p>
+              <p>Inga resultat f&ouml;r &quot;{query}&quot;</p>
+              <p className="text-xs mt-1">Prova en av de smarta s&ouml;kningarna nedan</p>
               <div className="flex flex-wrap justify-center gap-1.5 mt-2">
                 {SMART_QUERIES.slice(0, 3).map((sq) => (
                   <button
@@ -279,8 +280,8 @@ export function GlobalSearch({ caseId }: { caseId: string }) {
 
           {/* Keyboard shortcuts hint */}
           <div className="flex items-center justify-between px-3 py-1.5 border-t border-border text-[10px] text-muted-foreground">
-            <span>\u2191\u2193 navigera \u00B7 \u21B5 \u00f6ppna \u00B7 esc st\u00e4ng</span>
-            <span>\u2318K snabbkommando</span>
+            <span>&uarr;&darr; navigera &middot; &crarr; &ouml;ppna &middot; esc st&auml;ng</span>
+            <span>&amp;#8984;K snabbkommando</span>
           </div>
         </div>
       )}

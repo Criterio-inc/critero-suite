@@ -1,0 +1,102 @@
+"use client";
+
+import {
+  Lightbulb,
+  Ruler,
+  ShieldAlert,
+  Scale,
+  Users,
+  Presentation,
+  Paperclip,
+  Inbox,
+  Gavel,
+  FileText,
+  LayoutDashboard,
+  Library,
+  HelpCircle,
+  GitBranch,
+  Settings,
+  BarChart3,
+  Target,
+  AlertTriangle,
+  Check,
+  X,
+  Info,
+  Sun,
+  Moon,
+  Plus,
+  ArrowRight,
+  Zap,
+  Rocket,
+  Flag,
+  Handshake,
+  Home,
+  BookOpen,
+  RefreshCw,
+  User,
+  Monitor,
+  Coins,
+  PenLine,
+  TrendingUp,
+  Search,
+  Link,
+  ClipboardList,
+  Trophy,
+  type LucideProps,
+} from "lucide-react";
+
+const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
+  lightbulb: Lightbulb,
+  ruler: Ruler,
+  "shield-alert": ShieldAlert,
+  scale: Scale,
+  users: Users,
+  presentation: Presentation,
+  paperclip: Paperclip,
+  inbox: Inbox,
+  gavel: Gavel,
+  "file-text": FileText,
+  "layout-dashboard": LayoutDashboard,
+  library: Library,
+  "help-circle": HelpCircle,
+  "git-branch": GitBranch,
+  settings: Settings,
+  "bar-chart-3": BarChart3,
+  target: Target,
+  "alert-triangle": AlertTriangle,
+  check: Check,
+  x: X,
+  info: Info,
+  sun: Sun,
+  moon: Moon,
+  plus: Plus,
+  "arrow-right": ArrowRight,
+  zap: Zap,
+  rocket: Rocket,
+  flag: Flag,
+  handshake: Handshake,
+  home: Home,
+  "book-open": BookOpen,
+  "refresh-cw": RefreshCw,
+  user: User,
+  monitor: Monitor,
+  coins: Coins,
+  "pen-line": PenLine,
+  "trending-up": TrendingUp,
+  search: Search,
+  link: Link,
+  "clipboard-list": ClipboardList,
+  trophy: Trophy,
+};
+
+interface IconProps extends Omit<LucideProps, "ref"> {
+  name: string;
+}
+
+export function Icon({ name, size = 16, className, ...props }: IconProps) {
+  const Component = ICON_MAP[name];
+  if (!Component) return null;
+  return <Component size={size} className={className} {...props} />;
+}
+
+export { ICON_MAP };

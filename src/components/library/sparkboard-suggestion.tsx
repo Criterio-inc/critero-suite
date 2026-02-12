@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 
 interface SparkboardBoard {
   boardTitle: string;
@@ -37,7 +38,7 @@ export function SparkboardSuggestion({ boards }: { boards: SparkboardBoard[] }) 
   return (
     <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4">
       <div className="flex items-center gap-2.5">
-        <span className="text-lg">🎯</span>
+        <Icon name="target" size={18} className="text-primary" />
         <h3 className="text-sm font-semibold text-foreground">
           Sparkboard — digitala workshopövningar
         </h3>
@@ -69,7 +70,13 @@ export function SparkboardSuggestion({ boards }: { boards: SparkboardBoard[] }) 
                 className="h-7 text-xs text-primary hover:text-primary/80"
                 onClick={() => handleCopy(board, idx)}
               >
-                {copiedIdx === idx ? "✓ Kopierat!" : "Kopiera frågor"}
+                {copiedIdx === idx ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Icon name="check" size={12} className="text-green-500" /> Kopierat!
+                  </span>
+                ) : (
+                  "Kopiera frågor"
+                )}
               </Button>
             </div>
             <ol className="space-y-1.5">

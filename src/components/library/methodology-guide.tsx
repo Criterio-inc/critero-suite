@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/components/ui/icon";
 
 type GuideType = "workshop" | "risk" | "requirement" | "criterion";
 
 const GUIDES: Record<GuideType, { title: string; icon: string; steps: { label: string; description: string }[]; tips: string[] }> = {
   workshop: {
     title: "Så arbetar du med workshops",
-    icon: "🏛️",
+    icon: "presentation",
     steps: [
       { label: "Förbered", description: "Välj mall från biblioteket, bjud in relevanta deltagare, skicka förberedelseunderlag 3-5 dagar innan." },
       { label: "Genomför", description: "Följ agendans struktur. Använd Sparkboard för digital brainstorming. Dokumentera löpande." },
@@ -22,7 +23,7 @@ const GUIDES: Record<GuideType, { title: string; icon: string; steps: { label: s
   },
   risk: {
     title: "Så arbetar du med risker",
-    icon: "⚠️",
+    icon: "shield-alert",
     steps: [
       { label: "Identifiera", description: "Använd riskmallar från biblioteket som utgångspunkt. Komplettera med projektspecifika risker i en riskworkshop." },
       { label: "Bedöm", description: "Bedöm sannolikhet (1-5) och konsekvens (1-5) för varje risk. Riskvärde = sannolikhet × konsekvens." },
@@ -38,7 +39,7 @@ const GUIDES: Record<GuideType, { title: string; icon: string; steps: { label: s
   },
   requirement: {
     title: "Så arbetar du med krav",
-    icon: "📋",
+    icon: "ruler",
     steps: [
       { label: "Behov → Krav", description: "Utgå alltid från dokumenterade behov. Varje krav ska kunna spåras till minst ett behov." },
       { label: "Formulera kravtext", description: "SKA-krav: absoluta, verifierbara, binära (uppfyllt/ej). BÖR-krav: utvärderas och poängsätts." },
@@ -54,7 +55,7 @@ const GUIDES: Record<GuideType, { title: string; icon: string; steps: { label: s
   },
   criterion: {
     title: "Så arbetar du med utvärderingskriterier",
-    icon: "🎯",
+    icon: "scale",
     steps: [
       { label: "Definiera", description: "Skapa kriterier som utvärderar BÖR-krav och kvalitativa aspekter. SKA-krav utvärderas binärt — de ska inte vara kriterier." },
       { label: "Vikta", description: "Fördela 100% mellan kriterierna. Pris brukar vara 30-50%. Vikter ska spegla vad som verkligen är viktigt för verksamheten." },
@@ -81,7 +82,7 @@ export function MethodologyGuide({ type }: { type: GuideType }) {
         className="w-full flex items-center justify-between px-5 py-3 hover:bg-accent/30 transition-colors duration-150"
       >
         <div className="flex items-center gap-2.5">
-          <span>{guide.icon}</span>
+          <Icon name={guide.icon} size={16} />
           <span className="text-sm font-medium text-foreground">{guide.title}</span>
         </div>
         <span className="text-xs text-muted-foreground">
@@ -114,7 +115,9 @@ export function MethodologyGuide({ type }: { type: GuideType }) {
             <ul className="space-y-1">
               {guide.tips.map((tip, i) => (
                 <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
-                  <span className="shrink-0 mt-0.5">💡</span>
+                  <span className="shrink-0 mt-0.5">
+                    <Icon name="lightbulb" size={12} className="text-yellow-500" />
+                  </span>
                   <span>{tip}</span>
                 </li>
               ))}

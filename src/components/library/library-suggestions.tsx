@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Icon } from "@/components/ui/icon";
 
 /**
  * Maps entity types to the library item types that can help populate them.
@@ -75,7 +76,7 @@ export function LibrarySuggestions({ entityType, itemCount, caseId }: LibrarySug
     <div className="rounded-2xl border border-primary/15 bg-primary/5 p-5 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <span className="text-lg">📚</span>
+          <Icon name="library" size={18} className="text-primary" />
           <div>
             <div className="text-sm font-medium text-foreground">Föreslagna mallar från biblioteket</div>
             <div className="text-xs text-muted-foreground">
@@ -88,7 +89,7 @@ export function LibrarySuggestions({ entityType, itemCount, caseId }: LibrarySug
           className="text-muted-foreground/50 hover:text-muted-foreground text-sm px-2 transition-colors"
           title="Dölj förslag"
         >
-          ✕
+          <Icon name="x" size={14} />
         </button>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">

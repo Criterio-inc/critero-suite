@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { TagListEditor } from "@/components/ui/tag-list-editor";
 import { Tooltip } from "@/components/ui/tooltip";
+import { Icon } from "@/components/ui/icon";
 
 const PROFILE_OPTIONS = [
   { value: "generisk_lou", label: "Generisk LOU" },
@@ -173,7 +174,7 @@ export default function NewCasePage() {
               }`}
             >
               <span className="w-5 h-5 rounded-full bg-current/20 flex items-center justify-center text-xs font-bold">
-                {s.id < step ? "✓" : s.id}
+                {s.id < step ? <Icon name="check" size={12} /> : s.id}
               </span>
               {s.label}
             </button>

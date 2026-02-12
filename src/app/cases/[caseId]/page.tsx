@@ -12,6 +12,7 @@ import { ExportButtons } from "@/components/workflow/export-buttons";
 import { ImportRestore } from "@/components/workflow/import-restore";
 import { ImportToCaseDialog } from "@/components/library/import-to-case-dialog";
 import { GlobalSearch } from "@/components/search/global-search";
+import { Icon } from "@/components/ui/icon";
 
 /** Phase-specific guidance for verksamhetsföreträdare */
 const PHASE_GUIDE: Record<string, { verksamhetRole: string; nextActions: { label: string; href: string }[]; tip: string }> = {
@@ -98,16 +99,16 @@ export default async function CaseDashboard({
   ]);
 
   const counts = [
-    { label: "Intressenter", count: stakeholderCount, icon: "👥" },
-    { label: "Workshops", count: workshopCount, icon: "🏛️" },
-    { label: "Evidens", count: evidenceCount, icon: "📎" },
-    { label: "Behov", count: needCount, icon: "💡" },
-    { label: "Risker", count: riskCount, icon: "⚠️" },
-    { label: "Krav", count: requirementCount, icon: "📐" },
-    { label: "Kriterier", count: criterionCount, icon: "⚖️" },
-    { label: "Anbud", count: bidCount, icon: "📨" },
-    { label: "Beslut", count: decisionCount, icon: "🔨" },
-    { label: "Dokument", count: documentCount, icon: "📄" },
+    { label: "Intressenter", count: stakeholderCount, icon: "users" },
+    { label: "Workshops", count: workshopCount, icon: "presentation" },
+    { label: "Evidens", count: evidenceCount, icon: "paperclip" },
+    { label: "Behov", count: needCount, icon: "lightbulb" },
+    { label: "Risker", count: riskCount, icon: "shield-alert" },
+    { label: "Krav", count: requirementCount, icon: "ruler" },
+    { label: "Kriterier", count: criterionCount, icon: "scale" },
+    { label: "Anbud", count: bidCount, icon: "inbox" },
+    { label: "Beslut", count: decisionCount, icon: "gavel" },
+    { label: "Dokument", count: documentCount, icon: "file-text" },
   ];
 
   const profileLabels: Record<string, string> = {
@@ -151,7 +152,7 @@ export default async function CaseDashboard({
             <Card className="border-blue-200 bg-blue-50/30">
               <CardContent>
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl mt-0.5">👤</span>
+                  <Icon name="user" size={24} className="text-blue-700 mt-0.5" />
                   <div className="flex-1 space-y-2">
                     <div>
                       <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
@@ -171,7 +172,7 @@ export default async function CaseDashboard({
                       ))}
                     </div>
                     <div className="flex items-start gap-1.5 bg-blue-100/50 rounded p-2">
-                      <span className="text-xs">💡</span>
+                      <Icon name="lightbulb" size={12} className="text-blue-700 mt-0.5 shrink-0" />
                       <span className="text-xs text-blue-800">{guide.tip}</span>
                     </div>
                   </div>
@@ -195,7 +196,7 @@ export default async function CaseDashboard({
           {counts.map((item) => (
             <Card key={item.label} className="p-4">
               <CardContent className="flex items-center gap-3 p-0">
-                <span className="text-2xl">{item.icon}</span>
+                <Icon name={item.icon} size={24} className="text-muted-foreground" />
                 <div>
                   <div className="text-2xl font-bold">{item.count}</div>
                   <div className="text-xs text-muted-foreground">{item.label}</div>
@@ -241,7 +242,7 @@ export default async function CaseDashboard({
                             ? "bg-primary text-primary-foreground"
                             : "bg-muted text-muted-foreground"
                       }`}>
-                        {isPast ? "✓" : index + 1}
+                        {isPast ? <Icon name="check" size={12} /> : index + 1}
                       </span>
                       <span className={`flex-1 text-sm font-medium ${
                         isCurrent ? "text-primary" : isPast ? "text-foreground" : "text-muted-foreground"
@@ -266,7 +267,7 @@ export default async function CaseDashboard({
                         {phase.subPhases.map((sub) => (
                           <div key={sub.id} className="flex items-start gap-1.5 text-xs">
                             <span className={`mt-0.5 ${isPast ? "text-green-500" : "text-muted-foreground"}`}>
-                              {isPast ? "✓" : "○"}
+                              {isPast ? <Icon name="check" size={12} /> : "○"}
                             </span>
                             <div>
                               <span className={isPast ? "text-foreground" : isCurrent ? "text-foreground" : "text-muted-foreground"}>

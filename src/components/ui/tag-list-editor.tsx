@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TagListEditorProps {
@@ -101,7 +102,7 @@ export function TagListEditor({
                 className="text-muted-foreground hover:text-destructive text-xs ml-1"
                 title="Ta bort"
               >
-                ✕
+                <X size={12} />
               </button>
             </div>
           ))}

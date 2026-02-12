@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 import { Tooltip } from "@/components/ui/tooltip";
 import type { PhaseStatus } from "@/types/workflow";
 
@@ -44,13 +45,16 @@ export function GateChecklist({ caseId }: GateChecklistProps) {
               </div>
             </div>
             {phase.gateResults.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Inga gates för denna fas.</p>
+              <p className="text-sm text-muted-foreground">Inga gates for denna fas.</p>
             ) : (
               <div className="space-y-2">
                 {phase.gateResults.map((gate) => (
                   <div key={gate.ruleId} className="flex items-start gap-2 text-sm">
                     <span className={`mt-0.5 shrink-0 ${gate.passed ? "text-green-600" : gate.severity === "blocker" ? "text-red-600" : "text-yellow-600"}`}>
-                      {gate.passed ? "✓" : gate.severity === "blocker" ? "✗" : "⚠"}
+                      <Icon
+                        name={gate.passed ? "check" : gate.severity === "blocker" ? "x" : "alert-triangle"}
+                        size={14}
+                      />
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1 flex-wrap">

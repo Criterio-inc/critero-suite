@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Icon } from "@/components/ui/icon";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const NAV_ITEMS = [
-  { href: "/cases", label: "Upphandlingar", icon: "📋" },
-  { href: "/library", label: "Bibliotek", icon: "📚" },
-  { href: "/help", label: "Hjälpcenter", icon: "❓" },
+  { href: "/cases", label: "Upphandlingar", icon: "clipboard-list" },
+  { href: "/library", label: "Bibliotek", icon: "library" },
+  { href: "/help", label: "Hjälpcenter", icon: "help-circle" },
 ];
 
 export function AppSidebar() {
@@ -17,8 +19,8 @@ export function AppSidebar() {
     <aside className="flex h-screen w-56 flex-col border-r border-border/60 bg-card">
       <div className="flex h-14 items-center border-b border-border/60 px-5">
         <Link href="/cases" className="flex items-center gap-2.5 font-semibold text-foreground">
-          <span className="text-xl">⚖️</span>
-          <span className="tracking-tight">LOU-stöd</span>
+          <Icon name="scale" size={20} className="text-primary" />
+          <span className="tracking-tight">Criterio</span>
         </Link>
       </div>
       <nav className="flex-1 space-y-0.5 p-3">
@@ -35,14 +37,15 @@ export function AppSidebar() {
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
-              <span>{item.icon}</span>
+              <Icon name={item.icon} size={16} />
               <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
-      <div className="border-t border-border/40 px-5 py-3">
+      <div className="flex items-center justify-between border-t border-border/40 px-5 py-3">
         <p className="text-[10px] text-muted-foreground/60 tracking-wide">Criterio</p>
+        <ThemeToggle />
       </div>
     </aside>
   );

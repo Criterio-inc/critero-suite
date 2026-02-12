@@ -218,7 +218,7 @@ async function evaluateRule(rule: string, caseId: string): Promise<{ passed: boo
       const evalStatus = JSON.parse(c?.evaluationStatus ?? "{}");
       const checklist = evalStatus.checklist ?? [];
       const item = checklist.find((i: any) => i.id === checklistId);
-      return { passed: item?.checked === true, actual: item?.checked ? "✓" : "—" };
+      return { passed: item?.checked === true, actual: item?.checked ? "Ja" : "—" };
     } catch {
       return { passed: false, actual: "—" };
     }

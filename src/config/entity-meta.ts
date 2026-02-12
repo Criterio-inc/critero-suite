@@ -48,7 +48,7 @@ export interface EntityMeta {
   singularLabel: string;
   pluralLabel: string;
   prefix: string;
-  icon: string; // emoji for simple display
+  icon: string; // lucide icon name (e.g. "lightbulb", "ruler")
   listFields: string[];
   filterFields: string[];
   fields: FieldMeta[];
@@ -129,7 +129,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Upphandling",
     pluralLabel: "Upphandlingar",
     prefix: "CASE",
-    icon: "📋",
+    icon: "clipboard-list",
     listFields: ["name", "domainProfile", "status", "currentPhase", "owner"],
     filterFields: ["status", "domainProfile"],
     fields: [
@@ -172,7 +172,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Intressent",
     pluralLabel: "Intressenter",
     prefix: "STAK",
-    icon: "👥",
+    icon: "users",
     listFields: ["title", "role", "unit", "influence", "interest", "status"],
     filterFields: ["status"],
     fields: [
@@ -195,7 +195,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Workshop",
     pluralLabel: "Workshops",
     prefix: "WS",
-    icon: "🏛️",
+    icon: "presentation",
     listFields: ["title", "date", "status"],
     filterFields: ["status"],
     fields: [
@@ -217,7 +217,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Evidens",
     pluralLabel: "Evidens",
     prefix: "EVID",
-    icon: "📎",
+    icon: "paperclip",
     listFields: ["title", "type", "source", "status"],
     filterFields: ["status", "type"],
     fields: [
@@ -254,7 +254,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Behov",
     pluralLabel: "Behov",
     prefix: "NEED",
-    icon: "💡",
+    icon: "lightbulb",
     listFields: ["title", "cluster", "priority", "status"],
     filterFields: ["status", "priority", "cluster"],
     fields: [
@@ -294,7 +294,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Risk",
     pluralLabel: "Risker",
     prefix: "RISK",
-    icon: "⚠️",
+    icon: "shield-alert",
     listFields: ["title", "category", "score", "status"],
     filterFields: ["status", "category"],
     fields: [
@@ -348,7 +348,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Krav",
     pluralLabel: "Krav",
     prefix: "REQ",
-    icon: "📐",
+    icon: "ruler",
     listFields: ["title", "reqType", "cluster", "level", "status"],
     filterFields: ["status", "reqType", "level", "cluster"],
     fields: [
@@ -413,7 +413,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Kriterium",
     pluralLabel: "Kriterier",
     prefix: "CRIT",
-    icon: "⚖️",
+    icon: "scale",
     listFields: ["title", "weight", "scale", "status"],
     filterFields: ["status"],
     fields: [
@@ -457,7 +457,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Anbud",
     pluralLabel: "Anbud",
     prefix: "BID",
-    icon: "📨",
+    icon: "inbox",
     listFields: ["title", "supplierName", "qualified", "status"],
     filterFields: ["status"],
     fields: [
@@ -479,7 +479,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Beslut",
     pluralLabel: "Beslut",
     prefix: "DEC",
-    icon: "🔨",
+    icon: "gavel",
     listFields: ["title", "decisionType", "chosen", "status"],
     filterFields: ["status", "decisionType"],
     fields: [
@@ -522,7 +522,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Dokument",
     pluralLabel: "Dokument",
     prefix: "DOC",
-    icon: "📄",
+    icon: "file-text",
     listFields: ["title", "docType", "format", "status"],
     filterFields: ["status", "docType"],
     fields: [

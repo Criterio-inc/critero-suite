@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface LibraryItem {
@@ -64,7 +65,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
   if (!open) {
     return (
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-        Importera från bibliotek
+        Importera fr\u00e5n bibliotek
       </Button>
     );
   }
@@ -73,19 +74,19 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
-          <h2 className="font-semibold tracking-tight">Importera från bibliotek</h2>
+          <h2 className="font-semibold tracking-tight">Importera fr\u00e5n bibliotek</h2>
           <button
             onClick={() => setOpen(false)}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            &times;
+            <X size={16} />
           </button>
         </div>
         <div className="max-h-96 overflow-auto p-4">
           {loading ? (
             <p className="text-sm text-muted-foreground">Laddar bibliotek...</p>
           ) : items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Biblioteket är tomt. Kör seed för att fylla det.</p>
+            <p className="text-sm text-muted-foreground">Biblioteket \u00e4r tomt. K\u00f6r seed f\u00f6r att fylla det.</p>
           ) : (
             <div className="space-y-2">
               {items.map((item) => {
@@ -139,7 +140,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
         </div>
         <div className="flex justify-end border-t border-border/40 px-5 py-4">
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Stäng
+            St\u00e4ng
           </Button>
         </div>
       </div>
