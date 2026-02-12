@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+type NeedRow = { id: string; title: string; cluster: string; priority: string };
+type RequirementRow = { id: string; title: string; level: string; linkedNeeds: string; linkedRisks: string };
+type RiskRow = { id: string; title: string; score: number; mitigation: string; relatedRequirements: string };
+type CriterionRow = { id: string; title: string; weight: number; linkedRequirements: string };
+type ScoreRow = { criterionId: string; bidId: string };
+type BidResponseRow = { requirementId: string; bidId: string };
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ caseId: string }> }
@@ -14,7 +21,7 @@ export async function GET(
     prisma.criterion.findMany({ where: { caseId }, select: { id: true, title: true, weight: true, linkedRequirements: true } }),
     prisma.score.findMany({ where: { caseId }, select: { criterionId: true, bidId: true } }),
     prisma.bidResponse.findMany({ where: { caseId }, select: { requirementId: true, bidId: true } }),
-  ]);
+  ]) as [NeedRow[], RequirementRow[], RiskRow[], CriterionRow[], ScoreRow[], BidResponseRow[]];
 
   // Parse JSON links
   function parseArr(val: string): string[] {
@@ -35,26 +42,26 @@ export async function GET(
     for (const id of parseArr(c.linkedRequirements)) critLinkedReqIds.add(id);
   }
 
-  const scoredCritIds = new Set(scores.map((s: { criterionId: string }) => s.criterionId));
-  const respondedReqIds = new Set(bidResponses.map((r: { requirementId: string }) => r.requirementId));
+  const scoredCritIds = new Set(scores.map((s: ScoreRow) => s.criterionId));
+  const respondedReqIds = new Set(bidResponses.map((r: BidResponseRow) => r.requirementId));
 
   // Coverage metrics
-  const needsWithReqs = needs.filter(n => reqLinkedNeedIds.has(n.id));
-  const reqsWithCriteria = requirements.filter(r => critLinkedReqIds.has(r.id));
-  const criteriaWithScores = criteria.filter(c => scoredCritIds.has(c.id));
-  const risksWithMitigation = risks.filter(r => r.mitigation && r.mitigation.trim().length > 0);
+  const needsWithReqs = needs.filter((n: NeedRow) => reqLinkedNeedIds.has(n.id));
+  const reqsWithCriteria = requirements.filter((r: RequirementRow) => critLinkedReqIds.has(r.id));
+  const criteriaWithScores = criteria.filter((c: CriterionRow) => scoredCritIds.has(c.id));
+  const risksWithMitigation = risks.filter((r: RiskRow) => r.mitigation && r.mitigation.trim().length > 0);
 
   // Orphans
-  const orphanNeeds = needs.filter(n => !reqLinkedNeedIds.has(n.id));
-  const orphanRequirements = requirements.filter(r => !critLinkedReqIds.has(r.id) && r.level === "BOR");
-  const orphanRisks = risks.filter(r => {
+  const orphanNeeds = needs.filter((n: NeedRow) => !reqLinkedNeedIds.has(n.id));
+  const orphanRequirements = requirements.filter((r: RequirementRow) => !critLinkedReqIds.has(r.id) && r.level === "BOR");
+  const orphanRisks = risks.filter((r: RiskRow) => {
     const linked = parseArr(r.relatedRequirements);
     return linked.length === 0 && r.score >= 12;
   });
 
   // Chains: for each need, trace through to criteria/scores
-  const chains = needs.map(n => {
-    const linkedReqs = requirements.filter(r => parseArr(r.linkedNeeds).includes(n.id));
+  const chains = needs.map((n: NeedRow) => {
+    const linkedReqs = requirements.filter((r: RequirementRow) => parseArr(r.linkedNeeds).includes(n.id));
     const linkedCriteria: string[] = [];
     for (const r of linkedReqs) {
       for (const c of criteria) {
@@ -67,7 +74,7 @@ export async function GET(
       needId: n.id,
       needTitle: n.title,
       needPriority: n.priority,
-      requirementIds: linkedReqs.map(r => r.id),
+      requirementIds: linkedReqs.map((r: RequirementRow) => r.id),
       criterionIds: linkedCriteria,
       complete: linkedReqs.length > 0 && linkedCriteria.length > 0,
     };
@@ -76,7 +83,7 @@ export async function GET(
   return NextResponse.json({
     coverage: {
       needsWithReqs: { count: needsWithReqs.length, total: needs.length },
-      reqsWithCriteria: { count: reqsWithCriteria.length, total: requirements.filter(r => r.level === "BOR").length },
+      reqsWithCriteria: { count: reqsWithCriteria.length, total: requirements.filter((r: RequirementRow) => r.level === "BOR").length },
       criteriaWithScores: { count: criteriaWithScores.length, total: criteria.length },
       risksWithMitigation: { count: risksWithMitigation.length, total: risks.length },
     },
