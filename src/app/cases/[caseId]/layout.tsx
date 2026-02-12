@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { CaseSidebar } from "@/components/layout/case-sidebar";
 
+export const dynamic = "force-dynamic";
+
 export default async function CaseLayout({
   children,
   params,

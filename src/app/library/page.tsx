@@ -3,6 +3,8 @@ import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function LibraryPage() {
   const [reqBlocks, riskTemplates, workshopTemplates] = await Promise.all([
     prisma.libraryItem.count({ where: { type: "requirement_block" } }),

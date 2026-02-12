@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { formatDate } from "@/lib/utils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+export const dynamic = "force-dynamic";
+
 export default async function CasesPage() {
   const cases: any[] = await prisma.case.findMany({
     orderBy: { updatedAt: "desc" },

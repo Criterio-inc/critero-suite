@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const TYPE_INFO: Record<string, { label: string; singular: string; icon: string }> = {
   requirement_block: { label: "Kravbibliotek", singular: "kravblock", icon: "📐" },
   risk_template: { label: "Riskbibliotek", singular: "riskmall", icon: "⚠️" },
