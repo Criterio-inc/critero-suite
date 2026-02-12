@@ -22,6 +22,9 @@ export default function SignInPage() {
         {/* Clerk SignIn component */}
         <div className="flex justify-center">
           <SignIn
+            routing="path"
+            path="/sign-in"
+            forceRedirectUrl="/cases"
             appearance={{
               elements: {
                 rootBox: "w-full",
