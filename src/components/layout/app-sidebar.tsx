@@ -20,7 +20,10 @@ export function AppSidebar() {
       <div className="flex h-14 items-center border-b border-border/60 px-5">
         <Link href="/cases" className="flex items-center gap-2.5 font-semibold text-foreground">
           <Icon name="scale" size={20} className="text-primary" />
-          <span className="tracking-tight">Criterio</span>
+          <div className="flex flex-col leading-none">
+            <span className="text-sm font-semibold tracking-tight">Criterio</span>
+            <span className="text-[9px] text-muted-foreground font-normal tracking-wide">Upphandling LOU</span>
+          </div>
         </Link>
       </div>
       <nav className="flex-1 space-y-0.5 p-3">
@@ -43,9 +46,16 @@ export function AppSidebar() {
           );
         })}
       </nav>
-      <div className="flex items-center justify-between border-t border-border/40 px-5 py-3">
-        <p className="text-[10px] text-muted-foreground/60 tracking-wide">Criterio</p>
-        <ThemeToggle />
+      <div className="border-t border-border/40 px-4 py-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] text-muted-foreground/60 tracking-wide">&copy; Criterio Consulting AB</p>
+          <ThemeToggle />
+        </div>
+        <div className="flex items-center gap-2 text-[9px] text-muted-foreground/50">
+          <Link href="/terms" className="hover:text-foreground transition-colors">Villkor &amp; data</Link>
+          <span>&middot;</span>
+          <a href="mailto:kontakt@criteroconsulting.se" className="hover:text-foreground transition-colors">Kontakt</a>
+        </div>
       </div>
     </aside>
   );
