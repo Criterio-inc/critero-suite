@@ -20,7 +20,8 @@ export default async function LibraryTypePage({
   const info = TYPE_INFO[type];
   if (!info) notFound();
 
-  const items = await prisma.libraryItem.findMany({
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const items: any[] = await prisma.libraryItem.findMany({
     where: { type },
     orderBy: { title: "asc" },
   });
