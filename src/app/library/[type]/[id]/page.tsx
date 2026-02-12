@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { SparkboardSuggestion } from "@/components/library/sparkboard-suggestion";
 
 export const dynamic = "force-dynamic";
 
@@ -94,10 +95,22 @@ function RequirementBlockContent({ requirements }: { requirements: any[] }) {
 
 // ── Risk template renderer ──────────────────────────────────
 
+const RESPONSE_STRATEGY_MAP: Record<string, { label: string; color: string }> = {
+  avoid: { label: "Undvik", color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" },
+  mitigate: { label: "Minska", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" },
+  transfer: { label: "Överför", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" },
+  accept: { label: "Acceptera", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" },
+};
+
 function RiskTemplateContent({ risk }: { risk: any }) {
+  const assessmentQuestions: string[] = risk.assessmentQuestions ?? [];
+  const indicators: string[] = risk.indicators ?? [];
+  const strategy = RESPONSE_STRATEGY_MAP[risk.responseStrategy];
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">1 risk i denna mall</p>
+
       <Card>
         <CardContent className="space-y-3">
           {risk.description && (
@@ -120,14 +133,71 @@ function RiskTemplateContent({ risk }: { risk: any }) {
               </div>
             )}
           </div>
+          {strategy && (
+            <div>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Hanteringsstrategi</h3>
+              <Badge className={`mt-1 text-xs ${strategy.color}`}>{strategy.label}</Badge>
+            </div>
+          )}
           {risk.mitigation && (
             <div>
-              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Atgard</h3>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Åtgärd</h3>
               <p className="text-sm mt-1">{risk.mitigation}</p>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Assessment questions */}
+      {assessmentQuestions.length > 0 && (
+        <Card>
+          <CardContent>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+              Bedömningsfrågor — ställ dessa för att avgöra om risken gäller er
+            </h3>
+            <ol className="space-y-1.5">
+              {assessmentQuestions.map((q: string, i: number) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="text-muted-foreground font-mono text-xs mt-0.5 min-w-[1.5rem]">{i + 1}.</span>
+                  <span>{q}</span>
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Early warning indicators */}
+      {indicators.length > 0 && (
+        <Card>
+          <CardContent>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+              Tidiga varningssignaler
+            </h3>
+            <ul className="space-y-1">
+              {indicators.map((ind: string, i: number) => (
+                <li key={i} className="text-sm flex items-start gap-2">
+                  <span className="text-amber-500 mt-0.5 shrink-0">⚡</span>
+                  <span>{ind}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Escalation criteria */}
+      {risk.escalationCriteria && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20 p-3">
+          <div className="flex items-start gap-2">
+            <span className="text-amber-600 shrink-0 mt-0.5">🔺</span>
+            <div>
+              <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wide">Eskaleringskriterier</p>
+              <p className="text-sm text-amber-900 dark:text-amber-200 mt-1">{risk.escalationCriteria}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -136,8 +206,12 @@ function RiskTemplateContent({ risk }: { risk: any }) {
 
 function WorkshopTemplateContent({ workshop }: { workshop: any }) {
   const agendaItems: string[] = workshop.agenda ?? [];
+  const agendaDetailed: any[] = workshop.agendaDetailed ?? [];
   const outputs: string[] = workshop.expectedOutputs ?? [];
   const participants: string[] = workshop.suggestedParticipants ?? [];
+  const followUp: string[] = workshop.followUp ?? [];
+  const sparkboardSuggestion: any[] = workshop.sparkboardSuggestion ?? [];
+  const hasDetailedAgenda = agendaDetailed.length > 0;
 
   return (
     <div className="space-y-4">
@@ -147,11 +221,24 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
         </p>
       )}
 
+      {/* Preparation */}
+      {workshop.preparation && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/20 p-3">
+          <div className="flex items-start gap-2">
+            <span className="text-blue-600 shrink-0">📝</span>
+            <div>
+              <p className="text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wide">Förberedelser</p>
+              <p className="text-sm text-blue-900 dark:text-blue-200 mt-1">{workshop.preparation}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {participants.length > 0 && (
         <Card>
           <CardContent>
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-              Foreslagna deltagare
+              Föreslagna deltagare
             </h3>
             <div className="flex flex-wrap gap-1">
               {participants.map((p: string, i: number) => (
@@ -162,7 +249,56 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
         </Card>
       )}
 
-      {agendaItems.length > 0 && (
+      {/* Detailed agenda (if available) */}
+      {hasDetailedAgenda ? (
+        <div className="space-y-3">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Detaljerad agenda ({agendaDetailed.length} moment)
+          </h3>
+          {agendaDetailed.map((item: any, i: number) => (
+            <Card key={i} className="border-border/60">
+              <CardContent className="py-3 px-4 space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className="bg-primary/10 text-primary text-xs font-mono">
+                    {item.timeMinutes} min
+                  </Badge>
+                  <span className="font-semibold text-sm">{item.title}</span>
+                  {item.method && (
+                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                      {item.method}
+                    </Badge>
+                  )}
+                </div>
+                {item.purpose && (
+                  <p className="text-sm text-muted-foreground italic">{item.purpose}</p>
+                )}
+                {item.facilitationQuestions && item.facilitationQuestions.length > 0 && (
+                  <div className="mt-1">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Faciliteringsfrågor:</p>
+                    <ol className="space-y-0.5 ml-1">
+                      {item.facilitationQuestions.map((q: string, qi: number) => (
+                        <li key={qi} className="text-sm flex items-start gap-1.5">
+                          <span className="text-muted-foreground font-mono text-xs mt-0.5">{qi + 1}.</span>
+                          <span className="text-foreground/80">{q}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                {item.tips && (
+                  <div className="rounded-md bg-blue-50/70 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900 p-2 mt-1">
+                    <p className="text-xs text-blue-800 dark:text-blue-300 flex items-start gap-1.5">
+                      <span className="shrink-0">💡</span>
+                      <span>{item.tips}</span>
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : agendaItems.length > 0 ? (
+        /* Fallback: simple agenda list */
         <Card>
           <CardContent>
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
@@ -178,22 +314,46 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
             </ol>
           </CardContent>
         </Card>
+      ) : null}
+
+      {/* Sparkboard suggestions */}
+      {sparkboardSuggestion.length > 0 && (
+        <SparkboardSuggestion boards={sparkboardSuggestion} />
       )}
 
       {outputs.length > 0 && (
         <Card>
           <CardContent>
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-              Forvantade resultat
+              Förväntade resultat
             </h3>
             <ul className="space-y-1">
               {outputs.map((o: string, i: number) => (
                 <li key={i} className="text-sm flex items-center gap-2">
-                  <span className="text-muted-foreground">-</span>
+                  <span className="text-green-500">✓</span>
                   <span>{o}</span>
                 </li>
               ))}
             </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Follow-up actions */}
+      {followUp.length > 0 && (
+        <Card>
+          <CardContent>
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+              Efterarbete
+            </h3>
+            <ol className="space-y-1">
+              {followUp.map((item: string, i: number) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="text-muted-foreground font-mono text-xs mt-0.5 min-w-[1.5rem]">{i + 1}.</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ol>
           </CardContent>
         </Card>
       )}
