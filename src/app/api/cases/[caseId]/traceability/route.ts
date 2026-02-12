@@ -35,8 +35,8 @@ export async function GET(
     for (const id of parseArr(c.linkedRequirements)) critLinkedReqIds.add(id);
   }
 
-  const scoredCritIds = new Set(scores.map(s => s.criterionId));
-  const respondedReqIds = new Set(bidResponses.map(r => r.requirementId));
+  const scoredCritIds = new Set(scores.map((s: { criterionId: string }) => s.criterionId));
+  const respondedReqIds = new Set(bidResponses.map((r: { requirementId: string }) => r.requirementId));
 
   // Coverage metrics
   const needsWithReqs = needs.filter(n => reqLinkedNeedIds.has(n.id));
