@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -52,29 +53,32 @@ export default async function LibraryTypePage({
               })();
 
               return (
-                <Card key={item.id} className="hover:border-primary/30 transition-colors">
-                  <CardContent>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-medium text-sm">{item.title}</h3>
-                        {item.description && (
-                          <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                        )}
+                <Link key={item.id} href={`/library/${type}/${item.id}`}>
+                  <Card className="hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer h-full">
+                    <CardContent>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-medium text-sm">{item.title}</h3>
+                          {item.description && (
+                            <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                          )}
+                        </div>
+                        <span className="text-muted-foreground text-xs ml-2 shrink-0">→</span>
                       </div>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-3">
-                      {item.profile && (
-                        <Badge className="text-xs">{item.profile}</Badge>
-                      )}
-                      {item.cluster && (
-                        <Badge variant="outline" className="text-xs">{item.cluster}</Badge>
-                      )}
-                      {tags.map((tag: string) => (
-                        <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div className="flex flex-wrap gap-1 mt-3">
+                        {item.profile && (
+                          <Badge className="text-xs">{item.profile}</Badge>
+                        )}
+                        {item.cluster && (
+                          <Badge variant="outline" className="text-xs">{item.cluster}</Badge>
+                        )}
+                        {tags.map((tag: string) => (
+                          <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>

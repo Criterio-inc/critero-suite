@@ -623,16 +623,16 @@ async function main() {
 
   console.log("  ✓ 10 extra kravblock");
 
-  // ── KRAVBLOCK HALMSTAD (14 st) ──────────────────────────────────
-  // Baserat på Halmstad kommuns "Krav vid upphandling av IT-stöd v1.10"
-  // 144 icke-funktionella krav uppdelade i 14 tematiska kravblock
+  // ── KRAVBLOCK: ICKE-FUNKTIONELLA IT-KRAV (12 st) ────────────────
+  // Generiska icke-funktionella krav för IT-upphandling i offentlig sektor
+  // 108 krav uppdelade i 12 tematiska kravblock
 
-  // Halmstad 1. Användare & behörigheter
+  // 1. Användare & behörigheter
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Användare & behörigheter",
-      title: "Kravblock: Användare & behörigheter (Halmstad)",
-      description: "Krav på behörighetshantering, rollstyrning och automatiserad användarhantering. Baserat på Halmstad kommuns kravkatalog för IT-upphandling.",
+      title: "Kravblock: Användare & behörigheter",
+      description: "Krav på behörighetshantering, rollstyrning och automatiserad användarhantering för IT-system i offentlig sektor.",
       content: JSON.stringify({ requirements: [
         { title: "Beställaren styr behörigheter", reqType: "icke-funktionellt", level: "SKA", text: "Beställaren/kunden skall vara den part som styr behörigheter i systemet samt vilken form av autentisering som krävs för att nå vilken information och funktion i lösningen.", rationale: "Säkerställer att kunden har full kontroll över åtkomst till systemet.", cluster: "Användare & behörigheter" },
         { title: "Behörighetsstyrt gränssnitt", reqType: "funktion", level: "SKA", text: "Behörighetsfunktionen styr användares tillgång till data och funktioner i systemet. Med funktioner avses även det grafiska gränssnittet – om man ej har behörighet till en funktion skall den ej heller synas i det grafiska gränssnittet.", rationale: "Undviker förvirring och minskar risken för obehöriga åtkomstförsök.", cluster: "Användare & behörigheter" },
@@ -643,16 +643,16 @@ async function main() {
         { title: "Gemensamt behörighetssystem", reqType: "icke-funktionellt", level: "BOR", text: "Systemet bör ha ett gemensamt behörighetssystem för alla delar och moduler.", rationale: "Undviker inkonsistenta behörighetsmodeller mellan systemdelar.", cluster: "Användare & behörigheter" },
         { title: "Automatiserad användarhantering", reqType: "funktion", level: "SKA", text: "Systemet ska stödja automatiserad provisionering av användare via minst en av följande tekniker: SCIM, REST-API, LDAPS eller filöverföring. Systemet måste även kunna hantera användare från olika domäner.", rationale: "Automatiserad användarhantering minskar manuellt arbete och säkerställer att behörigheter hålls aktuella.", cluster: "Användare & behörigheter" },
       ] }),
-      tags: JSON.stringify(["halmstad", "behörigheter", "roller", "användarhantering", "generisk"]),
+      tags: JSON.stringify(["behörigheter", "roller", "användarhantering", "generisk"]),
     },
   });
 
-  // Halmstad 2. Användargränssnitt
+  // 2. Användargränssnitt
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Användargränssnitt",
-      title: "Kravblock: Användargränssnitt (Halmstad)",
-      description: "Krav på tillgänglighet, responsivitet, webbläsarstöd och grafisk anpassningsbarhet. Baserat på Halmstad kommuns kravkatalog för IT-upphandling.",
+      title: "Kravblock: Användargränssnitt",
+      description: "Krav på tillgänglighet, responsivitet, webbläsarstöd och grafisk anpassningsbarhet för IT-system i offentlig sektor.",
       content: JSON.stringify({ requirements: [
         { title: "Responsiv design", reqType: "icke-funktionellt", level: "SKA", text: "Samtliga webbaserade gränssnitt skall vara responsiva (responsive web design) så att de anpassar sig efter den enhet som besökaren använder.", rationale: "Säkerställer användbarhet på alla enheter.", cluster: "Användargränssnitt" },
         { title: "WCAG 2.1 nivå AA", reqType: "icke-funktionellt", level: "SKA", text: "Samtliga webbaserade gränssnitt skall minimum uppfylla kraven enligt WCAG 2.1 nivå AA.", rationale: "Lagkrav enligt lagen om tillgänglighet till digital offentlig service.", cluster: "Användargränssnitt" },
@@ -663,16 +663,16 @@ async function main() {
         { title: "Svenskt gränssnitt", reqType: "icke-funktionellt", level: "SKA", text: "Systemets gränssnitt mot användare skall vara på svenska.", rationale: "Grundläggande krav för svenska offentliga organisationer.", cluster: "Användargränssnitt" },
         { title: "Webbaserat utan klientinstallation", reqType: "icke-funktionellt", level: "SKA", text: "Systemet ska vara webbaserat i alla funktioner och inte kräva klientinstallation på PC.", rationale: "Minimerar driftkostnader och förenklar utrullning.", cluster: "Användargränssnitt" },
       ] }),
-      tags: JSON.stringify(["halmstad", "tillgänglighet", "wcag", "gränssnitt", "generisk"]),
+      tags: JSON.stringify(["tillgänglighet", "wcag", "gränssnitt", "generisk"]),
     },
   });
 
-  // Halmstad 3. Dokumentation
+  // 3. Dokumentation
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Dokumentation",
-      title: "Kravblock: Dokumentation (Halmstad)",
-      description: "Krav på system-, användar- och API-dokumentation samt kontextuella hjälptexter. Baserat på Halmstad kommuns kravkatalog för IT-upphandling.",
+      title: "Kravblock: Dokumentation",
+      description: "Krav på system-, användar- och API-dokumentation samt kontextuella hjälptexter för IT-system.",
       content: JSON.stringify({ requirements: [
         { title: "Heltäckande dokumentation", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören ska tillhandahålla adekvat dokumentation för beställarens användare, förvaltningsorganisation och integratörer. Dokumentationen ska minst omfatta användarinstruktioner, systemdokumentation inklusive specifika inställningar och konfiguration, samt API-dokumentation.", rationale: "Nödvändigt för effektiv förvaltning och självständig drift.", cluster: "Dokumentation" },
         { title: "Systemdokumentation", reqType: "kontraktsvillkor", level: "SKA", text: "Systemdokumentationen ska innehålla adekvat beskrivning av tjänsten, systemkrav, systemdesign och kommunikation. Dokumentationen ska kompletteras med beställarens specifika inställningar.", rationale: "Säkerställer att beställaren förstår systemets arkitektur.", cluster: "Dokumentation" },
@@ -681,16 +681,16 @@ async function main() {
         { title: "Felmeddelanden i klartext", reqType: "funktion", level: "SKA", text: "Systemet ska visa felmeddelanden i klartext som är begripliga för en slutanvändare, inte enbart felkoder.", rationale: "Förbättrar användarupplevelsen och minskar supportbehovet.", cluster: "Dokumentation" },
         { title: "Kontextuella hjälptexter", reqType: "funktion", level: "BOR", text: "Systemet bör innehålla funktionsorienterade hjälptexter kopplade till den sida och funktion användaren har framför sig. Hjälptexterna bör kunna ersättas med kundanpassade texter.", rationale: "Kontextuell hjälp ökar produktiviteten och möjliggör organisationsanpassning.", cluster: "Dokumentation" },
       ] }),
-      tags: JSON.stringify(["halmstad", "dokumentation", "manualer", "hjälptexter", "generisk"]),
+      tags: JSON.stringify(["dokumentation", "manualer", "hjälptexter", "generisk"]),
     },
   });
 
-  // Halmstad 4. Informationsmängder: Ägarskap & portabilitet
+  // 4. Informationsmängder: Ägarskap & portabilitet
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Informationsmängder",
-      title: "Kravblock: Dataägarskap & portabilitet (Halmstad)",
-      description: "Krav på dataägarskap, nyttjanderätt, exportmöjligheter och datamigration vid avveckling. Baserat på Halmstad kommuns kravkatalog för IT-upphandling.",
+      title: "Kravblock: Dataägarskap & portabilitet",
+      description: "Krav på dataägarskap, nyttjanderätt, exportmöjligheter och datamigration vid avveckling av IT-system.",
       content: JSON.stringify({ requirements: [
         { title: "Full ägande- och nyttjanderätt till data", reqType: "kontraktsvillkor", level: "SKA", text: "All data och information som beställaren genererar och lagrar i systemet skall beställaren ha full kostnadsfri ägande- och nyttjanderätt till.", rationale: "Grundläggande krav för att undvika leverantörsinlåsning.", cluster: "Informationsmängder" },
         { title: "Ingen delning utan godkännande", reqType: "kontraktsvillkor", level: "SKA", text: "All data som lagras i systemet ska ägas av kunden och leverantören har ingen rätt att dela denna data med andra aktörer eller använda kundens data utan kundens explicita godkännande.", rationale: "Skyddar kundens informationstillgångar.", cluster: "Informationsmängder" },
@@ -701,16 +701,16 @@ async function main() {
         { title: "Dokumentation av API och datautbyte", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören ska på kundens begäran tillhandahålla dokumentation av systemets funktioner för datautbyte inklusive API:er, standarder och metadata.", rationale: "Nödvändigt för integration och analys.", cluster: "Informationsmängder" },
         { title: "Radering vid avtalsupphörande", reqType: "kontraktsvillkor", level: "SKA", text: "När avtalet upphör ska leverantören radera all kunddata senast 30 dagar efter att kunden meddelat detta.", rationale: "Säkerställer att data inte finns kvar hos leverantören efter avslutad relation.", cluster: "Informationsmängder" },
       ] }),
-      tags: JSON.stringify(["halmstad", "dataägarskap", "portabilitet", "export", "generisk"]),
+      tags: JSON.stringify(["dataägarskap", "portabilitet", "export", "generisk"]),
     },
   });
 
-  // Halmstad 5. Informationsmängder: Arkivering & gallring
+  // 5. Informationsmängder: Arkivering & gallring
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Informationsmängder",
-      title: "Kravblock: Arkivering & gallring (Halmstad)",
-      description: "Krav på e-arkiv, FGS-stöd, gallringsfunktioner och långtidsbevarande. Baserat på Halmstad kommuns kravkatalog för IT-upphandling.",
+      title: "Kravblock: Arkivering & gallring",
+      description: "Krav på e-arkiv, FGS-stöd, gallringsfunktioner och långtidsbevarande för IT-system i offentlig sektor.",
       content: JSON.stringify({ requirements: [
         { title: "Stöd för e-arkiv (FGS Paketstruktur)", reqType: "funktion", level: "SKA", text: "Systemet skall ha stöd för att exportera information till beställarens e-arkiv enligt Riksarkivets FGS Paketstruktur.", rationale: "Standardiserad arkiveringsprocess enligt Riksarkivets krav.", cluster: "Informationsmängder" },
         { title: "Riksarkivets föreskrifter", reqType: "icke-funktionellt", level: "SKA", text: "Systemet ska följa Riksarkivets föreskrifter, rekommendationer och specifikationer gällande information som ska bevaras, inklusive arkivbeständiga filformat.", rationale: "Lagkrav för offentlig verksamhet.", cluster: "Informationsmängder" },
@@ -721,16 +721,16 @@ async function main() {
         { title: "Gallringsrapporter", reqType: "funktion", level: "SKA", text: "Systemet ska ha funktion för rapporter över utförd gallring. Begärd gallring ska kunna kontrolleras innan den verkställs.", rationale: "Spårbarhet och kontroll av gallringsåtgärder.", cluster: "Informationsmängder" },
         { title: "Långtidsbevarande i XML", reqType: "funktion", level: "SKA", text: "Uttag för långtidsbevarande ska kunna ske i XML-format med tillhörande XML-schema (XSD) samt extern XSL-stilmall.", rationale: "Standardiserat format för långtidsbevarande i offentlig sektor.", cluster: "Informationsmängder" },
       ] }),
-      tags: JSON.stringify(["halmstad", "arkivering", "gallring", "e-arkiv", "riksarkivet", "generisk"]),
+      tags: JSON.stringify(["arkivering", "gallring", "e-arkiv", "riksarkivet", "generisk"]),
     },
   });
 
-  // Halmstad 6. Informationssäkerhet: Leverantörskrav
+  // 6. Informationssäkerhet: Leverantörskrav
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Informationssäkerhet",
-      title: "Kravblock: Informationssäkerhet – Leverantörskrav (Halmstad)",
-      description: "Krav på leverantörens ledningssystem för informationssäkerhet, åtkomststyrning och säker utvecklingsmetodik. Baserat på Halmstad kommuns kravkatalog.",
+      title: "Kravblock: Informationssäkerhet – Leverantörskrav",
+      description: "Krav på leverantörens ledningssystem för informationssäkerhet, åtkomststyrning och säker utvecklingsmetodik.",
       content: JSON.stringify({ requirements: [
         { title: "Ledningssystem för informationssäkerhet", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall ha ett ledningssystem för informationssäkerhet (LIS) baserat på ISO/IEC 27001 eller motsvarande med dokumenterade roller, ansvar och befogenheter.", rationale: "Grundläggande trygghetskrav för offentlig sektors IT-upphandling.", cluster: "Informationssäkerhet" },
         { title: "Säkerhetspolicy för distansarbete", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall ha policy och säkerhetsåtgärder som skyddar information vid distansarbete avseende drift, förvaltning och support.", rationale: "Distansarbete kräver särskild hantering av informationssäkerhet.", cluster: "Informationssäkerhet" },
@@ -741,16 +741,16 @@ async function main() {
         { title: "Backup geografiskt åtskild", reqType: "funktion", level: "SKA", text: "Leverantören skall ha funktioner för återställande av information. Säkerhetskopior skall skyddas enligt samma nivåer som originalet och förvaras geografiskt åtskilt.", rationale: "Skyddar mot dataförlust.", cluster: "Informationssäkerhet" },
         { title: "Säker utvecklingsmetodik", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall ha dokumenterade principer för utveckling av säkra system. Vid webbutveckling ska OWASP:s rekommendationer eller motsvarande följas.", rationale: "Säker utveckling minskar sårbarheter i levererad programvara.", cluster: "Informationssäkerhet" },
       ] }),
-      tags: JSON.stringify(["halmstad", "informationssäkerhet", "iso27001", "leverantörskrav", "generisk"]),
+      tags: JSON.stringify(["informationssäkerhet", "iso27001", "leverantörskrav", "generisk"]),
     },
   });
 
-  // Halmstad 7. Informationssäkerhet: Loggning & dataskydd
+  // 7. Informationssäkerhet: Loggning & dataskydd
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Informationssäkerhet",
-      title: "Kravblock: Loggning & dataskydd (Halmstad)",
-      description: "Krav på loggning av säkerhetshändelser, spårbarhet av personuppgiftsbehandling och incidenthantering. Baserat på Halmstad kommuns kravkatalog.",
+      title: "Kravblock: Loggning & dataskydd",
+      description: "Krav på loggning av säkerhetshändelser, spårbarhet av personuppgiftsbehandling och incidenthantering.",
       content: JSON.stringify({ requirements: [
         { title: "Loggning av säkerhetshändelser", reqType: "funktion", level: "SKA", text: "Loggningsfunktioner skall finnas för säkerhetsrelaterade händelser, minst för felaktiga inloggningar, förändring av behörigheter och överträdelser.", rationale: "Grundläggande för att upptäcka och utreda säkerhetsincidenter.", cluster: "Informationssäkerhet" },
         { title: "Loggning av behörighetsförändringar", reqType: "funktion", level: "SKA", text: "Behörighetssystemet skall logga när användare skapades, togs bort eller förändrades samt senaste inloggning.", rationale: "Spårbarhet av behörighetsförändringar är kritiskt för revision.", cluster: "Informationssäkerhet" },
@@ -761,16 +761,16 @@ async function main() {
         { title: "Incidenthanteringsrutiner", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall ha dokumenterade rutiner för utredning av säkerhetsincidenter enligt gällande lagar.", rationale: "Strukturerad incidenthantering minskar skadan vid säkerhetshändelser.", cluster: "Informationssäkerhet" },
         { title: "Personuppgiftsbiträdesavtal", reqType: "kontraktsvillkor", level: "SKA", text: "Vid behandling av personuppgifter i systemet skall biträdesavtal tecknas vid avtalsstart.", rationale: "Lagkrav enligt GDPR.", cluster: "Informationssäkerhet" },
       ] }),
-      tags: JSON.stringify(["halmstad", "loggning", "dataskydd", "gdpr", "spårbarhet", "generisk"]),
+      tags: JSON.stringify(["loggning", "dataskydd", "gdpr", "spårbarhet", "generisk"]),
     },
   });
 
-  // Halmstad 8. Integration & API
+  // 8. Integration & API
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Integration & API",
-      title: "Kravblock: Integration & API (Halmstad)",
-      description: "Krav på integrationsgränssnitt, API-dokumentation, import/export och schemalagd datahantering. Baserat på Halmstad kommuns kravkatalog.",
+      title: "Kravblock: Integration & API",
+      description: "Krav på integrationsgränssnitt, API-dokumentation, import/export och schemalagd datahantering.",
       content: JSON.stringify({ requirements: [
         { title: "Dokumenterade integrationsgränssnitt", reqType: "funktion", level: "SKA", text: "Samtliga system skall ha definierade och dokumenterade integrationsgränssnitt (Web Services, API). Dessa skall tillgängliggöras utan extra kostnad.", rationale: "Grundkrav för interoperabilitet.", cluster: "Integration & API" },
         { title: "Import och export i standardformat", reqType: "funktion", level: "SKA", text: "Systemet ska ha import- och exportfunktionalitet i minst XML- och CSV-format.", rationale: "Standardformat möjliggör datautbyte utan specialanpassningar.", cluster: "Integration & API" },
@@ -781,16 +781,16 @@ async function main() {
         { title: "Schemalagd import och export", reqType: "funktion", level: "SKA", text: "Systemet skall kunna starta processer för inläsning och export av data utifrån förinställt klockslag eller tidsintervall utan manuell åtgärd.", rationale: "Automatiserad datahantering minskar manuellt arbete.", cluster: "Integration & API" },
         { title: "Integrationsstatus", reqType: "funktion", level: "SKA", text: "Systemet skall visa status över utförda och pågående integrationer och bearbetningar.", rationale: "Ger insyn i att integrationer fungerar korrekt.", cluster: "Integration & API" },
       ] }),
-      tags: JSON.stringify(["halmstad", "integration", "api", "interoperabilitet", "generisk"]),
+      tags: JSON.stringify(["integration", "api", "interoperabilitet", "generisk"]),
     },
   });
 
-  // Halmstad 9. Support & kundtjänst
+  // 9. Support & kundtjänst
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Support & kundtjänst",
-      title: "Kravblock: Support & kundtjänst (Halmstad)",
-      description: "Krav på supportfunktion, öppettider, kundansvarig och ärendehantering. Baserat på Halmstad kommuns kravkatalog.",
+      title: "Kravblock: Support & kundtjänst",
+      description: "Krav på supportfunktion, öppettider, kundansvarig och ärendehantering för IT-leverantörer.",
       content: JSON.stringify({ requirements: [
         { title: "Supportfunktion på svenska", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören ska ha supportfunktion nåbar via telefon, e-post och eventuell chat. All kommunikation ska ske på svenska.", rationale: "Grundläggande tillgänglighet för supportärenden.", cluster: "Support & kundtjänst" },
         { title: "Öppettider helgfria vardagar", reqType: "kontraktsvillkor", level: "SKA", text: "Öppettider för supportfunktion skall vara helgfri vardag kl 08:00 till 17:00.", rationale: "Säkerställer tillgänglighet under arbetstid.", cluster: "Support & kundtjänst" },
@@ -799,16 +799,16 @@ async function main() {
         { title: "Teknisk support mot tredje part", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall tillhandahålla teknisk support gentemot beställaren och tredjepartsleverantörer.", rationale: "Nödvändigt i miljöer med flera leverantörer.", cluster: "Support & kundtjänst" },
         { title: "Återrapportering inom 8 timmar", reqType: "kontraktsvillkor", level: "SKA", text: "Avslutade ärenden skall återrapporteras till anmälaren senast 8 timmar efter åtgärdande.", rationale: "Snabb återkoppling säkerställer att ärenden bekräftas lösta.", cluster: "Support & kundtjänst" },
       ] }),
-      tags: JSON.stringify(["halmstad", "support", "kundtjänst", "sla", "generisk"]),
+      tags: JSON.stringify(["support", "kundtjänst", "sla", "generisk"]),
     },
   });
 
-  // Halmstad 10. Teknik & autentisering
+  // 10. Teknik & autentisering
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Teknik & autentisering",
-      title: "Kravblock: Teknik & autentisering (Halmstad)",
-      description: "Krav på federerad inloggning, MFA, testmiljö och teknisk infrastruktur. Baserat på Halmstad kommuns kravkatalog.",
+      title: "Kravblock: Teknik & autentisering",
+      description: "Krav på federerad inloggning, MFA, testmiljö och teknisk infrastruktur för IT-system.",
       content: JSON.stringify({ requirements: [
         { title: "Federerad inloggning (SAML/OIDC)", reqType: "funktion", level: "SKA", text: "Inloggning för interna användare ska ske via befintliga AD-konton med federerad inloggning via SAML 2.0 eller OpenID Connect.", rationale: "SSO förenklar inloggning och centraliserar behörighetshantering.", cluster: "Teknik & autentisering" },
         { title: "Stark autentisering via federation", reqType: "funktion", level: "SKA", text: "Stark autentisering (t.ex. BankID eller Freja+) för interna och externa användare ska ske via beställarens identitetslösning.", rationale: "Centraliserad autentisering ger enhetlig säkerhetsnivå.", cluster: "Teknik & autentisering" },
@@ -819,16 +819,16 @@ async function main() {
         { title: "Ingen hårdvarulåst licensiering", reqType: "icke-funktionellt", level: "SKA", text: "Systemet skall inte använda licensiering som låser installationen till visst hårdvaru-id, vilket försvårar drift i virtualiserad miljö.", rationale: "Virtualisering är standard i modern IT-drift.", cluster: "Teknik & autentisering" },
         { title: "Anpassningar bevaras vid uppgradering", reqType: "icke-funktionellt", level: "SKA", text: "Systemet skall bibehålla kundanpassad tilläggsfunktionalitet vid uppgraderingar och versionsbyten.", rationale: "Skyddar beställarens investeringar i anpassningar.", cluster: "Teknik & autentisering" },
       ] }),
-      tags: JSON.stringify(["halmstad", "autentisering", "sso", "saml", "mfa", "generisk"]),
+      tags: JSON.stringify(["autentisering", "sso", "saml", "mfa", "generisk"]),
     },
   });
 
-  // Halmstad 11. Underhåll & releasehantering
+  // 11. Underhåll & releasehantering
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Underhåll",
-      title: "Kravblock: Underhåll & releasehantering (Halmstad)",
-      description: "Krav på releasehantering, felklassning, åtgärdstider och underhåll av kundunika lösningar. Baserat på Halmstad kommuns kravkatalog.",
+      title: "Kravblock: Underhåll & releasehantering",
+      description: "Krav på releasehantering, felklassning, åtgärdstider och underhåll av kundunika lösningar.",
       content: JSON.stringify({ requirements: [
         { title: "Kostnadsfria releaser", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall kostnadsfritt tillhandahålla nya releaser och versioner av systemet.", rationale: "Beställaren ska få buggfixar och förbättringar utan tilläggskostnad.", cluster: "Underhåll" },
         { title: "Löpande information om releaseplaner", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall kontinuerligt informera om pågående arbete, releaseplaner, avvikelser och upptäckta problem.", rationale: "Transparens möjliggör bättre planering.", cluster: "Underhåll" },
@@ -839,16 +839,16 @@ async function main() {
         { title: "Felavhjälpningsskyldighet", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall åtgärda dokumenterade fel. Fel är inte åtgärdat förrän systemet fungerar enligt avtal.", rationale: "Tydligt ansvar skyddar beställaren.", cluster: "Underhåll" },
         { title: "Felklassificering i fyra nivåer", reqType: "kontraktsvillkor", level: "SKA", text: "Fel klassas efter påverkan: Kritisk (alla användare berörs), Hög (vissa användare), Medium (fåtal, verksamheten fortgår), Låg (mindre avvikelser). Klassning föreslås av beställaren.", rationale: "Standardiserad felklassificering möjliggör tydliga SLA-åtaganden.", cluster: "Underhåll" },
       ] }),
-      tags: JSON.stringify(["halmstad", "underhåll", "releasehantering", "felhantering", "generisk"]),
+      tags: JSON.stringify(["underhåll", "releasehantering", "felhantering", "generisk"]),
     },
   });
 
-  // Halmstad 12. Utveckling & utbildning
+  // 12. Utveckling & utbildning
   await prisma.libraryItem.create({
     data: {
       type: "requirement_block", profile: "", cluster: "Utveckling",
-      title: "Kravblock: Utveckling & utbildning (Halmstad)",
-      description: "Krav på utbildning, vidareutveckling, användarsamverkan och utvecklingsplan. Baserat på Halmstad kommuns kravkatalog.",
+      title: "Kravblock: Utveckling & utbildning",
+      description: "Krav på utbildning, vidareutveckling, användarsamverkan och utvecklingsplan för IT-leverantörer.",
       content: JSON.stringify({ requirements: [
         { title: "Utbildning för användargrupper", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall tillhandahålla utbildning inklusive dokumentation för aktuella användargrupper.", rationale: "Utbildning är avgörande för framgångsrik adoption.", cluster: "Utveckling" },
         { title: "Möjlighet att föreslå vidareutveckling", reqType: "kontraktsvillkor", level: "SKA", text: "Beställaren skall kunna lämna förslag om vidareutveckling. Leverantören ska redogöra för hur förslag tillvaratas.", rationale: "Säkerställer att systemet utvecklas i linje med behoven.", cluster: "Utveckling" },
@@ -857,11 +857,11 @@ async function main() {
         { title: "Kundspecifik utveckling", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall erbjuda utveckling av funktioner efter beställning av enskild kund.", rationale: "Möjliggör anpassning till specifika verksamhetsbehov.", cluster: "Utveckling" },
         { title: "Delning av kundspecifika lösningar", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall beskriva hur andra kunder kan ta del av lösningar utvecklade för en specifik kund.", rationale: "Kan sänka kostnader genom delad utveckling.", cluster: "Utveckling" },
       ] }),
-      tags: JSON.stringify(["halmstad", "utveckling", "utbildning", "generisk"]),
+      tags: JSON.stringify(["utveckling", "utbildning", "generisk"]),
     },
   });
 
-  console.log("  ✓ 12 Halmstad-kravblock (108 krav)");
+  console.log("  ✓ 12 IT-kravblock (108 krav)");
 
   // ── EXTRA RISKMALLAR (10 st) ────────────────────────────────
 
