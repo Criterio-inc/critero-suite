@@ -1,4 +1,4 @@
-import { SignUp } from "@clerk/nextjs";
+import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 
 export default function SignUpPage() {
@@ -14,26 +14,36 @@ export default function SignUpPage() {
               <p className="text-[10px] text-muted-foreground tracking-wide">Upphandling LOU</p>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Skapa ett konto för att komma igång
-          </p>
         </div>
 
-        {/* Clerk SignUp component */}
-        <div className="flex justify-center">
-          <SignUp
-            appearance={{
-              elements: {
-                rootBox: "w-full",
-                card: "shadow-none border border-border rounded-2xl",
-                headerTitle: "hidden",
-                headerSubtitle: "hidden",
-                socialButtonsBlockButton: "rounded-xl",
-                formButtonPrimary: "bg-primary hover:bg-primary/90 rounded-xl",
-                footerActionLink: "text-primary hover:text-primary/80",
-              },
-            }}
-          />
+        {/* Invite-only notice */}
+        <div className="rounded-2xl border border-border/60 bg-card p-8 shadow-sm space-y-4 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+            <Icon name="shield-alert" size={24} className="text-primary" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">Stängd tjänst</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Critero Upphandling LOU är inte öppen för allmän registrering.
+            Åtkomst beviljas enbart genom personlig inbjudan.
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Har du fått en inbjudan? Klicka på länken i ditt e-postmeddelande
+            för att aktivera ditt konto.
+          </p>
+          <div className="pt-2 space-y-3">
+            <Link
+              href="/sign-in"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary/90 transition-colors w-full"
+            >
+              Har redan konto? Logga in
+            </Link>
+            <a
+              href="mailto:kontakt@criteroconsulting.se"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border/60 px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors w-full"
+            >
+              Kontakta oss för åtkomst
+            </a>
+          </div>
         </div>
 
         {/* Footer */}
