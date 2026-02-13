@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { isUserAdmin } from "@/lib/user-features";
+import { checkAdminAccess } from "@/lib/user-features";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +26,8 @@ export async function GET() {
   try {
     const userId = await getClerkUserId();
 
-    // Require admin
-    if (!userId || !(await isUserAdmin(userId))) {
+    // Require admin (with bootstrap fallback for first-time setup)
+    if (!userId || !(await checkAdminAccess(userId))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 

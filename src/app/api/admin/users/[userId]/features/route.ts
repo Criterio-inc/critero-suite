@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserFeatures, setUserFeatures, isUserAdmin } from "@/lib/user-features";
+import { getUserFeatures, setUserFeatures, checkAdminAccess } from "@/lib/user-features";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,7 @@ export async function GET(
 ) {
   try {
     const callerId = await getClerkUserId();
-    if (!callerId || !(await isUserAdmin(callerId))) {
+    if (!callerId || !(await checkAdminAccess(callerId))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -53,7 +53,7 @@ export async function PATCH(
 ) {
   try {
     const callerId = await getClerkUserId();
-    if (!callerId || !(await isUserAdmin(callerId))) {
+    if (!callerId || !(await checkAdminAccess(callerId))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 

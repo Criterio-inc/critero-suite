@@ -89,3 +89,34 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
     return false;
   }
 }
+
+const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
+
+/**
+ * Admin access check with bootstrap fallback.
+ * 1. Checks DB (isUserAdmin)
+ * 2. If no users in DB yet (first-time bootstrap), checks Clerk email directly
+ */
+export async function checkAdminAccess(userId: string): Promise<boolean> {
+  // 1. Check DB first
+  const dbAdmin = await isUserAdmin(userId);
+  if (dbAdmin) return true;
+
+  // 2. Bootstrap: if User table is empty, check Clerk email directly
+  try {
+    const userCount = await prisma.user.count();
+    if (userCount === 0) {
+      const { clerkClient } = await import("@clerk/nextjs/server");
+      const client = await clerkClient();
+      const clerkUser = await client.users.getUser(userId);
+      const email = clerkUser.emailAddresses.find(
+        (e) => e.id === clerkUser.primaryEmailAddressId,
+      )?.emailAddress;
+      return email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    }
+  } catch {
+    // Clerk not available or table error — fall through
+  }
+
+  return false;
+}

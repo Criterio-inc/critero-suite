@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { createDefaultFeatures, isUserAdmin } from "@/lib/user-features";
+import { createDefaultFeatures, checkAdminAccess } from "@/lib/user-features";
 
 export const dynamic = "force-dynamic";
 
@@ -27,12 +27,8 @@ async function getClerkUserId(): Promise<string | null> {
 export async function POST() {
   try {
     const callerId = await getClerkUserId();
-    if (!callerId || !(await isUserAdmin(callerId))) {
-      // Allow if no users exist yet (bootstrap scenario)
-      const userCount = await prisma.user.count();
-      if (userCount > 0) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-      }
+    if (!callerId || !(await checkAdminAccess(callerId))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const secretKey = process.env.CLERK_SECRET_KEY;
