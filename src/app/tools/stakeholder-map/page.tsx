@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { exportToJson, exportToXlsx, exportToPdf, type ExportSheet, type PdfSection, type ExportMetadata } from "@/lib/tools-export";
 
 /* ================================================================== */
 /*  Types                                                              */
@@ -1242,7 +1243,7 @@ export default function StakeholderMapPage() {
     return state.stakeholders.find((s) => s.id === state.selectedId) ?? null;
   }, [state.selectedId, state.stakeholders]);
 
-  const handleExport = useCallback(() => {
+  const handleExportJson = useCallback(() => {
     const exportData = {
       exportDate: new Date().toISOString(),
       tool: "Intressentanalys",
@@ -1253,14 +1254,75 @@ export default function StakeholderMapPage() {
         recommendedFrequency: QUADRANT_INFO[getQuadrant(s.inflytande, s.intresse)].frequency,
       })),
     };
-    const data = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `intressentanalys-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportToJson(`intressentanalys-${new Date().toISOString().slice(0, 10)}.json`, exportData);
+  }, [state.stakeholders]);
+
+  const handleExportXlsx = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const metadata: ExportMetadata = {
+      toolName: "Intressentanalys",
+      exportDate: dateStr,
+      subtitle: `${state.stakeholders.length} intressenter`,
+    };
+
+    const stakeholderRows: (string | number)[][] = state.stakeholders.map((s) => {
+      const q = getQuadrant(s.inflytande, s.intresse);
+      return [s.name, s.role, s.organization, s.category, s.inflytande, s.intresse, s.inställning, QUADRANT_INFO[q].label];
+    });
+
+    const commRows: (string | number)[][] = state.stakeholders.map((s) => {
+      const q = getQuadrant(s.inflytande, s.intresse);
+      const info = QUADRANT_INFO[q];
+      return [s.name, info.label, info.frequency, info.channel, s.inställning, s.kommunikationsStatus, s.notes];
+    });
+
+    const sheets: ExportSheet[] = [
+      {
+        name: "Intressenter",
+        headers: ["Namn", "Roll", "Organisation", "Kategori", "Inflytande", "Intresse", "Inställning", "Kvadrant"],
+        rows: stakeholderRows,
+      },
+      {
+        name: "Kommunikationsplan",
+        headers: ["Namn", "Strategi", "Frekvens", "Kanal", "Inställning", "Status", "Anteckningar"],
+        rows: commRows,
+      },
+    ];
+
+    await exportToXlsx(`intressentanalys-${dateStr}.xlsx`, sheets, metadata);
+  }, [state.stakeholders]);
+
+  const handleExportPdf = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const metadata: ExportMetadata = {
+      toolName: "Intressentanalys",
+      exportDate: dateStr,
+      subtitle: `${state.stakeholders.length} intressenter`,
+    };
+
+    const sections: PdfSection[] = [
+      {
+        title: "Intressentöversikt",
+        type: "table",
+        headers: ["Namn", "Kategori", "Inflytande", "Intresse", "Inställning", "Kvadrant"],
+        rows: state.stakeholders.map((s) => {
+          const q = getQuadrant(s.inflytande, s.intresse);
+          return [s.name, s.category, s.inflytande, s.intresse, s.inställning, QUADRANT_INFO[q].label];
+        }),
+      },
+      {
+        title: "Kommunikationsplan",
+        type: "table",
+        headers: ["Namn", "Strategi", "Frekvens", "Kanal", "Status"],
+        rows: state.stakeholders.map((s) => {
+          const q = getQuadrant(s.inflytande, s.intresse);
+          const info = QUADRANT_INFO[q];
+          return [s.name, info.label, info.frequency, info.channel, s.kommunikationsStatus];
+        }),
+      },
+    ];
+
+    await exportToPdf(`intressentanalys-${dateStr}.pdf`, sections, metadata);
   }, [state.stakeholders]);
 
   return (
@@ -1285,8 +1347,14 @@ export default function StakeholderMapPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Icon name="external-link" size={14} /> Exportera JSON
+            <Button variant="outline" size="sm" onClick={handleExportJson}>
+              <Icon name="external-link" size={14} /> JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportXlsx}>
+              <Icon name="file-spreadsheet" size={14} /> Excel
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPdf}>
+              <Icon name="file-text" size={14} /> PDF
             </Button>
             <Button
               size="sm"

@@ -12,6 +12,7 @@ import {
   type CalculationResult,
   type YearlyFlows,
 } from "@/lib/cvrf/CalculationEngine";
+import { exportToJson, exportToXlsx, exportToPdf, type ExportSheet, type PdfSection, type ExportMetadata } from "@/lib/tools-export";
 
 /* ================================================================== */
 /*  Types                                                              */
@@ -323,11 +324,11 @@ function reducer(state: AnalysisState, action: Action): AnalysisState {
 /* ================================================================== */
 
 const PHASES = [
-  { key: "forsta", label: "Forsta", title: "Forsta", icon: "lightbulb" },
-  { key: "kartlagga", label: "Kartlagga", title: "Kartlagga", icon: "users" },
-  { key: "berakna", label: "Berakna", title: "Berakna", icon: "calculator" },
+  { key: "forsta", label: "Förstå", title: "Förstå", icon: "lightbulb" },
+  { key: "kartlagga", label: "Kartlägga", title: "Kartlägga", icon: "users" },
+  { key: "berakna", label: "Beräkna", title: "Beräkna", icon: "calculator" },
   { key: "realisera", label: "Realisera", title: "Realisera", icon: "target" },
-  { key: "lara", label: "Lara", title: "Lara", icon: "book-open" },
+  { key: "lara", label: "Lära", title: "Lära", icon: "book-open" },
 ] as const;
 
 /* ================================================================== */
@@ -417,7 +418,7 @@ function BarChart({
 
   return (
     <Card className="p-5">
-      <h4 className="mb-4 text-sm font-semibold">Kassaflodesdiagram</h4>
+      <h4 className="mb-4 text-sm font-semibold">Kassaflödesdiagram</h4>
       <div className="flex items-end gap-2" style={{ height: 200 }}>
         {Array.from({ length: timeHorizon }).map((_, i) => {
           const net = netPerYear[i] ?? 0;
@@ -440,7 +441,7 @@ function BarChart({
                       ? { bottom: "50%", backgroundColor: "var(--success)" }
                       : { top: "50%", backgroundColor: "var(--destructive)" }),
                   }}
-                  title={`Netto ar ${i}: ${fmt.format(net)}`}
+                  title={`Netto år ${i}: ${fmt.format(net)}`}
                 />
                 {/* cumulative dot */}
                 <div
@@ -451,12 +452,12 @@ function BarChart({
                       ? { bottom: `${50 + cumH * 45}%` }
                       : { bottom: `${50 - cumH * 45}%` }),
                   }}
-                  title={`Kumulativt ar ${i}: ${fmt.format(cum)}`}
+                  title={`Kumulativt år ${i}: ${fmt.format(cum)}`}
                 />
                 {/* zero line */}
                 <div className="absolute bottom-[50%] left-0 right-0 border-t border-border/40" />
               </div>
-              <span className="text-[10px] text-muted-foreground">Ar {i}</span>
+              <span className="text-[10px] text-muted-foreground">År {i}</span>
             </div>
           );
         })}
@@ -479,7 +480,7 @@ function BarChart({
   );
 }
 
-/* ---- Phase 1: Forsta ---- */
+/* ---- Phase 1: Förstå ---- */
 
 function PhaseForsta({
   state,
@@ -491,22 +492,22 @@ function PhaseForsta({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold tracking-tight">Fas 1 — Forsta</h2>
+        <h2 className="text-xl font-bold tracking-tight">Fas 1 — Förstå</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Definiera problemet, strategisk koppling och malbild.
+          Definiera problemet, strategisk koppling och målbild.
         </p>
       </div>
 
       <Card className="space-y-4 p-5">
         <Input
-          label="Namn pa analys"
-          placeholder="T.ex. Digitalisering av socialtjansten"
+          label="Namn på analys"
+          placeholder="T.ex. Digitalisering av socialtjänsten"
           value={state.name}
           onChange={(e) => dispatch({ type: "SET_FIELD", field: "name", value: e.target.value })}
         />
         <Textarea
           label="Problembeskrivning"
-          placeholder="Beskriv det problem eller den utmaning som ska losas..."
+          placeholder="Beskriv det problem eller den utmaning som ska lösas..."
           value={state.problemDescription}
           onChange={(e) =>
             dispatch({ type: "SET_FIELD", field: "problemDescription", value: e.target.value })
@@ -514,7 +515,7 @@ function PhaseForsta({
         />
         <Textarea
           label="Strategisk koppling"
-          placeholder="Hur kopplar denna insats till organisationens strategiska mal?"
+          placeholder="Hur kopplar denna insats till organisationens strategiska mål?"
           value={state.strategicLink}
           onChange={(e) =>
             dispatch({ type: "SET_FIELD", field: "strategicLink", value: e.target.value })
@@ -525,15 +526,15 @@ function PhaseForsta({
       {/* SMART goals */}
       <Card className="p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">SMART-mal</h3>
+          <h3 className="text-sm font-semibold">SMART-mål</h3>
           <Button variant="outline" size="sm" onClick={() => dispatch({ type: "ADD_SMART_GOAL" })}>
-            <Icon name="plus" size={14} /> Lagg till mal
+            <Icon name="plus" size={14} /> Lägg till mål
           </Button>
         </div>
 
         {state.smartGoals.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Inga SMART-mal tillagda annu. Klicka &quot;Lagg till mal&quot; for att borja.
+            Inga SMART-mål tillagda ännu. Klicka &quot;Lägg till mål&quot; för att börja.
           </p>
         )}
 
@@ -542,8 +543,8 @@ function PhaseForsta({
             <div key={g.id} className="flex flex-col gap-2 rounded-xl border border-border/60 p-4 sm:flex-row sm:items-end sm:gap-3">
               <div className="flex-1">
                 <Input
-                  label="Maltitel"
-                  placeholder="Minska handlaggningstid"
+                  label="Måltitel"
+                  placeholder="Minska handläggningstid"
                   value={g.title}
                   onChange={(e) =>
                     dispatch({ type: "UPDATE_SMART_GOAL", id: g.id, field: "title", value: e.target.value })
@@ -552,8 +553,8 @@ function PhaseForsta({
               </div>
               <div className="flex-1">
                 <Input
-                  label="Matetal"
-                  placeholder="Dagar per arende"
+                  label="Mätetal"
+                  placeholder="Dagar per ärende"
                   value={g.metric}
                   onChange={(e) =>
                     dispatch({ type: "UPDATE_SMART_GOAL", id: g.id, field: "metric", value: e.target.value })
@@ -562,7 +563,7 @@ function PhaseForsta({
               </div>
               <div className="w-40">
                 <Input
-                  label="Maldatum"
+                  label="Måldatum"
                   type="date"
                   value={g.targetDate}
                   onChange={(e) =>
@@ -591,7 +592,7 @@ function PhaseForsta({
   );
 }
 
-/* ---- Phase 2: Kartlagga ---- */
+/* ---- Phase 2: Kartlägga ---- */
 
 function PhaseKartlagga({
   state,
@@ -604,14 +605,14 @@ function PhaseKartlagga({
     { value: "Brukare", label: "Brukare" },
     { value: "Medarbetare", label: "Medarbetare" },
     { value: "Organisation", label: "Organisation" },
-    { value: "Samhalle", label: "Samhalle" },
+    { value: "Samhälle", label: "Samhälle" },
     { value: "Partner", label: "Partner" },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold tracking-tight">Fas 2 — Kartlagga</h2>
+        <h2 className="text-xl font-bold tracking-tight">Fas 2 — Kartlägga</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Beskriv nollalternativet och identifiera intressenter.
         </p>
@@ -619,8 +620,8 @@ function PhaseKartlagga({
 
       <Card className="p-5">
         <Textarea
-          label="Nollalternativ — vad hander om vi inte gor nagot?"
-          placeholder="Beskriv konsekvenserna av att inte genomfora insatsen..."
+          label="Nollalternativ — vad händer om vi inte gör något?"
+          placeholder="Beskriv konsekvenserna av att inte genomföra insatsen..."
           rows={4}
           value={state.zeroAlternative}
           onChange={(e) =>
@@ -633,13 +634,13 @@ function PhaseKartlagga({
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Intressenter</h3>
           <Button variant="outline" size="sm" onClick={() => dispatch({ type: "ADD_STAKEHOLDER" })}>
-            <Icon name="plus" size={14} /> Lagg till
+            <Icon name="plus" size={14} /> Lägg till
           </Button>
         </div>
 
         {state.stakeholders.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Inga intressenter tillagda annu.
+            Inga intressenter tillagda ännu.
           </p>
         )}
 
@@ -649,7 +650,7 @@ function PhaseKartlagga({
               <div className="flex-1">
                 <Input
                   label="Namn"
-                  placeholder="T.ex. Slutanvandare"
+                  placeholder="T.ex. Slutanvändare"
                   value={s.name}
                   onChange={(e) =>
                     dispatch({ type: "UPDATE_STAKEHOLDER", id: s.id, field: "name", value: e.target.value })
@@ -716,7 +717,7 @@ function PhaseKartlagga({
   );
 }
 
-/* ---- Phase 3: Berakna ---- */
+/* ---- Phase 3: Beräkna ---- */
 
 function PhaseBerakna({
   state,
@@ -732,19 +733,19 @@ function PhaseBerakna({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold tracking-tight">Fas 3 — Berakna</h2>
+        <h2 className="text-xl font-bold tracking-tight">Fas 3 — Beräkna</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Definiera nyttor, kostnader och berakna nyckeltal.
+          Definiera nyttor, kostnader och beräkna nyckeltal.
         </p>
       </div>
 
       {/* Settings */}
       <Card className="p-5">
-        <h3 className="mb-3 text-sm font-semibold">Berakningsparametrar</h3>
+        <h3 className="mb-3 text-sm font-semibold">Beräkningsparametrar</h3>
         <div className="flex flex-col gap-4 sm:flex-row">
           <div className="w-48">
             <Input
-              label="Tidshorisont (ar)"
+              label="Tidshorisont (år)"
               type="number"
               min={1}
               max={30}
@@ -756,7 +757,7 @@ function PhaseBerakna({
           </div>
           <div className="w-48">
             <Input
-              label="Diskonteringsranta (%)"
+              label="Diskonteringsränta (%)"
               type="number"
               min={0}
               max={20}
@@ -779,12 +780,12 @@ function PhaseBerakna({
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Nyttor (SEK)</h3>
           <Button variant="outline" size="sm" onClick={() => dispatch({ type: "ADD_BENEFIT" })}>
-            <Icon name="plus" size={14} /> Lagg till nytta
+            <Icon name="plus" size={14} /> Lägg till nytta
           </Button>
         </div>
 
         {state.benefits.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Inga nyttor tillagda annu.</p>
+          <p className="text-sm text-muted-foreground">Inga nyttor tillagda ännu.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -793,7 +794,7 @@ function PhaseBerakna({
                   <th className="pb-2 pr-2 font-medium">Nytta</th>
                   {years.map((y) => (
                     <th key={y} className="pb-2 pr-1 text-right font-medium" style={{ minWidth: 80 }}>
-                      Ar {y}
+                      År {y}
                     </th>
                   ))}
                   <th className="w-8" />
@@ -852,12 +853,12 @@ function PhaseBerakna({
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Kostnader (SEK)</h3>
           <Button variant="outline" size="sm" onClick={() => dispatch({ type: "ADD_COST" })}>
-            <Icon name="plus" size={14} /> Lagg till kostnad
+            <Icon name="plus" size={14} /> Lägg till kostnad
           </Button>
         </div>
 
         {state.costs.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Inga kostnader tillagda annu.</p>
+          <p className="text-sm text-muted-foreground">Inga kostnader tillagda ännu.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -866,7 +867,7 @@ function PhaseBerakna({
                   <th className="pb-2 pr-2 font-medium">Kostnad</th>
                   {years.map((y) => (
                     <th key={y} className="pb-2 pr-1 text-right font-medium" style={{ minWidth: 80 }}>
-                      Ar {y}
+                      År {y}
                     </th>
                   ))}
                   <th className="w-8" />
@@ -949,10 +950,10 @@ function PhaseBerakna({
               color={calcResult.sroi > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}
             />
             <KpiCard
-              label="Aterbetalning"
+              label="Återbetalning"
               value={
                 calcResult.paybackYears !== null
-                  ? `${fmtNum.format(calcResult.paybackYears)} ar`
+                  ? `${fmtNum.format(calcResult.paybackYears)} år`
                   : "N/A"
               }
               icon="flag"
@@ -981,10 +982,10 @@ function PhaseRealisera({
   dispatch: React.Dispatch<Action>;
 }) {
   const freqOptions = [
-    { value: "monthly", label: "Manatlig" },
+    { value: "monthly", label: "Månadsvis" },
     { value: "quarterly", label: "Kvartalsvis" },
-    { value: "biannual", label: "Halvarlig" },
-    { value: "annual", label: "Arlig" },
+    { value: "biannual", label: "Halvårsvis" },
+    { value: "annual", label: "Årlig" },
   ];
 
   if (state.benefits.length === 0) {
@@ -993,12 +994,12 @@ function PhaseRealisera({
         <div>
           <h2 className="text-xl font-bold tracking-tight">Fas 4 — Realisera</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Tilldela nyttoagare och definiera KPI:er for varje nytta.
+            Tilldela nyttoägare och definiera KPI:er för varje nytta.
           </p>
         </div>
         <Card className="p-5">
           <p className="text-sm text-muted-foreground">
-            Inga nyttor definierade annu. Ga tillbaka till Fas 3 for att lagga till nyttor.
+            Inga nyttor definierade ännu. Gå tillbaka till Fas 3 för att lägga till nyttor.
           </p>
         </Card>
       </div>
@@ -1010,7 +1011,7 @@ function PhaseRealisera({
       <div>
         <h2 className="text-xl font-bold tracking-tight">Fas 4 — Realisera</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Tilldela nyttoagare och definiera KPI:er for varje nytta.
+          Tilldela nyttoägare och definiera KPI:er för varje nytta.
         </p>
       </div>
 
@@ -1029,11 +1030,11 @@ function PhaseRealisera({
           <Card key={b.id} className="p-5">
             <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
               <Icon name="target" size={16} className="text-primary" />
-              {b.title || "Namnlos nytta"}
+              {b.title || "Namnlös nytta"}
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
-                label="Nyttoagare (namn)"
+                label="Nyttoägare (namn)"
                 placeholder="Anna Johansson"
                 value={own.ownerName}
                 onChange={(e) =>
@@ -1059,7 +1060,7 @@ function PhaseRealisera({
                 }
               />
               <Input
-                label="Basvarde"
+                label="Basvärde"
                 type="number"
                 value={own.baseValue || ""}
                 placeholder="0"
@@ -1073,7 +1074,7 @@ function PhaseRealisera({
                 }
               />
               <Input
-                label="Malvarde"
+                label="Målvärde"
                 type="number"
                 value={own.targetValue || ""}
                 placeholder="0"
@@ -1089,7 +1090,7 @@ function PhaseRealisera({
               <div className="sm:col-span-2">
                 <Textarea
                   label="KPI-beskrivning"
-                  placeholder="Beskriv hur nyttan mats..."
+                  placeholder="Beskriv hur nyttan mäts..."
                   value={own.kpiDescription}
                   onChange={(e) =>
                     dispatch({
@@ -1102,7 +1103,7 @@ function PhaseRealisera({
                 />
               </div>
               <Select
-                label="Matfrekvens"
+                label="Mätfrekvens"
                 options={freqOptions}
                 value={own.measureFrequency}
                 onChange={(e) =>
@@ -1122,7 +1123,7 @@ function PhaseRealisera({
   );
 }
 
-/* ---- Phase 5: Lara ---- */
+/* ---- Phase 5: Lära ---- */
 
 function PhaseLara({
   state,
@@ -1144,23 +1145,187 @@ function PhaseLara({
     { value: "Negativ", label: "Negativ" },
   ];
 
-  function handleExport() {
-    const data = JSON.stringify(state, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `nyttokalkyl-${state.name || state.id}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const metadata: ExportMetadata = {
+    toolName: "Nyttokalkyl — CVRF-analys",
+    exportDate: new Date().toISOString().slice(0, 10),
+    subtitle: state.name || "Namnlös analys",
+  };
+
+  function handleExportJson() {
+    exportToJson(`nyttokalkyl-${state.name || state.id}.json`, state);
+  }
+
+  async function handleExportXlsx() {
+    const sheets: ExportSheet[] = [];
+
+    // Sammanfattning
+    sheets.push({
+      name: "Sammanfattning",
+      headers: ["Fält", "Värde"],
+      rows: [
+        ["Namn", state.name || ""],
+        ["Problembeskrivning", state.problemDescription || ""],
+        ["Strategisk koppling", state.strategicLink || ""],
+        ["Nollalternativ", state.zeroAlternative || ""],
+        ["Tidshorisont (år)", state.timeHorizon],
+        ["Diskonteringsränta (%)", state.discountRate],
+        ...(calcResult ? [
+          ["NPV", fmt.format(calcResult.npv)],
+          ["BCR", fmtNum.format(calcResult.bcr)],
+          ["IRR", calcResult.irr !== null ? fmtPct.format(calcResult.irr) : "N/A"],
+          ["SROI", fmtNum.format(calcResult.sroi)],
+          ["Återbetalning (år)", calcResult.paybackYears !== null ? fmtNum.format(calcResult.paybackYears) : "N/A"],
+        ] as (string | number)[][] : []),
+      ],
+    });
+
+    // SMART-mål
+    if (state.smartGoals.length > 0) {
+      sheets.push({
+        name: "SMART-mål",
+        headers: ["Måltitel", "Mätetal", "Måldatum"],
+        rows: state.smartGoals.map((g) => [g.title, g.metric, g.targetDate]),
+      });
+    }
+
+    // Intressenter
+    if (state.stakeholders.length > 0) {
+      sheets.push({
+        name: "Intressenter",
+        headers: ["Namn", "Kategori", "Inflytande", "Intresse"],
+        rows: state.stakeholders.map((s) => [s.name, s.category, s.influence, s.interest]),
+      });
+    }
+
+    // Nyttor
+    if (state.benefits.length > 0) {
+      const yearHeaders = Array.from({ length: state.timeHorizon }, (_, i) => `År ${i}`);
+      sheets.push({
+        name: "Nyttor",
+        headers: ["Nytta", ...yearHeaders],
+        rows: state.benefits.map((b) => [b.title, ...b.amounts]),
+      });
+    }
+
+    // Kostnader
+    if (state.costs.length > 0) {
+      const yearHeaders = Array.from({ length: state.timeHorizon }, (_, i) => `År ${i}`);
+      sheets.push({
+        name: "Kostnader",
+        headers: ["Kostnad", ...yearHeaders],
+        rows: state.costs.map((c) => [c.title, ...c.amounts]),
+      });
+    }
+
+    // Nyttoägare
+    if (state.benefitOwnerships.length > 0) {
+      sheets.push({
+        name: "Nyttoägare",
+        headers: ["Nytta", "Ägare", "Roll", "Basvärde", "Målvärde", "KPI", "Mätfrekvens"],
+        rows: state.benefitOwnerships.map((o) => {
+          const b = state.benefits.find((b) => b.id === o.benefitId);
+          return [b?.title || "", o.ownerName, o.ownerRole, o.baseValue, o.targetValue, o.kpiDescription, o.measureFrequency];
+        }),
+      });
+    }
+
+    // Lärdomar
+    if (state.lessons.length > 0) {
+      sheets.push({
+        name: "Lärdomar",
+        headers: ["Titel", "Kategori", "Påverkan", "Beskrivning", "Rekommendation"],
+        rows: state.lessons.map((l) => [l.title, l.category, l.impact, l.description, l.recommendation]),
+      });
+    }
+
+    await exportToXlsx(`nyttokalkyl-${state.name || state.id}.xlsx`, sheets, metadata);
+  }
+
+  async function handleExportPdf() {
+    const sections: PdfSection[] = [];
+
+    // Sammanfattning
+    sections.push({
+      title: "Sammanfattning",
+      type: "keyvalue",
+      pairs: [
+        { label: "Namn", value: state.name || "Ej angiven" },
+        { label: "Problembeskrivning", value: state.problemDescription || "Ej angiven" },
+        { label: "Strategisk koppling", value: state.strategicLink || "Ej angiven" },
+        { label: "Nollalternativ", value: state.zeroAlternative || "Ej angiven" },
+        { label: "Tidshorisont", value: `${state.timeHorizon} år` },
+        { label: "Diskonteringsränta", value: `${state.discountRate}%` },
+      ],
+    });
+
+    // Nyckeltal
+    if (calcResult) {
+      sections.push({
+        title: "Nyckeltal",
+        type: "keyvalue",
+        pairs: [
+          { label: "NPV", value: fmt.format(calcResult.npv) },
+          { label: "BCR", value: fmtNum.format(calcResult.bcr) },
+          { label: "IRR", value: calcResult.irr !== null ? fmtPct.format(calcResult.irr) : "N/A" },
+          { label: "SROI", value: fmtNum.format(calcResult.sroi) },
+          { label: "Återbetalning", value: calcResult.paybackYears !== null ? `${fmtNum.format(calcResult.paybackYears)} år` : "N/A" },
+          { label: "PV Nyttor", value: fmt.format(calcResult.pvBenefits) },
+          { label: "PV Kostnader", value: fmt.format(calcResult.pvCosts) },
+        ],
+      });
+    }
+
+    // SMART-mål
+    if (state.smartGoals.length > 0) {
+      sections.push({
+        title: "SMART-mål",
+        type: "table",
+        headers: ["Måltitel", "Mätetal", "Måldatum"],
+        rows: state.smartGoals.map((g) => [g.title, g.metric, g.targetDate]),
+      });
+    }
+
+    // Nyttor
+    if (state.benefits.length > 0) {
+      const yearHeaders = Array.from({ length: state.timeHorizon }, (_, i) => `År ${i}`);
+      sections.push({
+        title: "Nyttor (SEK)",
+        type: "table",
+        headers: ["Nytta", ...yearHeaders],
+        rows: state.benefits.map((b) => [b.title, ...b.amounts]),
+      });
+    }
+
+    // Kostnader
+    if (state.costs.length > 0) {
+      const yearHeaders = Array.from({ length: state.timeHorizon }, (_, i) => `År ${i}`);
+      sections.push({
+        title: "Kostnader (SEK)",
+        type: "table",
+        headers: ["Kostnad", ...yearHeaders],
+        rows: state.costs.map((c) => [c.title, ...c.amounts]),
+      });
+    }
+
+    // Lärdomar
+    if (state.lessons.length > 0) {
+      sections.push({
+        title: "Lärdomar",
+        type: "table",
+        headers: ["Titel", "Kategori", "Påverkan", "Beskrivning"],
+        rows: state.lessons.map((l) => [l.title, l.category, l.impact, l.description]),
+      });
+    }
+
+    await exportToPdf(`nyttokalkyl-${state.name || state.id}.pdf`, sections, metadata);
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold tracking-tight">Fas 5 — Lara</h2>
+        <h2 className="text-xl font-bold tracking-tight">Fas 5 — Lära</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Sammanfattning, lardomar och export.
+          Sammanfattning, lärdomar och export.
         </p>
       </div>
 
@@ -1192,10 +1357,10 @@ function PhaseLara({
             color={calcResult.sroi > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}
           />
           <KpiCard
-            label="Aterbetalning"
+            label="Återbetalning"
             value={
               calcResult.paybackYears !== null
-                ? `${fmtNum.format(calcResult.paybackYears)} ar`
+                ? `${fmtNum.format(calcResult.paybackYears)} år`
                 : "N/A"
             }
             icon="flag"
@@ -1211,7 +1376,7 @@ function PhaseLara({
           <div className="text-sm font-semibold">{state.name || "Ej namngiven"}</div>
         </Card>
         <Card className="p-4">
-          <div className="mb-1 text-xs font-medium text-muted-foreground">SMART-mal</div>
+          <div className="mb-1 text-xs font-medium text-muted-foreground">SMART-mål</div>
           <div className="text-sm font-semibold">{state.smartGoals.length} st</div>
         </Card>
         <Card className="p-4">
@@ -1239,15 +1404,15 @@ function PhaseLara({
       {/* Lessons */}
       <Card className="p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Lardomar</h3>
+          <h3 className="text-sm font-semibold">Lärdomar</h3>
           <Button variant="outline" size="sm" onClick={() => dispatch({ type: "ADD_LESSON" })}>
-            <Icon name="plus" size={14} /> Lagg till
+            <Icon name="plus" size={14} /> Lägg till
           </Button>
         </div>
 
         {state.lessons.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Inga lardomar dokumenterade annu.
+            Inga lärdomar dokumenterade ännu.
           </p>
         )}
 
@@ -1257,7 +1422,7 @@ function PhaseLara({
               <div className="mb-3 flex items-start justify-between gap-2">
                 <Input
                   label="Titel"
-                  placeholder="Lardom titel"
+                  placeholder="Lärdom titel"
                   value={l.title}
                   onChange={(e) =>
                     dispatch({ type: "UPDATE_LESSON", id: l.id, field: "title", value: e.target.value })
@@ -1280,7 +1445,7 @@ function PhaseLara({
                   }
                 />
                 <Select
-                  label="Paverkan"
+                  label="Påverkan"
                   options={impactOptions}
                   value={l.impact}
                   onChange={(e) =>
@@ -1290,7 +1455,7 @@ function PhaseLara({
                 <div className="sm:col-span-2">
                   <Textarea
                     label="Beskrivning"
-                    placeholder="Beskriv lardomen..."
+                    placeholder="Beskriv lärdomen..."
                     value={l.description}
                     onChange={(e) =>
                       dispatch({ type: "UPDATE_LESSON", id: l.id, field: "description", value: e.target.value })
@@ -1300,7 +1465,7 @@ function PhaseLara({
                 <div className="sm:col-span-2">
                   <Textarea
                     label="Rekommendation"
-                    placeholder="Vad bor goras annorlunda nasta gang?"
+                    placeholder="Vad bör göras annorlunda nästa gång?"
                     value={l.recommendation}
                     onChange={(e) =>
                       dispatch({
@@ -1323,11 +1488,19 @@ function PhaseLara({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold">Exportera analys</h3>
-            <p className="text-xs text-muted-foreground">Ladda ner hela analysen som JSON-fil.</p>
+            <p className="text-xs text-muted-foreground">Ladda ner analysen som JSON, Excel eller PDF.</p>
           </div>
-          <Button onClick={handleExport}>
-            <Icon name="external-link" size={14} /> Exportera JSON
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="sm" onClick={handleExportJson}>
+              <Icon name="external-link" size={14} /> JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportXlsx}>
+              Excel
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPdf}>
+              PDF
+            </Button>
+          </div>
         </div>
       </Card>
     </div>
@@ -1474,7 +1647,7 @@ export default function BenefitCalculatorPage() {
                 disabled={state.phase === PHASES.length - 1}
                 onClick={goNext}
               >
-                Nasta fas <Icon name="arrow-right" size={14} />
+                Nästa fas <Icon name="arrow-right" size={14} />
               </Button>
             </div>
           </div>

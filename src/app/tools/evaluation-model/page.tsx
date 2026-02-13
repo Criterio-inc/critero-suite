@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { exportToJson, exportToXlsx, exportToPdf, type ExportSheet, type PdfSection, type ExportMetadata } from "@/lib/tools-export";
 
 /* ================================================================== */
 /*  Types                                                              */
@@ -1144,16 +1145,88 @@ export default function EvaluationModelPage() {
   const totalWeight = state.criteria.reduce((sum, c) => sum + c.weight, 0);
   const weightsValid = Math.abs(totalWeight - 100) < 0.01;
 
-  const handleExport = useCallback(() => {
-    const data = JSON.stringify(state, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `utvarderingsmodell-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExportJson = useCallback(() => {
+    exportToJson(`utvarderingsmodell-${new Date().toISOString().slice(0, 10)}.json`, state);
   }, [state]);
+
+  const handleExportXlsx = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const metadata: ExportMetadata = {
+      toolName: "Utvärderingsmodell",
+      exportDate: dateStr,
+      subtitle: `${state.criteria.length} kriterier, ${state.bids.length} anbud`,
+    };
+
+    const criteriaRows: (string | number)[][] = state.criteria.map((c) => [
+      c.name, c.type === "price" ? "Pris" : "Kvalitet", c.weight, c.maxPoints,
+    ]);
+
+    const bidRows: (string | number)[][] = state.bids.map((bid) => {
+      const vals = state.criteria.map((c) => {
+        const v = bid.values.find((bv) => bv.criterionId === c.id);
+        return v ? v.value : 0;
+      });
+      return [bid.supplier || "Namnlös", ...vals];
+    });
+
+    const poangRows: (string | number)[][] = poangResult.results.map((r) => [
+      r.rank, r.supplier, Number(r.score.toFixed(2)),
+    ]);
+    const prisavdragRows: (string | number)[][] = prisavdragResult.results.map((r) => [
+      r.rank, r.supplier, Number(r.score.toFixed(0)),
+    ]);
+    const fastprisRows: (string | number)[][] = fastprisResult.results.map((r) => [
+      r.rank, r.supplier, Number(r.score.toFixed(2)),
+    ]);
+
+    const sheets: ExportSheet[] = [
+      { name: "Kriterier", headers: ["Namn", "Typ", "Vikt (%)", "Max poäng"], rows: criteriaRows },
+      { name: "Anbud", headers: ["Leverantör", ...state.criteria.map((c) => c.name || "Namnlöst")], rows: bidRows },
+      { name: "Poängmodell", headers: ["Rank", "Leverantör", "Poäng"], rows: poangRows },
+      { name: "Prisavdragsmodell", headers: ["Rank", "Leverantör", "Justerat pris (SEK)"], rows: prisavdragRows },
+      { name: "Fastprismodell", headers: ["Rank", "Leverantör", "Poäng"], rows: fastprisRows },
+    ];
+
+    await exportToXlsx(`utvarderingsmodell-${dateStr}.xlsx`, sheets, metadata);
+  }, [state, poangResult, prisavdragResult, fastprisResult]);
+
+  const handleExportPdf = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const metadata: ExportMetadata = {
+      toolName: "Utvärderingsmodell",
+      exportDate: dateStr,
+      subtitle: `${state.criteria.length} kriterier, ${state.bids.length} anbud`,
+    };
+
+    const sections: PdfSection[] = [
+      {
+        title: "Kriterier",
+        type: "table",
+        headers: ["Namn", "Typ", "Vikt (%)", "Max poäng"],
+        rows: state.criteria.map((c) => [c.name, c.type === "price" ? "Pris" : "Kvalitet", c.weight, c.maxPoints]),
+      },
+      {
+        title: "Poängmodell — Resultat",
+        type: "table",
+        headers: ["Rank", "Leverantör", "Poäng"],
+        rows: poangResult.results.map((r) => [r.rank, r.supplier, Number(r.score.toFixed(2))]),
+      },
+      {
+        title: "Prisavdragsmodell — Resultat",
+        type: "table",
+        headers: ["Rank", "Leverantör", "Justerat pris (SEK)"],
+        rows: prisavdragResult.results.map((r) => [r.rank, r.supplier, Number(r.score.toFixed(0))]),
+      },
+      {
+        title: "Fastprismodell — Resultat",
+        type: "table",
+        headers: ["Rank", "Leverantör", "Poäng"],
+        rows: fastprisResult.results.map((r) => [r.rank, r.supplier, Number(r.score.toFixed(2))]),
+      },
+    ];
+
+    await exportToPdf(`utvarderingsmodell-${dateStr}.pdf`, sections, metadata);
+  }, [state.criteria, state.bids, poangResult, prisavdragResult, fastprisResult]);
 
   const handleReset = useCallback(() => {
     dispatch({ type: "LOAD_STATE", state: createInitialState() });
@@ -1181,8 +1254,14 @@ export default function EvaluationModelPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Icon name="external-link" size={14} /> Exportera
+            <Button variant="outline" size="sm" onClick={handleExportJson}>
+              <Icon name="external-link" size={14} /> JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportXlsx}>
+              <Icon name="file-spreadsheet" size={14} /> Excel
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPdf}>
+              <Icon name="file-text" size={14} /> PDF
             </Button>
             <Button variant="outline" size="sm" onClick={handleReset}>
               <Icon name="refresh-cw" size={14} /> Nollställ
@@ -1255,12 +1334,20 @@ export default function EvaluationModelPage() {
                 <div>
                   <h3 className="text-sm font-semibold">Exportera utvärdering</h3>
                   <p className="text-xs text-muted-foreground">
-                    Ladda ner hela utvärderingen med kriterier, anbud och resultat som JSON-fil.
+                    Ladda ner hela utvärderingen med kriterier, anbud och resultat.
                   </p>
                 </div>
-                <Button onClick={handleExport}>
-                  <Icon name="external-link" size={14} /> Exportera JSON
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={handleExportJson}>
+                    <Icon name="external-link" size={14} /> JSON
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExportXlsx}>
+                    <Icon name="file-spreadsheet" size={14} /> Excel
+                  </Button>
+                  <Button onClick={handleExportPdf}>
+                    <Icon name="file-text" size={14} /> PDF
+                  </Button>
+                </div>
               </div>
             </Card>
           )}

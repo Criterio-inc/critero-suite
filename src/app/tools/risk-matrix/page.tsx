@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { exportToJson, exportToXlsx, exportToPdf, type ExportSheet, type PdfSection, type ExportMetadata } from "@/lib/tools-export";
 
 /* ================================================================== */
 /*  Types                                                              */
@@ -1056,15 +1057,83 @@ export default function RiskMatrixPage() {
     }
   }, [state]);
 
-  const handleExport = useCallback(() => {
-    const data = JSON.stringify(state.risks, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `riskmatris-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExportJson = useCallback(() => {
+    exportToJson(`riskmatris-${new Date().toISOString().slice(0, 10)}.json`, state.risks);
+  }, [state.risks]);
+
+  const handleExportXlsx = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const metadata: ExportMetadata = {
+      toolName: "Riskmatris",
+      exportDate: dateStr,
+      subtitle: `${state.risks.length} risker identifierade`,
+    };
+
+    const riskRows: (string | number)[][] = state.risks.map((r) => {
+      const score = getRiskScore(r);
+      const level = getRiskLevel(score);
+      return [r.name, r.category, r.sannolikhet, r.konsekvens, score, level, r.description, r.existingMitigations];
+    });
+
+    const mitigationRows: (string | number)[][] = [];
+    for (const r of state.risks) {
+      for (const m of r.mitigations) {
+        mitigationRows.push([r.name, m.action, m.responsible, m.deadline, m.status]);
+      }
+    }
+
+    const sheets: ExportSheet[] = [
+      {
+        name: "Risker",
+        headers: ["Namn", "Kategori", "Sannolikhet", "Konsekvens", "Poäng", "Nivå", "Beskrivning", "Befintliga åtgärder"],
+        rows: riskRows,
+      },
+      {
+        name: "Åtgärder",
+        headers: ["Risk", "Åtgärd", "Ansvarig", "Deadline", "Status"],
+        rows: mitigationRows,
+      },
+    ];
+
+    await exportToXlsx(`riskmatris-${dateStr}.xlsx`, sheets, metadata);
+  }, [state.risks]);
+
+  const handleExportPdf = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const metadata: ExportMetadata = {
+      toolName: "Riskmatris",
+      exportDate: dateStr,
+      subtitle: `${state.risks.length} risker identifierade`,
+    };
+
+    const sections: PdfSection[] = [
+      {
+        title: "Risköversikt",
+        type: "table",
+        headers: ["Namn", "Kategori", "S", "K", "Poäng", "Nivå"],
+        rows: state.risks.map((r) => {
+          const score = getRiskScore(r);
+          return [r.name, r.category, r.sannolikhet, r.konsekvens, score, getRiskLevel(score)];
+        }),
+      },
+    ];
+
+    const mitigationRows: (string | number)[][] = [];
+    for (const r of state.risks) {
+      for (const m of r.mitigations) {
+        mitigationRows.push([r.name, m.action, m.responsible, m.deadline, m.status]);
+      }
+    }
+    if (mitigationRows.length > 0) {
+      sections.push({
+        title: "Åtgärdsplan",
+        type: "table",
+        headers: ["Risk", "Åtgärd", "Ansvarig", "Deadline", "Status"],
+        rows: mitigationRows,
+      });
+    }
+
+    await exportToPdf(`riskmatris-${dateStr}.pdf`, sections, metadata);
   }, [state.risks]);
 
   const handleNewAnalysis = useCallback(() => {
@@ -1107,8 +1176,14 @@ export default function RiskMatrixPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport} disabled={state.risks.length === 0}>
-              <Icon name="external-link" size={14} /> Exportera JSON
+            <Button variant="outline" size="sm" onClick={handleExportJson} disabled={state.risks.length === 0}>
+              <Icon name="external-link" size={14} /> JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportXlsx} disabled={state.risks.length === 0}>
+              <Icon name="file-spreadsheet" size={14} /> Excel
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={state.risks.length === 0}>
+              <Icon name="file-text" size={14} /> PDF
             </Button>
             <Button variant="outline" size="sm" onClick={handleNewAnalysis}>
               <Icon name="refresh-cw" size={14} /> Ny analys

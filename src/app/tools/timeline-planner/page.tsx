@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { exportToJson, exportToXlsx, exportToPdf, type ExportSheet, type PdfSection, type ExportMetadata } from "@/lib/tools-export";
 
 /* ================================================================== */
 /*  Types                                                              */
@@ -891,41 +892,86 @@ export default function TimelinePlannerPage() {
     setCustomDurations({});
   }, []);
 
-  // Export as JSON
-  const handleExport = useCallback(() => {
+  const handleExportJson = useCallback(() => {
     const exportData = {
       exportDate: new Date().toISOString(),
-      settings: {
-        procedureType,
-        threshold,
-        contractDate,
-        eSubmission,
-        preAnnouncement,
-        postalNotification,
-      },
+      settings: { procedureType, threshold, contractDate, eSubmission, preAnnouncement, postalNotification },
       phases: phases.map((p) => ({
-        id: p.id,
-        name: p.name,
-        days: p.days,
-        minDays: p.minDays,
-        startDate: formatDate(p.startDate),
-        endDate: formatDate(p.endDate),
-        legalBasis: p.legalBasis,
+        id: p.id, name: p.name, days: p.days, minDays: p.minDays,
+        startDate: formatDate(p.startDate), endDate: formatDate(p.endDate), legalBasis: p.legalBasis,
       })),
-      totalDays: phases.length > 0
-        ? daysBetween(phases[0].startDate, phases[phases.length - 1].endDate)
-        : 0,
+      totalDays: phases.length > 0 ? daysBetween(phases[0].startDate, phases[phases.length - 1].endDate) : 0,
+    };
+    exportToJson(`tidslinjeplan-${procedureType}-${contractDate}.json`, exportData);
+  }, [procedureType, threshold, contractDate, eSubmission, preAnnouncement, postalNotification, phases]);
+
+  const handleExportXlsx = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const totalDays = phases.length > 0 ? daysBetween(phases[0].startDate, phases[phases.length - 1].endDate) : 0;
+    const procLabel = PROCEDURE_OPTIONS.find((o) => o.value === procedureType)?.label ?? procedureType;
+    const thresholdLabel = THRESHOLD_OPTIONS.find((o) => o.value === threshold)?.label ?? threshold;
+
+    const metadata: ExportMetadata = {
+      toolName: "Tidslinjeplanerare",
+      exportDate: dateStr,
+      subtitle: `${procLabel}, ${thresholdLabel} — Totalt ${totalDays} dagar`,
     };
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `tidslinjeplan-${procedureType}-${contractDate}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const settingsRows: (string | number)[][] = [
+      ["Upphandlingstyp", procLabel],
+      ["EU-tröskelvärde", thresholdLabel],
+      ["Önskat avtalsdatum", contractDate],
+      ["E-upphandling", eSubmission ? "Ja" : "Nej"],
+      ["Förhandsannonsering", preAnnouncement ? "Ja" : "Nej"],
+      ["Brevdelgivning", postalNotification ? "Ja" : "Nej"],
+    ];
+
+    const phaseRows: (string | number)[][] = phases.map((p) => [
+      p.name, p.days, p.minDays, formatDate(p.startDate), formatDate(p.endDate), p.legalBasis,
+    ]);
+
+    const sheets: ExportSheet[] = [
+      { name: "Inställningar", headers: ["Egenskap", "Värde"], rows: settingsRows },
+      { name: "Faser", headers: ["Fas", "Dagar", "Min dagar", "Startdatum", "Slutdatum", "Lagstöd"], rows: phaseRows },
+    ];
+
+    await exportToXlsx(`tidslinjeplan-${procedureType}-${contractDate}.xlsx`, sheets, metadata);
+  }, [procedureType, threshold, contractDate, eSubmission, preAnnouncement, postalNotification, phases]);
+
+  const handleExportPdf = useCallback(async () => {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const totalDays = phases.length > 0 ? daysBetween(phases[0].startDate, phases[phases.length - 1].endDate) : 0;
+    const procLabel = PROCEDURE_OPTIONS.find((o) => o.value === procedureType)?.label ?? procedureType;
+    const thresholdLabel = THRESHOLD_OPTIONS.find((o) => o.value === threshold)?.label ?? threshold;
+
+    const metadata: ExportMetadata = {
+      toolName: "Tidslinjeplanerare",
+      exportDate: dateStr,
+      subtitle: `${procLabel}, ${thresholdLabel} — Totalt ${totalDays} dagar`,
+    };
+
+    const sections: PdfSection[] = [
+      {
+        title: "Upphandlingsinställningar",
+        type: "keyvalue",
+        pairs: [
+          { label: "Upphandlingstyp", value: procLabel },
+          { label: "EU-tröskelvärde", value: thresholdLabel },
+          { label: "Önskat avtalsdatum", value: contractDate },
+          { label: "E-upphandling", value: eSubmission ? "Ja" : "Nej" },
+          { label: "Förhandsannonsering", value: preAnnouncement ? "Ja" : "Nej" },
+          { label: "Brevdelgivning", value: postalNotification ? "Ja" : "Nej" },
+        ],
+      },
+      {
+        title: "Fasöversikt",
+        type: "table",
+        headers: ["Fas", "Dagar", "Startdatum", "Slutdatum", "Lagstöd"],
+        rows: phases.map((p) => [p.name, p.days, formatDate(p.startDate), formatDate(p.endDate), p.legalBasis]),
+      },
+    ];
+
+    await exportToPdf(`tidslinjeplan-${procedureType}-${contractDate}.pdf`, sections, metadata);
   }, [procedureType, threshold, contractDate, eSubmission, preAnnouncement, postalNotification, phases]);
 
   // Reset all to defaults
@@ -955,9 +1001,14 @@ export default function TimelinePlannerPage() {
               <Icon name="refresh-cw" size={14} />
               Återställ
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Icon name="external-link" size={14} />
-              Exportera
+            <Button variant="outline" size="sm" onClick={handleExportJson}>
+              <Icon name="external-link" size={14} /> JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportXlsx}>
+              <Icon name="file-spreadsheet" size={14} /> Excel
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPdf}>
+              <Icon name="file-text" size={14} /> PDF
             </Button>
           </div>
         </div>
@@ -1107,12 +1158,20 @@ export default function TimelinePlannerPage() {
                 <div>
                   <h3 className="text-sm font-semibold">Exportera tidslinje</h3>
                   <p className="text-xs text-muted-foreground">
-                    Ladda ner tidslinjen som JSON-fil med alla faser, datum och lagstöd.
+                    Ladda ner tidslinjen med alla faser, datum och lagstöd.
                   </p>
                 </div>
-                <Button onClick={handleExport}>
-                  <Icon name="external-link" size={14} /> Exportera JSON
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={handleExportJson}>
+                    <Icon name="external-link" size={14} /> JSON
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExportXlsx}>
+                    <Icon name="file-spreadsheet" size={14} /> Excel
+                  </Button>
+                  <Button onClick={handleExportPdf}>
+                    <Icon name="file-text" size={14} /> PDF
+                  </Button>
+                </div>
               </div>
             </Card>
           )}
