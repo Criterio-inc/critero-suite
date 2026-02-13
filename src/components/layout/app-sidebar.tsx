@@ -73,6 +73,10 @@ const NAV_SECTIONS = [
     label: "Verktyg",
     items: [
       { href: "/tools/benefit-calculator", label: "Nyttokalkyl", icon: "calculator" },
+      { href: "/tools/risk-matrix", label: "Riskmatris", icon: "shield-alert" },
+      { href: "/tools/evaluation-model", label: "Utvärderingsmodell", icon: "scale" },
+      { href: "/tools/timeline-planner", label: "Tidslinjeplanerare", icon: "clock" },
+      { href: "/tools/stakeholder-map", label: "Intressentanalys", icon: "users" },
     ],
   },
   {
