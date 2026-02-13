@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/terms(.*)",
+  "/api/webhooks(.*)",
 ]);
 
 // When Clerk is not configured, allow all requests through
