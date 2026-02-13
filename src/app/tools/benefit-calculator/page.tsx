@@ -13,6 +13,7 @@ import {
   type YearlyFlows,
 } from "@/lib/cvrf/CalculationEngine";
 import { exportToJson, exportToXlsx, exportToPdf, type ExportSheet, type PdfSection, type ExportMetadata } from "@/lib/tools-export";
+import { FeatureGate } from "@/components/feature-gate";
 
 /* ================================================================== */
 /*  Types                                                              */
@@ -1576,6 +1577,7 @@ export default function BenefitCalculatorPage() {
   }, []);
 
   return (
+    <FeatureGate featureKey="tools.benefit-calculator">
     <div className="flex h-full flex-col">
       {/* Top header */}
       <header className="flex items-center gap-3 border-b border-border/60 px-6 py-4">
@@ -1654,5 +1656,6 @@ export default function BenefitCalculatorPage() {
         </div>
       </div>
     </div>
+    </FeatureGate>
   );
 }

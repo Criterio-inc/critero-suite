@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { exportToJson, exportToXlsx, exportToPdf, type ExportSheet, type PdfSection, type ExportMetadata } from "@/lib/tools-export";
+import { FeatureGate } from "@/components/feature-gate";
 
 /* ================================================================== */
 /*  Types                                                              */
@@ -1326,6 +1327,7 @@ export default function StakeholderMapPage() {
   }, [state.stakeholders]);
 
   return (
+    <FeatureGate featureKey="tools.stakeholder-map">
     <div className="flex h-full flex-col">
       {/* Header */}
       <header className="border-b border-border/60 px-6 py-4">
@@ -1458,5 +1460,6 @@ export default function StakeholderMapPage() {
         </div>
       </div>
     </div>
+    </FeatureGate>
   );
 }

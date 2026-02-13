@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
@@ -57,8 +58,63 @@ const ADMIN_TIPS = [
   },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Feature toggle config — labels, icons, categories                  */
+/* ------------------------------------------------------------------ */
+
+interface FeatureDef {
+  key: string;
+  label: string;
+  description: string;
+  icon: string;
+  category: "tools" | "training";
+}
+
+const FEATURE_DEFS: FeatureDef[] = [
+  { key: "tools.benefit-calculator", label: "Nyttokalkyl", description: "Kalkylverktyg för kostnads- och nyttoanalys", icon: "calculator", category: "tools" },
+  { key: "tools.risk-matrix", label: "Riskmatris", description: "Riskbedömning med sannolikhet och konsekvens", icon: "shield-alert", category: "tools" },
+  { key: "tools.evaluation-model", label: "Utvärderingsmodell", description: "Utvärdering och poängsättning av anbud", icon: "scale", category: "tools" },
+  { key: "tools.timeline-planner", label: "Tidslinjeplanerare", description: "Planering och visualisering av upphandlingstidslinje", icon: "clock", category: "tools" },
+  { key: "tools.stakeholder-map", label: "Intressentanalys", description: "Kartläggning av intressenter och deras påverkan", icon: "users", category: "tools" },
+  { key: "tools.kunskapsbank", label: "Kunskapsbank", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", category: "tools" },
+  { key: "training", label: "Utbildning", description: "Upphandlingsakademin med kurser, quiz och scenarion", icon: "graduation-cap", category: "training" },
+];
+
 export default function AdminContent() {
   const { user, isLoaded } = useUser();
+  const [features, setFeatures] = useState<Record<string, boolean>>({});
+  const [featuresSaving, setFeaturesSaving] = useState(false);
+  const [featuresLoaded, setFeaturesLoaded] = useState(false);
+
+  // Fetch current features
+  useEffect(() => {
+    fetch("/api/features")
+      .then((r) => r.json())
+      .then((data) => {
+        setFeatures(data.features ?? {});
+        setFeaturesLoaded(true);
+      })
+      .catch(() => setFeaturesLoaded(true));
+  }, []);
+
+  const toggleFeature = useCallback(async (key: string) => {
+    const updated = { ...features, [key]: !features[key] };
+    setFeatures(updated);
+    setFeaturesSaving(true);
+    try {
+      await fetch("/api/features", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ features: updated }),
+      });
+    } catch (e) {
+      // Revert on error
+      setFeatures(features);
+      console.error("Failed to save features:", e);
+    } finally {
+      setFeaturesSaving(false);
+    }
+  }, [features]);
 
   if (!isLoaded) {
     return (
@@ -75,6 +131,9 @@ export default function AdminContent() {
   if (!isAdmin) {
     redirect("/cases");
   }
+
+  const toolFeatures = FEATURE_DEFS.filter((f) => f.category === "tools");
+  const trainingFeatures = FEATURE_DEFS.filter((f) => f.category === "training");
 
   return (
     <div className="min-h-screen">
@@ -100,6 +159,110 @@ export default function AdminContent() {
       </div>
 
       <div className="px-8 py-8 max-w-4xl space-y-8">
+
+        {/* Funktioner / Feature Toggles */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">Funktioner</h2>
+            {featuresSaving && (
+              <span className="text-xs text-muted-foreground animate-pulse">Sparar...</span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground -mt-2">
+            Styr vilka funktioner som är tillgängliga. Upphandlingar och Bibliotek ingår alltid.
+          </p>
+
+          {/* Always-on features */}
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">Alltid inkluderat</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {[
+                { label: "Upphandlingar", icon: "clipboard-list", description: "Upphandlingsärenden med LOU-stöd" },
+                { label: "Bibliotek", icon: "library", description: "Återanvändbara mallar och kravblock" },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-3 rounded-xl bg-muted/30 px-4 py-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                    <Icon name={item.icon} size={16} className="text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{item.label}</p>
+                    <p className="text-[11px] text-muted-foreground">{item.description}</p>
+                  </div>
+                  <div className="flex h-5 w-9 items-center rounded-full bg-green-500/20 px-0.5">
+                    <div className="h-4 w-4 rounded-full bg-green-500 ml-auto" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Toggleable: Verktyg */}
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">Verktyg</p>
+            <div className="space-y-2">
+              {toolFeatures.map((feat) => {
+                const enabled = features[feat.key] !== false;
+                return (
+                  <div key={feat.key} className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted/20 transition-colors">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${enabled ? "bg-primary/10" : "bg-muted/50"}`}>
+                      <Icon name={feat.icon} size={16} className={enabled ? "text-primary" : "text-muted-foreground/50"} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium transition-colors ${enabled ? "text-foreground" : "text-muted-foreground"}`}>{feat.label}</p>
+                      <p className="text-[11px] text-muted-foreground">{feat.description}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleFeature(feat.key)}
+                      disabled={!featuresLoaded}
+                      className={`flex h-5 w-9 items-center rounded-full px-0.5 transition-colors cursor-pointer ${
+                        enabled ? "bg-green-500/20" : "bg-muted"
+                      }`}
+                      aria-label={`${enabled ? "Stäng av" : "Slå på"} ${feat.label}`}
+                    >
+                      <div className={`h-4 w-4 rounded-full transition-all ${
+                        enabled ? "bg-green-500 ml-auto" : "bg-muted-foreground/30 ml-0"
+                      }`} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Toggleable: Utbildning */}
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">Utbildning</p>
+            <div className="space-y-2">
+              {trainingFeatures.map((feat) => {
+                const enabled = features[feat.key] !== false;
+                return (
+                  <div key={feat.key} className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted/20 transition-colors">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${enabled ? "bg-primary/10" : "bg-muted/50"}`}>
+                      <Icon name={feat.icon} size={16} className={enabled ? "text-primary" : "text-muted-foreground/50"} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium transition-colors ${enabled ? "text-foreground" : "text-muted-foreground"}`}>{feat.label}</p>
+                      <p className="text-[11px] text-muted-foreground">{feat.description}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleFeature(feat.key)}
+                      disabled={!featuresLoaded}
+                      className={`flex h-5 w-9 items-center rounded-full px-0.5 transition-colors cursor-pointer ${
+                        enabled ? "bg-green-500/20" : "bg-muted"
+                      }`}
+                      aria-label={`${enabled ? "Stäng av" : "Slå på"} ${feat.label}`}
+                    >
+                      <div className={`h-4 w-4 rounded-full transition-all ${
+                        enabled ? "bg-green-500 ml-auto" : "bg-muted-foreground/30 ml-0"
+                      }`} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* Snabblänkar */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground">Snabblänkar</h2>

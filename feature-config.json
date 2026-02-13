@@ -1,0 +1,11 @@
+{
+  "features": {
+    "tools.benefit-calculator": true,
+    "tools.risk-matrix": true,
+    "tools.evaluation-model": true,
+    "tools.timeline-planner": true,
+    "tools.stakeholder-map": true,
+    "tools.kunskapsbank": true,
+    "training": true
+  }
+}

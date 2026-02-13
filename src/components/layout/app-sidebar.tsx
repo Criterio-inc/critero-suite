@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/icon";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -62,7 +63,24 @@ const AdminNavLink = dynamic(
   { ssr: false }
 );
 
-const NAV_SECTIONS = [
+/* ------------------------------------------------------------------ */
+/*  Navigation config — each item optionally maps to a feature key     */
+/* ------------------------------------------------------------------ */
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: string;
+  /** If set, the item is hidden when this feature is disabled */
+  featureKey?: string;
+}
+
+interface NavSection {
+  label?: string;
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
   {
     items: [
       { href: "/cases", label: "Upphandlingar", icon: "clipboard-list" },
@@ -72,17 +90,18 @@ const NAV_SECTIONS = [
   {
     label: "Verktyg",
     items: [
-      { href: "/tools/benefit-calculator", label: "Nyttokalkyl", icon: "calculator" },
-      { href: "/tools/risk-matrix", label: "Riskmatris", icon: "shield-alert" },
-      { href: "/tools/evaluation-model", label: "Utvärderingsmodell", icon: "scale" },
-      { href: "/tools/timeline-planner", label: "Tidslinjeplanerare", icon: "clock" },
-      { href: "/tools/stakeholder-map", label: "Intressentanalys", icon: "users" },
+      { href: "/tools/benefit-calculator", label: "Nyttokalkyl", icon: "calculator", featureKey: "tools.benefit-calculator" },
+      { href: "/tools/risk-matrix", label: "Riskmatris", icon: "shield-alert", featureKey: "tools.risk-matrix" },
+      { href: "/tools/evaluation-model", label: "Utvärderingsmodell", icon: "scale", featureKey: "tools.evaluation-model" },
+      { href: "/tools/timeline-planner", label: "Tidslinjeplanerare", icon: "clock", featureKey: "tools.timeline-planner" },
+      { href: "/tools/stakeholder-map", label: "Intressentanalys", icon: "users", featureKey: "tools.stakeholder-map" },
+      { href: "/tools/kunskapsbank", label: "Kunskapsbank", icon: "book-open", featureKey: "tools.kunskapsbank" },
     ],
   },
   {
     label: "Utbildning",
     items: [
-      { href: "/training", label: "Kurser", icon: "graduation-cap" },
+      { href: "/training", label: "Kurser", icon: "graduation-cap", featureKey: "training" },
     ],
   },
   {
@@ -92,12 +111,43 @@ const NAV_SECTIONS = [
   },
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Hook: fetch feature flags                                          */
+/* ------------------------------------------------------------------ */
+
+function useFeatures(): Record<string, boolean> | null {
+  const [features, setFeatures] = useState<Record<string, boolean> | null>(null);
+
+  useEffect(() => {
+    fetch("/api/features")
+      .then((r) => r.json())
+      .then((data) => setFeatures(data.features ?? {}))
+      .catch(() => setFeatures(null));
+  }, []);
+
+  return features;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
+
 export function AppSidebar() {
   const pathname = usePathname();
+  const features = useFeatures();
 
   // Hide sidebar on auth pages
   if (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")) {
     return null;
+  }
+
+  /** Filter items based on feature flags. If features haven't loaded yet, show all. */
+  function filterItems(items: NavItem[]): NavItem[] {
+    if (!features) return items; // loading — show all
+    return items.filter((item) => {
+      if (!item.featureKey) return true; // always-on item
+      return features[item.featureKey] !== false;
+    });
   }
 
   return (
@@ -112,36 +162,42 @@ export function AppSidebar() {
         </Link>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {NAV_SECTIONS.map((section, idx) => (
-          <div key={idx}>
-            {idx > 0 && <div className="my-2 border-t border-border/30" />}
-            {section.label && (
-              <p className="px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-                {section.label}
-              </p>
-            )}
-            <div className="space-y-0.5">
-              {section.items.map((item) => {
-                const isActive = pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
-                      isActive
-                        ? "bg-primary/10 text-primary shadow-sm"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                    )}
-                  >
-                    <Icon name={item.icon} size={16} />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+        {NAV_SECTIONS.map((section, idx) => {
+          const visibleItems = filterItems(section.items);
+          // Hide entire section if no items are visible
+          if (visibleItems.length === 0) return null;
+
+          return (
+            <div key={idx}>
+              {idx > 0 && <div className="my-2 border-t border-border/30" />}
+              {section.label && (
+                <p className="px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {visibleItems.map((item) => {
+                  const isActive = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
+                        isActive
+                          ? "bg-primary/10 text-primary shadow-sm"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                      )}
+                    >
+                      <Icon name={item.icon} size={16} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Admin link — only visible to admin */}
         {isClerkEnabled && <AdminNavLink pathname={pathname} />}

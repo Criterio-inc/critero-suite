@@ -15,6 +15,7 @@ import {
   getTotalCompletedModules,
   getCompletedCourseCount,
 } from "@/lib/academy-progress";
+import { FeatureGate } from "@/components/feature-gate";
 
 function getLevelColor(level: string) {
   switch (level) {
@@ -46,6 +47,7 @@ export default function TrainingPage() {
   const completedCourses = getCompletedCourseCount(progress, courseModuleMap);
 
   return (
+    <FeatureGate featureKey="training">
     <div className="min-h-screen">
       {/* Header */}
       <div className="border-b border-border/60 bg-card/60">
@@ -240,5 +242,6 @@ export default function TrainingPage() {
         </div>
       </div>
     </div>
+    </FeatureGate>
   );
 }
