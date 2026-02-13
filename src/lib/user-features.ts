@@ -93,30 +93,27 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
 
 /**
- * Admin access check with bootstrap fallback.
- * 1. Checks DB (isUserAdmin)
- * 2. If no users in DB yet (first-time bootstrap), checks Clerk email directly
+ * Admin access check with Clerk email fallback.
+ * 1. Checks DB (fast path — works after user is synced)
+ * 2. Always falls back to Clerk email check if DB says not admin
  */
 export async function checkAdminAccess(userId: string): Promise<boolean> {
-  // 1. Check DB first
+  // 1. Fast path: check DB
   const dbAdmin = await isUserAdmin(userId);
   if (dbAdmin) return true;
 
-  // 2. Bootstrap: if User table is empty, check Clerk email directly
+  // 2. Fallback: always check Clerk email directly
+  //    Handles: empty table, partial sync, user not yet in DB
   try {
-    const userCount = await prisma.user.count();
-    if (userCount === 0) {
-      const { clerkClient } = await import("@clerk/nextjs/server");
-      const client = await clerkClient();
-      const clerkUser = await client.users.getUser(userId);
-      const email = clerkUser.emailAddresses.find(
-        (e) => e.id === clerkUser.primaryEmailAddressId,
-      )?.emailAddress;
-      return email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-    }
+    const { clerkClient } = await import("@clerk/nextjs/server");
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(userId);
+    const email = clerkUser.emailAddresses.find(
+      (e) => e.id === clerkUser.primaryEmailAddressId,
+    )?.emailAddress;
+    return email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   } catch {
-    // Clerk not available or table error — fall through
+    // Clerk not available or API error — fail closed
+    return false;
   }
-
-  return false;
 }
