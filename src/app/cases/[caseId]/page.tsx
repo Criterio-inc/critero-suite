@@ -12,6 +12,7 @@ import { ExportButtons } from "@/components/workflow/export-buttons";
 import { ImportRestore } from "@/components/workflow/import-restore";
 import { ImportToCaseDialog } from "@/components/library/import-to-case-dialog";
 import { GlobalSearch } from "@/components/search/global-search";
+import { MaturityDashboard } from "@/components/maturity/maturity-dashboard";
 
 /** Phase-specific guidance for verksamhetsföreträdare */
 const PHASE_GUIDE: Record<string, { verksamhetRole: string; nextActions: { label: string; href: string }[]; tip: string }> = {
@@ -204,6 +205,9 @@ export default async function CaseDashboard({
             </Card>
           ))}
         </div>
+
+        {/* Maturity Measurement */}
+        <MaturityDashboard caseId={caseId} />
 
         {/* Phase overview with progress */}
         <Card>
