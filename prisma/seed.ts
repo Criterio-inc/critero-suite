@@ -261,22 +261,342 @@ async function main() {
   // ── RISKMALLAR (16 st) ─────────────────────────────────────
 
   const riskTemplates = [
-    { title: "Riskmall: Inlåsning/svag dataexport", category: "data_exit", description: "Risk att leverantören inte erbjuder fullgod dataexport, vilket försvårar byte.", likelihood: 4, impact: 4, mitigation: "Ställ SKA-krav på dataexport i öppna format, testa vid leveransgodkännande." },
-    { title: "Riskmall: Migreringsfel/datatapp", category: "teknik", description: "Risk för förlust eller korruption av data vid migrering från befintligt system.", likelihood: 3, impact: 5, mitigation: "Krav på migreringsplan, testmigrering i sandlåda, rollback-plan." },
-    { title: "Riskmall: Otillräcklig loggning", category: "sakerhet", description: "Risk att loggning inte möter rättssäkerhetskrav (särskilt socialtjänst).", likelihood: 3, impact: 4, mitigation: "SKA-krav på loggning med granskningsfunktion, demo vid utvärdering." },
-    { title: "Riskmall: Leverantörsberoende", category: "leverans", description: "Risk för beroende av en enskild leverantör eller nyckelpersoner.", likelihood: 3, impact: 3, mitigation: "Krav på dokumentation, escrow-avtal, SLA med garanterad kontinuitet." },
-    { title: "Riskmall: Integrationsmisslyckande", category: "teknik", description: "Risk att integrationer med befintliga system inte fungerar som förväntat.", likelihood: 3, impact: 4, mitigation: "PoC-krav på kritiska integrationer, tydligt specificerade API-krav." },
-    { title: "Riskmall: Säkerhetsbrister", category: "sakerhet", description: "Risk för säkerhetsluckor i systemet eller dess infrastruktur.", likelihood: 2, impact: 5, mitigation: "Krav på säkerhetscertifiering, penetrationstest, incidenthanteringsplan." },
-    { title: "Riskmall: Förändringsledning", category: "verksamhet", description: "Risk att organisationen inte klarar övergången till nytt system.", likelihood: 4, impact: 3, mitigation: "Förändringsledningsplan, utbildning, superanvändare, stegvis utrullning." },
-    { title: "Riskmall: Användaracceptans", category: "verksamhet", description: "Risk att slutanvändarna inte accepterar det nya systemet.", likelihood: 3, impact: 4, mitigation: "Tidig involvering av användare, användbarhetstester, prototyp." },
-    { title: "Riskmall: Kostnadsöverskridning", category: "ekonomi", description: "Risk att projektet överskrider budget på grund av ändrade krav eller tillägg.", likelihood: 3, impact: 3, mitigation: "Fast pris eller takpris, tydlig kravspecifikation, ändringshantering." },
-    { title: "Riskmall: Överprövning", category: "juridik", description: "Risk att upphandlingen överprövas med fördröjning som följd.", likelihood: 2, impact: 4, mitigation: "Tydlig dokumentation av utvärdering, transparenta tilldelningskriterier." },
-    { title: "Riskmall: Resursbrist i organisationen", category: "verksamhet", description: "Risk att organisationen saknar tillräckliga resurser för att genomföra projektet.", likelihood: 3, impact: 3, mitigation: "Dedikerad projektorganisation, extern projektledning vid behov." },
-    { title: "Riskmall: Tidplansglidning", category: "leverans", description: "Risk att leverans försenas med påverkan på verksamheten.", likelihood: 4, impact: 3, mitigation: "Milstolpar med viten, löpande uppföljning, parallella aktiviteter." },
-    { title: "Riskmall: Regelverksändring", category: "juridik", description: "Risk att lagändringar påverkar kravbilden under upphandlingen.", likelihood: 2, impact: 3, mitigation: "Bevakning av remisser, flexibla krav med optioner." },
-    { title: "Riskmall: Personuppgiftsincident", category: "sakerhet", description: "Risk för oavsiktlig exponering av personuppgifter.", likelihood: 2, impact: 5, mitigation: "DPIA, kryptering, åtkomstkontroll, incidenthanteringsrutin." },
-    { title: "Riskmall: Tillgänglighetsbrister", category: "verksamhet", description: "Risk att systemet inte uppfyller tillgänglighetskrav.", likelihood: 3, impact: 3, mitigation: "WCAG 2.1 AA som SKA-krav, oberoende tillgänglighetsgranskning." },
-    { title: "Riskmall: Kompetensberoende", category: "verksamhet", description: "Risk att projektets framgång hänger på enskilda nyckelpersoner.", likelihood: 3, impact: 4, mitigation: "Dokumentation av kunskap, par-bemanning, kunskapsdelning." },
+    {
+      title: "Riskmall: Inlåsning/svag dataexport",
+      category: "data_exit",
+      description: "Risk att leverantören inte erbjuder fullgod dataexport, vilket försvårar byte.",
+      likelihood: 4,
+      impact: 4,
+      mitigation: "Ställ SKA-krav på dataexport i öppna format, testa vid leveransgodkännande.",
+      assessmentQuestions: [
+        "Hanterar systemet data som behöver kunna migreras till annan leverantör?",
+        "Finns det branschstandarder för dataformat inom det aktuella området?",
+        "Har organisationen tidigare haft problem med inlåsning hos befintlig leverantör?",
+        "Är det sannolikt att systemet behöver bytas inom 5-10 år?"
+      ],
+      indicators: [
+        "Leverantören undviker frågor om exportformat vid marknadsdialog",
+        "Proprietära dataformat utan dokumenterad konverteringsmöjlighet",
+        "Saknad eller vag dokumentation av datamodell i leverantörens erbjudande"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp om leverantören inte kan uppvisa fungerande dataexport i öppet format vid PoC eller demo."
+    },
+    {
+      title: "Riskmall: Migreringsfel/datatapp",
+      category: "teknik",
+      description: "Risk för förlust eller korruption av data vid migrering från befintligt system.",
+      likelihood: 3,
+      impact: 5,
+      mitigation: "Krav på migreringsplan, testmigrering i sandlåda, rollback-plan.",
+      assessmentQuestions: [
+        "Ska data migreras från ett befintligt system?",
+        "Hur komplex är datamodellen i det befintliga systemet?",
+        "Finns det historiska data som måste bevaras av juridiska skäl?",
+        "Har organisationen tidigare genomfört storskaliga migreringar?"
+      ],
+      indicators: [
+        "Oklarheter kring datakvalitet i befintligt system upptäcks under analysfasen",
+        "Leverantören har begränsad erfarenhet av migrering från aktuell plattform",
+        "Testmigrering visar avvikelser i volym eller datastrukturer"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om testmigrering visar dataförlust överstigande 0,1% eller om kritisk data inte kan mappas till nytt format."
+    },
+    {
+      title: "Riskmall: Otillräcklig loggning",
+      category: "sakerhet",
+      description: "Risk att loggning inte möter rättssäkerhetskrav (särskilt socialtjänst).",
+      likelihood: 3,
+      impact: 4,
+      mitigation: "SKA-krav på loggning med granskningsfunktion, demo vid utvärdering.",
+      assessmentQuestions: [
+        "Hanterar systemet personuppgifter eller känsliga uppgifter som kräver spårbarhet?",
+        "Finns det lagkrav eller myndighetskrav på loggning inom verksamhetsområdet?",
+        "Behöver enskilda handläggares åtkomst kunna granskas i efterhand?",
+        "Omfattas verksamheten av tillsyn från IVO, IMY eller annan myndighet?"
+      ],
+      indicators: [
+        "Leverantören kan inte specificera vilka händelser som loggas",
+        "Loggfunktionen saknar sökbarhet eller filtreringsmöjligheter vid demo",
+        "Befintliga system har redan fått anmärkningar om bristande spårbarhet"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp om loggningskraven inte kan verifieras vid leverantörsdemo eller om juridisk granskning bedömer att kraven inte möter rättssäkerhetsnivån."
+    },
+    {
+      title: "Riskmall: Leverantörsberoende",
+      category: "leverans",
+      description: "Risk för beroende av en enskild leverantör eller nyckelpersoner.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Krav på dokumentation, escrow-avtal, SLA med garanterad kontinuitet.",
+      assessmentQuestions: [
+        "Finns det fler än tre leverantörer på marknaden som kan leverera liknande lösning?",
+        "Kräver lösningen specialistkompetens som är svår att ersätta?",
+        "Ingår det anpassningar som bara leverantören kan underhålla?",
+        "Finns det möjlighet att byta leverantör utan att byta systemlösning?"
+      ],
+      indicators: [
+        "Mycket liten leverantörsmarknad identifierad vid marknadsanalys",
+        "Leverantören erbjuder enbart egenutvecklad plattform utan öppen källkod",
+        "Nyckelpersoner hos leverantören nämns upprepade gånger som kritiska för leveransen"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om marknadsanalysen visar färre än två potentiella leverantörer eller om leverantören vägrar escrow-avtal."
+    },
+    {
+      title: "Riskmall: Integrationsmisslyckande",
+      category: "teknik",
+      description: "Risk att integrationer med befintliga system inte fungerar som förväntat.",
+      likelihood: 3,
+      impact: 4,
+      mitigation: "PoC-krav på kritiska integrationer, tydligt specificerade API-krav.",
+      assessmentQuestions: [
+        "Ska systemet integreras med befintliga system (ekonomi, identitet, ärendehantering)?",
+        "Använder befintliga system standardiserade API:er eller proprietära gränssnitt?",
+        "Finns det realtidskrav på datautbyte mellan systemen?",
+        "Har organisationen erfarenhet av att hantera integrationsplattformar?"
+      ],
+      indicators: [
+        "Leverantören saknar dokumenterade integrationer mot aktuella system",
+        "Befintliga system har begränsade eller föråldrade API:er",
+        "Tidsplanen saknar tillräcklig tid för integrationstester"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om PoC visar att kritiska integrationer inte kan genomföras inom godkänd budget eller tidplan."
+    },
+    {
+      title: "Riskmall: Säkerhetsbrister",
+      category: "sakerhet",
+      description: "Risk för säkerhetsluckor i systemet eller dess infrastruktur.",
+      likelihood: 2,
+      impact: 5,
+      mitigation: "Krav på säkerhetscertifiering, penetrationstest, incidenthanteringsplan.",
+      assessmentQuestions: [
+        "Hanterar systemet känsliga personuppgifter eller sekretessbelagd information?",
+        "Ska systemet vara tillgängligt via internet eller publika nätverk?",
+        "Finns det regulatoriska krav på informationssäkerhet (NIS2, MSB, ISO 27001)?",
+        "Har organisationen en befintlig säkerhetspolicy som leverantören måste uppfylla?"
+      ],
+      indicators: [
+        "Leverantören saknar relevant säkerhetscertifiering (ISO 27001, SOC2)",
+        "Penetrationstest har inte genomförts eller resultat delas inte",
+        "Säkerhetsarkitekturen beskrivs vagt eller undviks i leverantörsdialog"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera omedelbart till styrgrupp och CISO om penetrationstest avslöjar kritiska sårbarheter eller om leverantören inte kan påvisa adekvat incidenthanteringsförmåga."
+    },
+    {
+      title: "Riskmall: Förändringsledning",
+      category: "verksamhet",
+      description: "Risk att organisationen inte klarar övergången till nytt system.",
+      likelihood: 4,
+      impact: 3,
+      mitigation: "Förändringsledningsplan, utbildning, superanvändare, stegvis utrullning.",
+      assessmentQuestions: [
+        "Innebär det nya systemet betydande förändring i arbetsflöden för användarna?",
+        "Har organisationen tidigare haft svårigheter med förändringsprocesser?",
+        "Finns det motstånd mot förändring bland nyckelpersoner eller fackliga parter?",
+        "Har organisationen dedikerade resurser för förändringsledning?"
+      ],
+      indicators: [
+        "Lågt deltagande i behovsworkshops och referensgruppsmöten",
+        "Negativa signaler från fackliga representanter eller enhetschefer",
+        "Organisationen har nyligen genomgått andra stora förändringar"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om mer än 30% av nyckelpersoner uttrycker aktivt motstånd eller om resurser för förändringsledning inte kan säkerställas."
+    },
+    {
+      title: "Riskmall: Användaracceptans",
+      category: "verksamhet",
+      description: "Risk att slutanvändarna inte accepterar det nya systemet.",
+      likelihood: 3,
+      impact: 4,
+      mitigation: "Tidig involvering av användare, användbarhetstester, prototyp.",
+      assessmentQuestions: [
+        "Har slutanvändarna involverats i kravprocessen?",
+        "Finns det starka preferenser för befintligt system bland användarna?",
+        "Skiljer sig det nya systemets gränssnitt markant från det befintliga?",
+        "Har användarna varierande digital mognad?"
+      ],
+      indicators: [
+        "Användare uttrycker oro eller skepsis vid informationsträffar",
+        "Användbarhetstester visar att viktiga arbetsflöden tar längre tid i nytt system",
+        "Superanvändare har svårt att se fördelar med det nya systemet"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om acceptanstester visar att mindre än 60% av användarna bedömer systemet som likvärdigt eller bättre än befintligt."
+    },
+    {
+      title: "Riskmall: Kostnadsöverskridning",
+      category: "ekonomi",
+      description: "Risk att projektet överskrider budget på grund av ändrade krav eller tillägg.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Fast pris eller takpris, tydlig kravspecifikation, ändringshantering.",
+      assessmentQuestions: [
+        "Är kravbilden tydligt definierad eller finns det risk för tillägg under projektet?",
+        "Används fast pris, takpris eller löpande räkning som prismodell?",
+        "Har organisationen erfarenhet av att hantera ändringsförfrågningar i IT-projekt?",
+        "Finns det en tydlig process för att godkänna tilläggsbeställningar?"
+      ],
+      indicators: [
+        "Tidiga ändringsförfrågningar redan under implementeringens första fas",
+        "Leverantören flaggar för att kravspecifikationen är otydlig eller ofullständig",
+        "Kostnader för tillägg överstiger 10% av ursprunglig budget"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om prognostiserade kostnader överstiger budget med mer än 15% eller om tre eller fler ändringsförfrågningar inkommer under samma fas."
+    },
+    {
+      title: "Riskmall: Överprövning",
+      category: "juridik",
+      description: "Risk att upphandlingen överprövas med fördröjning som följd.",
+      likelihood: 2,
+      impact: 4,
+      mitigation: "Tydlig dokumentation av utvärdering, transparenta tilldelningskriterier.",
+      assessmentQuestions: [
+        "Är utvärderingskriterierna tydligt definierade och transparenta?",
+        "Finns det leverantörer som tidigare har överprövat liknande upphandlingar?",
+        "Har tilldelningskriterierna granskats av juridisk expertis?",
+        "Är det sannolikt att resultatskillnaden mellan anbud blir liten?"
+      ],
+      indicators: [
+        "Leverantörer ställer detaljerade frågor om utvärderingsmetod under anbudstiden",
+        "Utvärderingsresultat visar mycket små skillnader mellan anbud",
+        "Tidigare upphandlingar inom samma kategori har överprövats"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp och juridik omedelbart om överprövningsansökan inkommer, samt om utvärderingsresultat visar marginell skillnad (<5%) mellan anbud."
+    },
+    {
+      title: "Riskmall: Resursbrist i organisationen",
+      category: "verksamhet",
+      description: "Risk att organisationen saknar tillräckliga resurser för att genomföra projektet.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Dedikerad projektorganisation, extern projektledning vid behov.",
+      assessmentQuestions: [
+        "Har organisationen tillräckligt med personal som kan avsättas för projektet?",
+        "Pågår andra stora projekt parallellt som konkurrerar om samma resurser?",
+        "Finns det kompetens inom upphandling och IT-projekt internt?",
+        "Har ledningen formellt avsatt tid och budget för interna resurser?"
+      ],
+      indicators: [
+        "Nyckelpersoner avbokar eller skjuter upp projektmöten upprepade gånger",
+        "Interna leverabler (kravunderlag, testfall) levereras försenade",
+        "Projektmedlemmar rapporterar att ordinarie arbetsuppgifter prioriteras framför projektet"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om kritiska interna milstolpar försenas med mer än två veckor eller om nyckelpersoner avsäger sig projektdeltagande."
+    },
+    {
+      title: "Riskmall: Tidplansglidning",
+      category: "leverans",
+      description: "Risk att leverans försenas med påverkan på verksamheten.",
+      likelihood: 4,
+      impact: 3,
+      mitigation: "Milstolpar med viten, löpande uppföljning, parallella aktiviteter.",
+      assessmentQuestions: [
+        "Är tidplanen realistisk i förhållande till projektets komplexitet?",
+        "Finns det externa beroenden som kan påverka tidplanen (t.ex. andra system, beslut)?",
+        "Har leverantören tillräcklig kapacitet att leverera enligt tidplan?",
+        "Finns det en kritisk deadline (t.ex. avtalsupphörande för befintligt system)?"
+      ],
+      indicators: [
+        "Leverantören missar första milstolpen eller begär tidförlängning tidigt",
+        "Beroenden till andra projekt eller system visar sig mer komplexa än planerat",
+        "Internresurser kan inte leverera godkännanden i tid"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om en milstolpe försenas mer än tre veckor eller om leverantören begär omförhandling av tidplanen."
+    },
+    {
+      title: "Riskmall: Regelverksändring",
+      category: "juridik",
+      description: "Risk att lagändringar påverkar kravbilden under upphandlingen.",
+      likelihood: 2,
+      impact: 3,
+      mitigation: "Bevakning av remisser, flexibla krav med optioner.",
+      assessmentQuestions: [
+        "Pågår det lagstiftningsarbete som kan påverka det aktuella verksamhetsområdet?",
+        "Finns det remisser eller utredningar som kan resultera i ändrade krav?",
+        "Är upphandlingens tidplan längre än 12 månader (ökad exponering)?",
+        "Berörs verksamhetsområdet av EU-direktiv som kan genomföras under projekttiden?"
+      ],
+      indicators: [
+        "Nya remisser eller propositioner publiceras inom aktuellt område",
+        "Branschorganisationer signalerar kommande regeländringar",
+        "Myndigheters föreskrifter revideras under upphandlingsperioden"
+      ],
+      responseStrategy: "accept",
+      escalationCriteria: "Eskalera till styrgrupp om en identifierad regeländring bedöms påverka mer än 20% av kravspecifikationen eller om ny lagstiftning träder i kraft under upphandlingsperioden."
+    },
+    {
+      title: "Riskmall: Personuppgiftsincident",
+      category: "sakerhet",
+      description: "Risk för oavsiktlig exponering av personuppgifter.",
+      likelihood: 2,
+      impact: 5,
+      mitigation: "DPIA, kryptering, åtkomstkontroll, incidenthanteringsrutin.",
+      assessmentQuestions: [
+        "Hanterar systemet personuppgifter enligt artikel 9 GDPR (känsliga uppgifter)?",
+        "Överförs personuppgifter till tredje land eller underleverantör?",
+        "Finns det en genomförd DPIA (konsekvensbedömning) för behandlingen?",
+        "Har leverantören dokumenterade rutiner för incidenthantering och anmälan till IMY?"
+      ],
+      indicators: [
+        "Leverantören saknar eller har bristfälligt PuB-avtal",
+        "Databehandling sker utanför EU/EES utan adekvata skyddsmekanismer",
+        "Leverantören har historik av personuppgiftsincidenter"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera omedelbart till styrgrupp och dataskyddsombud om personuppgiftsincident inträffar eller om DPIA visar hög kvarstående risk som inte kan mitigeras."
+    },
+    {
+      title: "Riskmall: Tillgänglighetsbrister",
+      category: "verksamhet",
+      description: "Risk att systemet inte uppfyller tillgänglighetskrav.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "WCAG 2.1 AA som SKA-krav, oberoende tillgänglighetsgranskning.",
+      assessmentQuestions: [
+        "Har systemet externa användare (medborgare/kunder) som kräver tillgänglighet?",
+        "Omfattas systemet av DOS-lagen (lagen om tillgänglighet till digital offentlig service)?",
+        "Finns det användare med funktionsnedsättningar bland målgruppen?",
+        "Har organisationen resurser att genomföra oberoende tillgänglighetsgranskning?"
+      ],
+      indicators: [
+        "Leverantörens demo eller prototyp saknar grundläggande tillgänglighetsstöd (tangentbordsnavigering, skärmläsare)",
+        "VPAT eller tillgänglighetsrapport saknas eller är inaktuell",
+        "Användartester med hjälpmedel visar allvarliga brister"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp om oberoende tillgänglighetsgranskning visar brott mot WCAG 2.1 AA-krav som påverkar mer än 25% av funktionaliteten."
+    },
+    {
+      title: "Riskmall: Kompetensberoende",
+      category: "verksamhet",
+      description: "Risk att projektets framgång hänger på enskilda nyckelpersoner.",
+      likelihood: 3,
+      impact: 4,
+      mitigation: "Dokumentation av kunskap, par-bemanning, kunskapsdelning.",
+      assessmentQuestions: [
+        "Finns det enskilda personer vars frånvaro skulle stoppa projektet?",
+        "Är verksamhetskunskapen koncentrerad till få personer?",
+        "Har projektet backup-resurser identifierade för kritiska roller?",
+        "Är kunskapen om befintligt system dokumenterad eller buren av enskilda?"
+      ],
+      indicators: [
+        "Samma person nämns som oersättlig i flera projektaktiviteter",
+        "Sjukfrånvaro eller semester hos nyckelperson orsakar omedelbart projektstopp",
+        "Beslut och kunskap kommuniceras muntligt utan dokumentation"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om en nyckelperson med unik kompetens meddelar uppsägning eller långvarig frånvaro, eller om kunskapsöverföring inte sker enligt plan."
+    },
   ];
 
   for (const tmpl of riskTemplates) {
@@ -295,16 +615,223 @@ async function main() {
   // ── WORKSHOPMALLAR (10 st) ─────────────────────────────────
 
   const workshopTemplates = [
-    { title: "Workshopmall: Behovsworkshop (generisk)", description: "Generisk behovsworkshop för kartläggning och prioritering av behov.", suggestedParticipants: ["Verksamhetsansvarig", "Slutanvändare", "IT-ansvarig", "Ekonomiansvarig"], agenda: ["Introduktion och syfte", "Kartläggning av nuläge", "Identifiera behov och smärtpunkter", "Prioritering (P1/P2/P3)", "Sammanfattning och nästa steg"], expectedOutputs: ["Behovslista", "Prioriteringsmatris"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Exit & migrering", description: "Workshop för att planera datamigrering och exit från befintligt system.", suggestedParticipants: ["IT-ansvarig", "Systemförvaltare", "DBA/dataansvarig", "Verksamhetsansvarig"], agenda: ["Systeminventering: vad har vi?", "Dataanalys: volymer, kvalitet, format", "Integrationskartläggning", "Migreringsstrategier", "Risk- och rollback-planering"], expectedOutputs: ["Systeminventeringsdokument", "Migreringsstrategi", "Risklista"], duration: "4h", profile: "" },
-    { title: "Workshopmall: Kundresa & självservice (avfall)", description: "Workshop för att kartlägga kundresan och självservicebehov inom avfallshantering.", suggestedParticipants: ["Kundtjänstansvarig", "IT-ansvarig", "Kommunikatör", "Slutanvändare/medborgare"], agenda: ["Kartlägg kundens resa (från anmälan till faktura)", "Identifiera självservicebehov", "Digitala kanaler och tillgänglighet", "Prioritering"], expectedOutputs: ["Kundresekarta", "Självservicekrav"], duration: "3h", profile: "avfall_nyanskaffning" },
-    { title: "Workshopmall: Rättssäkra flöden (socialtjänst)", description: "Workshop för att säkerställa rättssäkra handläggningsflöden.", suggestedParticipants: ["Enhetschef", "Handläggare", "Jurist", "IT-ansvarig", "Dataskyddsombud"], agenda: ["Kartlägg handläggningsflödet", "Identifiera rättssäkerhetskrav", "Behörighet och delegering", "Dokumentationskrav", "Spärrar och känsliga uppgifter"], expectedOutputs: ["Flödesdiagram", "Rättssäkerhetskrav", "Behörighetsmatris"], duration: "4h", profile: "socialtjanst_byte" },
-    { title: "Workshopmall: Marknadsanalys", description: "Workshop för att analysera marknaden inför upphandling.", suggestedParticipants: ["Upphandlare", "Verksamhetsansvarig", "IT-ansvarig", "Ekonomiansvarig"], agenda: ["Definiera behov och önskat scope", "Identifiera potentiella leverantörer", "Analysera befintliga avtal i branschen", "Benchmark mot liknande organisationer", "RFI-strategi"], expectedOutputs: ["Marknadsanalysrapport", "Leverantörslista", "RFI-underlag"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Utvärderingsdesign", description: "Workshop för att designa utvärderingsmodell och kriterier.", suggestedParticipants: ["Upphandlare", "Verksamhetsansvarig", "Jurist", "Kvalitetssäkrare"], agenda: ["Välj utvärderingsmodell (pris/kvalitet-balans)", "Definiera kriterier och vikter", "Skapa poängskalor med ankare", "Granska proportionalitet", "Dokumentera i utvärderingsprotokoll"], expectedOutputs: ["Utvärderingsmodell", "Kriteriematris med vikter", "Poängskalor"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Kravrevidering", description: "Workshop för att revidera och kvalitetssäkra krav.", suggestedParticipants: ["Kravansvarig", "Verksamhetsansvarig", "IT-arkitekt", "Juridik"], agenda: ["Gå igenom befintliga krav", "Kontrollera spårbarhet till behov", "Granska SKA/BÖR-nivåer", "Kontrollera verifierbarhet", "Proportionalitetsbedömning"], expectedOutputs: ["Reviderad kravlista", "Spårbarhetsmatris", "Proportionalitetsanalys"], duration: "4h", profile: "" },
-    { title: "Workshopmall: Riskworkshop", description: "Workshop för riskidentifiering och riskbedömning.", suggestedParticipants: ["Projektledare", "IT-ansvarig", "Verksamhetsansvarig", "Juridik", "Säkerhetsansvarig"], agenda: ["Brainstorm risker per kategori", "Bedöm sannolikhet och konsekvens", "Prioritera (riskmatris)", "Definiera åtgärder per risk", "Tilldela riskägare"], expectedOutputs: ["Riskregister", "Riskmatris", "Åtgärdsplan"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Integrationsplanering", description: "Workshop för att planera systemintegrationer.", suggestedParticipants: ["IT-arkitekt", "Systemförvaltare", "Leverantör (befintliga system)", "Projektledare"], agenda: ["Kartlägg integrationslandskap", "Definiera dataflöden", "API-krav och format", "Autentisering och säkerhet", "Test- och godkännandestrategi"], expectedOutputs: ["Integrationskarta", "API-kravlista", "Testplan"], duration: "4h", profile: "" },
-    { title: "Workshopmall: Förändringsledning", description: "Workshop för att planera organisatorisk förändringsledning.", suggestedParticipants: ["Projektledare", "HR", "Enhetschefer", "Kommunikatör", "Fackrepresentant"], agenda: ["Intressentanalys", "Kommunikationsplan", "Utbildningsbehov och -plan", "Superanvändarstrategi", "Motstånd och hantering"], expectedOutputs: ["Förändringsledningsplan", "Kommunikationsplan", "Utbildningsplan"], duration: "3h", profile: "" },
+    {
+      title: "Workshopmall: Behovsworkshop (generisk)",
+      description: "Generisk behovsworkshop för kartläggning och prioritering av behov.",
+      suggestedParticipants: ["Verksamhetsansvarig", "Slutanvändare", "IT-ansvarig", "Ekonomiansvarig"],
+      agenda: ["Introduktion och syfte", "Kartläggning av nuläge", "Identifiera behov och smärtpunkter", "Prioritering (P1/P2/P3)", "Sammanfattning och nästa steg"],
+      expectedOutputs: ["Behovslista", "Prioriteringsmatris"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Introduktion och syfte", timeMinutes: 20, purpose: "Skapa gemensam bild av varför workshopen genomförs och vad vi vill uppnå. Etablera trygghet och engagemang.", method: "Presentation", facilitationQuestions: ["Vad är den enskilt viktigaste utmaningen ni upplever i ert dagliga arbete idag?", "Vilka förväntningar har ni på denna workshop?", "Hur skulle en perfekt lösning påverka er vardag?", "Finns det tidigare upphandlingar eller projekt vi bör dra lärdomar från?"], tips: "Låt varje deltagare kort presentera sig och sin roll. Använd en check-in-runda där alla får ordet tidigt — det sänker tröskeln för att bidra senare." },
+        { title: "Kartläggning av nuläge", timeMinutes: 40, purpose: "Dokumentera hur verksamheten fungerar idag, inklusive befintliga system, processer och arbetssätt. Skapar en gemensam referenspunkt.", method: "Affinity mapping", facilitationQuestions: ["Vilka system och verktyg använder ni idag och vad gör ni i respektive system?", "Var i processen uppstår flaskhalsar eller dubbelarbete?", "Vilka manuella steg finns som ni önskar vore automatiserade?", "Hur ser informationsflödet ut mellan avdelningar idag?", "Finns det workarounds som ni har byggt upp över tid?"], tips: "Använd en stor whiteboard eller digital tavla. Låt deltagarna skriva lappar individuellt först (5 min tyst arbete), sedan gruppera tillsammans. Det ger tystare deltagare utrymme att bidra." },
+        { title: "Identifiera behov och smärtpunkter", timeMinutes: 50, purpose: "Fånga verkliga behov ur verksamhetsperspektiv, inte tekniska önskemål. Fokus på problem snarare än lösningar.", method: "Brainstorming", facilitationQuestions: ["Om ni fick ändra en enda sak i ert nuvarande arbetssätt, vad skulle det vara?", "Vilka situationer skapar mest frustration eller tar mest tid?", "Vilka behov har era kunder/brukare som ni inte kan tillgodose idag?", "Finns det lagkrav eller regulatoriska krav som ni har svårt att uppfylla?", "Vad händer om vi INTE gör något — hur ser situationen ut om två år?"], tips: "Skilj på behov och lösningar. Om deltagare säger 'vi behöver ett nytt system' — fråga 'varför?' tills ni når det underliggande behovet. Använd '5 varför'-metoden." },
+        { title: "Prioritering (P1/P2/P3)", timeMinutes: 40, purpose: "Rangordna behoven för att styra kravställningen. P1 = måste ha, P2 = bör ha, P3 = önskvärt.", method: "Dot-voting", facilitationQuestions: ["Vilka behov är absolut nödvändiga för att verksamheten ska fungera?", "Vilka behov ger störst verksamhetsnytta i förhållande till kostnad?", "Finns det beroenden mellan behoven som påverkar prioriteringen?", "Vilka behov kan vi leva utan de första åren och införa stegvis?"], tips: "Ge varje deltagare 5-7 röstprickar. Tillåt max 2 prickar per behov. Diskutera efter omröstningen — det är i samtalet insikterna uppstår. Var beredd att hantera meningsskiljaktigheter genom att hänvisa till verksamhetsnytta." },
+        { title: "Sammanfattning och nästa steg", timeMinutes: 20, purpose: "Säkerställ att alla är överens om resultatet och att det finns en tydlig plan framåt.", method: "Presentation", facilitationQuestions: ["Har vi missat något väsentligt?", "Är det någon som har invändningar mot prioriteringen?", "Vilka ytterligare personer bör involveras i nästa steg?"], tips: "Sammanfatta resultaten visuellt på tavlan. Fotografera eller exportera alla lappar. Skicka ut protokoll inom 48 timmar — det är avgörande för att behålla momentum." },
+      ],
+      preparation: "Förbered en nulägesbeskrivning med befintliga system, avtal och processer. Skicka ut workshopens syfte och agenda minst en vecka i förväg så deltagarna kan reflektera. Samla in eventuella befintliga behovslistor eller önskemål som redan dokumenterats.",
+      followUp: ["Dokumentera alla identifierade behov i en strukturerad behovslista med prioritering (P1/P2/P3)", "Skicka ut workshopprotokoll till alla deltagare inom 48 timmar för validering", "Boka uppföljningsmöte inom 2 veckor för att kvalitetssäkra behovslistan", "Koppla varje behov till en intressent (behovsägare) som kan svara på följdfrågor", "Påbörja spårbarhetsdokumentation: behov till framtida krav"],
+      sparkboardSuggestion: [
+        { boardTitle: "Nuläge & smärtpunkter", questions: ["Vilken uppgift i ditt dagliga arbete tar mest tid och borde gå snabbare?", "Beskriv en situation där befintliga system sviker dig.", "Vilken information saknar du ofta för att kunna fatta bra beslut?", "Om du var chef för en dag — vad skulle du ändra först?"], timeLimit: 10 },
+        { boardTitle: "Framtida drömläge", questions: ["Hur ser din perfekta arbetsdag ut med det nya systemet?", "Vilka uppgifter vill du att systemet ska klara helt automatiskt?", "Vad vill du kunna göra som du inte kan idag?"], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Exit & migrering",
+      description: "Workshop för att planera datamigrering och exit från befintligt system.",
+      suggestedParticipants: ["IT-ansvarig", "Systemförvaltare", "DBA/dataansvarig", "Verksamhetsansvarig"],
+      agenda: ["Systeminventering: vad har vi?", "Dataanalys: volymer, kvalitet, format", "Integrationskartläggning", "Migreringsstrategier", "Risk- och rollback-planering"],
+      expectedOutputs: ["Systeminventeringsdokument", "Migreringsstrategi", "Risklista"],
+      duration: "4h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Systeminventering: vad har vi?", timeMinutes: 45, purpose: "Skapa en komplett bild av nuvarande systemlandskap inklusive licenser, avtal, versioner och ägarskap.", method: "Affinity mapping", facilitationQuestions: ["Vilka system ingår i det nuvarande landskapet och vilka äger respektive system?", "Finns det skugg-IT eller lokala lösningar som inte är centralt dokumenterade?", "Vilka avtal löper ut och när? Finns det bindningstider vi måste beakta?", "Vilka databaser och datalagringslösningar används idag?", "Finns det tredjepartssystem som är beroende av det system vi ska avveckla?"], tips: "Förbered en lista men var öppen för att deltagarna tillför system ni inte kände till. Fråga specifikt efter Excel-lösningar och Access-databaser — de dyker ofta upp som överraskningar." },
+        { title: "Dataanalys: volymer, kvalitet, format", timeMinutes: 50, purpose: "Kartlägga datamängder, format och kvalitet för att kunna bedöma migreringsinsats och risker.", method: "Presentation", facilitationQuestions: ["Hur stora är datamängderna (antal poster, storlek i GB)?", "Vilken data är affärskritisk och måste migreras utan undantag?", "Finns det känd datakvalitetsproblematik — dubbletter, ofullständiga poster, inaktuell data?", "Vilka dataformat används (XML, CSV, JSON, proprietära format)?", "Finns det gallringsregler som gör att viss data inte behöver migreras?"], tips: "Be om konkreta siffror. Om ingen vet, planera in en datainventeringsaktivitet som föregår migreringen. Dålig datakvalitet är den vanligaste orsaken till misslyckade migreringar." },
+        { title: "Integrationskartläggning", timeMinutes: 40, purpose: "Identifiera alla integrationer som påverkas vid systembytet och måste återskapas eller avvecklas.", method: "Affinity mapping", facilitationQuestions: ["Vilka system skickar data till eller hämtar data från det befintliga systemet?", "Hur sker datautbytet — API:er, filöverföring, manuell inmatning?", "Finns det batch-jobb eller schemalagda flöden som behöver beaktas?", "Vilka integrationer är affärskritiska respektive kan avvecklas?"], tips: "Rita ett integrationsdiagram på tavlan under workshopen. Markera varje integration med röd/gul/grön beroende på komplexitet. Det ger en snabb visuell överblick." },
+        { title: "Migreringsstrategier", timeMinutes: 50, purpose: "Välja strategi för migreringen: big bang, parallellkörning eller stegvis migrering.", method: "Brainstorming", facilitationQuestions: ["Kan vi köra parallellt under en övergångsperiod eller måste det vara big bang?", "Vilka verksamhetsperioder har lägst belastning och lämpar sig bäst för migrering?", "Finns det regulatoriska krav på att all historisk data ska följa med?", "Hur lång driftstopp kan verksamheten tolerera?", "Behöver vi testmigrering och i så fall hur många omgångar?"], tips: "Presentera för- och nackdelar med varje strategi. Big bang är billigare men riskfylldare. Parallellkörning kostar mer men ger en fallback. Låt verksamheten avgöra risknivån." },
+        { title: "Risk- och rollback-planering", timeMinutes: 45, purpose: "Identifiera risker kopplade till migreringen och ta fram en rollback-plan om något går fel.", method: "Brainstorming", facilitationQuestions: ["Vad är det värsta som kan hända under migreringen?", "Vid vilken punkt är det för sent att rulla tillbaka?", "Hur verifierar vi att migreringen lyckats — vilka kontroller gör vi?", "Vem fattar beslut om go/no-go på migreringsdag?", "Hur kommunicerar vi till slutanvändare vid problem?"], tips: "Var inte rädd för worst-case-scenarier. En genomtänkt rollback-plan ger trygghet. Dokumentera beslutskedjan tydligt: vem beslutar vad och när." },
+      ],
+      preparation: "Samla in systemdokumentation, avtalsöversikt och integrationsbeskrivningar. Be IT föra en inventering av databaser med volymer och format. Identifiera avtalstider och uppsägningsvillkor för befintliga leverantörer.",
+      followUp: ["Dokumentera systeminventering med alla identifierade system, databaser och integrationer", "Genomför en datakvalitetsanalys på de största datamängderna", "Ta fram en detaljerad migreringsplan med tidslinje och ansvariga", "Planera minst en testmigrering i en icke-produktionsmiljö", "Upprätta en rollback-plan med tydliga beslutspunkter och ansvariga"],
+      sparkboardSuggestion: [
+        { boardTitle: "Systemlandskap & beroenden", questions: ["Vilka system interagerar du med dagligen och vad gör du i dem?", "Finns det data som du vet är felaktig eller dubblerad i nuvarande system?", "Vilken data absolut INTE får förloras vid ett systembyte?"], timeLimit: 10 },
+        { boardTitle: "Migreringsrisker", questions: ["Vad oroar dig mest inför systembytet?", "Beskriv en situation då en tidigare migrering eller uppgradering gick fel.", "Vilken information behöver du för att känna dig trygg på migreringsdagen?"], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Kundresa & självservice (avfall)",
+      description: "Workshop för att kartlägga kundresan och självservicebehov inom avfallshantering.",
+      suggestedParticipants: ["Kundtjänstansvarig", "IT-ansvarig", "Kommunikatör", "Slutanvändare/medborgare"],
+      agenda: ["Kartlägg kundens resa (från anmälan till faktura)", "Identifiera självservicebehov", "Digitala kanaler och tillgänglighet", "Prioritering"],
+      expectedOutputs: ["Kundresekarta", "Självservicekrav"],
+      duration: "3h",
+      profile: "avfall_nyanskaffning",
+      agendaDetailed: [
+        { title: "Kartlägg kundens resa (från anmälan till faktura)", timeMinutes: 50, purpose: "Visualisera hela kundresan steg för steg för att identifiera kontaktpunkter, friktion och förbättringsmöjligheter.", method: "Affinity mapping", facilitationQuestions: ["Hur tar en kund idag kontakt med er för att beställa eller ändra en tjänst?", "Vilka steg i processen skapar mest frågor eller klagomål från kunderna?", "Hur lång tid tar det från anmälan till att tjänsten är levererad?", "Vilka kontaktpunkter har kunden med er under ett år (beställning, hämtning, faktura, reklamation)?", "Finns det skillnader i kundresan mellan privatpersoner och företag?"], tips: "Rita kundresan som en tidslinje på väggen. Markera varje kontaktpunkt. Använd röda lappar för smärtpunkter och gröna för det som fungerar bra. Involvera gärna en riktig kund om möjligt." },
+        { title: "Identifiera självservicebehov", timeMinutes: 40, purpose: "Identifiera vilka ärenden och uppgifter som kunderna själva bör kunna utföra digitalt utan att kontakta kundtjänst.", method: "Brainstorming", facilitationQuestions: ["Vilka ärenden hos kundtjänst är enklast och mest repetitiva — och borde kunderna kunna göra själva?", "Vilka tjänster erbjuder andra kommuner i sina självserviceportaler inom avfall?", "Vilka hinder finns idag för att kunderna ska kunna hjälpa sig själva?", "Hur stor andel av kundkontakterna skulle kunna lösas via självservice?"], tips: "Ta med statistik från kundtjänst: topp 10 ärendetyper. De mest frekventa ärendena är ofta de bästa kandidaterna för självservice. Prioritera utifrån volym och enkelhet." },
+        { title: "Digitala kanaler och tillgänglighet", timeMinutes: 35, purpose: "Definiera vilka digitala kanaler som ska användas och hur tillgänglighet säkerställs för alla användargrupper.", method: "Presentation", facilitationQuestions: ["Vilka digitala kanaler förväntar sig kunderna — webb, app, SMS, e-post?", "Hur säkerställer vi tillgänglighet för äldre, funktionshindrade och icke-svensktalande?", "Ska vi erbjuda inloggning via BankID/Freja eID eller öppen åtkomst?", "Hur hanterar vi kunder som inte kan eller vill använda digitala kanaler?"], tips: "Tänk på WCAG-krav för tillgänglighet. Kommunala tjänster måste vara tillgängliga för alla. Diskutera också flerspråkighet — har kommunen krav på det?" },
+        { title: "Prioritering", timeMinutes: 35, purpose: "Prioritera självservicefunktioner utifrån kundnytta, volym och genomförbarhet.", method: "Dot-voting", facilitationQuestions: ["Vilka funktioner ger störst kundnytta med minst insats?", "Vilka funktioner måste finnas från dag ett?", "Finns det beroenden mellan funktionerna som styr ordningen?", "Vad kan vi vänta med till fas 2 eller 3?"], tips: "Använd en enkel matris med kundnytta på Y-axeln och komplexitet på X-axeln. Placera varje funktion i matrisen. Börja med hög nytta + låg komplexitet." },
+      ],
+      preparation: "Samla in kundtjänststatistik (topp 20 ärendetyper, volymer, svarstider). Kartlägg befintliga digitala kanaler. Titta på 2-3 andra kommuners självserviceportaler för avfall som inspiration.",
+      followUp: ["Dokumentera kundresekartan digitalt med alla kontaktpunkter och smärtpunkter", "Skapa en prioriterad lista över självservicefunktioner med förväntad ärendereduktion", "Utred autentiseringslösning (BankID/Freja eID) och integrationer", "Genomför kundundersökning för att validera de identifierade behoven"],
+      sparkboardSuggestion: [
+        { boardTitle: "Kundens perspektiv", questions: ["Vad klagar kunderna mest på när de kontaktar er?", "Beskriv ett typiskt kundärende som borde gå att lösa utan att ringa kundtjänst.", "Vilken information efterfrågar kunderna oftast?"], timeLimit: 8 },
+        { boardTitle: "Drömportalen", questions: ["Om du vore kund — vilka tre saker vill du kunna göra själv i en portal?", "Vilken kommun eller organisation har en bra digital kundupplevelse som vi kan inspireras av?", "Vilka funktioner i dagens lösning fungerar bra och bör behållas?"], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Rättssäkra flöden (socialtjänst)",
+      description: "Workshop för att säkerställa rättssäkra handläggningsflöden.",
+      suggestedParticipants: ["Enhetschef", "Handläggare", "Jurist", "IT-ansvarig", "Dataskyddsombud"],
+      agenda: ["Kartlägg handläggningsflödet", "Identifiera rättssäkerhetskrav", "Behörighet och delegering", "Dokumentationskrav", "Spärrar och känsliga uppgifter"],
+      expectedOutputs: ["Flödesdiagram", "Rättssäkerhetskrav", "Behörighetsmatris"],
+      duration: "4h",
+      profile: "socialtjanst_byte",
+      agendaDetailed: [
+        { title: "Kartlägg handläggningsflödet", timeMinutes: 50, purpose: "Skapa en gemensam bild av handläggningsprocessen från ansökan till beslut och uppföljning. Identifiera varianter och undantag.", method: "Affinity mapping", facilitationQuestions: ["Hur ser handläggningsflödet ut steg för steg — från det att en ansökan inkommer till att beslut fattas?", "Vilka varianter finns i flödet beroende på ärendetyp (t.ex. försörjningsstöd vs. bistånd)?", "Var i processen fattas formella beslut och av vem?", "Vilka tidsfrister gäller enligt lag för handläggningen?", "Vilka steg i processen kräver samverkan med andra aktörer (Försäkringskassan, vård, skola)?"], tips: "Rita flödet på whiteboard. Markera beslutspunkter med diamanter, processteg med rektanglar. Var extra noggrann med undantags- och överklagandeflöden — de är ofta bristfälligt dokumenterade." },
+        { title: "Identifiera rättssäkerhetskrav", timeMinutes: 45, purpose: "Säkerställa att systemet stödjer lagkrav enligt SoL, LVU, LVM, LSS och förvaltningslagen.", method: "Presentation", facilitationQuestions: ["Vilka lagkrav ställer SoL, LVU och LSS på handläggningen som systemet måste stödja?", "Hur säkerställer ni idag att beslut fattas av behörig person med korrekt delegation?", "Finns det krav på kommunicering med den enskilde innan beslut — hur hanteras det i systemet?", "Vilka rättssäkerhetsproblem har ni upplevt med nuvarande system?", "Hur hanteras överklaganden och omprövningar?"], tips: "Ha en jurist närvarande som kan klargöra lagkraven. Dokumentera varje krav med lagrumshänvisning. Det underlättar enormt vid kravställning och utvärdering." },
+        { title: "Behörighet och delegering", timeMinutes: 40, purpose: "Definiera behörighetsstruktur och delegeringsordning som systemet ska stödja.", method: "Brainstorming", facilitationQuestions: ["Vilka roller finns i handläggningen och vilka befogenheter har respektive roll?", "Hur fungerar delegeringsordningen — vem får fatta vilka beslut?", "Vad händer vid semester eller frånvaro — hur hanteras ställföreträdare?", "Finns det beslut som kräver chef-i-chef-godkännande?", "Hur ska vikarier och tillfällig personal hanteras i behörighetssystemet?"], tips: "Rita en behörighetsmatris på tavlan med roller på ena axeln och behörigheter på den andra. Testa med konkreta scenarier: 'Kan en ny handläggare fatta beslut om bistånd under 10 000 kr?'" },
+        { title: "Dokumentationskrav", timeMinutes: 35, purpose: "Definiera krav på dokumentation, journalföring och diarieföring som systemet måste stödja.", method: "Presentation", facilitationQuestions: ["Vilka dokumentationskrav ställs av tillsynsmyndigheten (IVO)?", "Hur ska journalanteckningar struktureras och vem ska kunna skriva dem?", "Vilka krav finns på diarieföring och ärendehantering?", "Hur lång tid ska dokumentation sparas och hur hanteras gallring?"], tips: "Ta med IVO:s senaste granskningsrapporter för er kommun som underlag. Vanliga brister som IVO pekar på ger direkt input till kravställningen." },
+        { title: "Spärrar och känsliga uppgifter", timeMinutes: 40, purpose: "Definiera hur sekretessbelagda uppgifter, spärrmarkering och skyddade personuppgifter ska hanteras i systemet.", method: "Brainstorming", facilitationQuestions: ["Hur hanteras ärenden med spärrmarkerade personer idag och vilka brister finns?", "Vilka typer av känsliga uppgifter hanteras (skyddade personuppgifter, sekretessmarkering)?", "Hur ska systemet förhindra att obehöriga ser känslig information?", "Finns det krav på fysisk separation av data för vissa ärendetyper?", "Hur hanteras jäv — kan en handläggare oavsiktligt komma åt ärenden som rör närstående?"], tips: "Var extra noggrann här — felhantering av spärrade uppgifter kan äventyra personers säkerhet. Testa med konkreta scenarier. Involvera dataskyddsombudet aktivt." },
+      ],
+      preparation: "Samla in gällande delegeringsordning, senaste IVO-granskning, befintlig processdokumentation och dataskyddsanalys. Bjud in jurist med kompetens inom SoL/LVU/LSS. Förbered konkreta ärendescenarier att testa flöden mot.",
+      followUp: ["Dokumentera handläggningsflödet i ett detaljerat flödesdiagram med beslutspunkter", "Skapa en komplett behörighetsmatris med roller, befogenheter och delegeringsnivåer", "Sammanställ rättssäkerhetskrav med lagrumshänvisningar som underlag till kravspecifikation", "Granska och dokumentera krav på spärr- och sekretesshantering", "Boka separata fördjupningsworkshops per verksamhetsområde (barn/ungdom, vuxna, funktionshinder)"],
+      sparkboardSuggestion: [
+        { boardTitle: "Rättssäkerhet i praktiken", questions: ["Beskriv en situation där nuvarande system brister i rättssäkerhet.", "Vilka kontroller saknar du i det dagliga handläggningsarbetet?", "Hur skulle systemet kunna hjälpa dig att fatta mer rättssäkra beslut?"], timeLimit: 10 },
+        { boardTitle: "Behörighet & sekretess", questions: ["Finns det situationer där du har tillgång till mer information än du behöver?", "Hur hanterar du känsliga ärenden (t.ex. spärrmarkerade personer) i nuvarande system?", "Vilka förbättringar önskar du i behörighetshanteringen?"], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Marknadsanalys",
+      description: "Workshop för att analysera marknaden inför upphandling.",
+      suggestedParticipants: ["Upphandlare", "Verksamhetsansvarig", "IT-ansvarig", "Ekonomiansvarig"],
+      agenda: ["Definiera behov och önskat scope", "Identifiera potentiella leverantörer", "Analysera befintliga avtal i branschen", "Benchmark mot liknande organisationer", "RFI-strategi"],
+      expectedOutputs: ["Marknadsanalysrapport", "Leverantörslista", "RFI-underlag"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Definiera behov och önskat scope", timeMinutes: 30, purpose: "Klargöra vad vi söker på marknaden — avgränsa upphandlingens scope så att marknadsanalysen blir fokuserad.", method: "Presentation", facilitationQuestions: ["Vad är kärnan i det vi behöver upphandla — var går gränsen för scopet?", "Söker vi en helhetslösning eller best-of-breed med flera leverantörer?", "Vilka funktionsområden är absolut nödvändiga och vilka är önskvärda?", "Finns det befintliga system som ska ersättas helt eller delvis?"], tips: "Var tydlig med avgränsningen — en för bred analys blir ytlig och oanvändbar. Fokusera på de kärnbehov som identifierats i behovsworkshopen." },
+        { title: "Identifiera potentiella leverantörer", timeMinutes: 35, purpose: "Kartlägga vilka leverantörer som finns på marknaden, deras storlek, specialisering och erfarenhet av offentlig sektor.", method: "Brainstorming", facilitationQuestions: ["Vilka leverantörer känner ni till som erbjuder denna typ av lösning?", "Vilka leverantörer används av jämförbara organisationer?", "Finns det nischade specialister eller dominerar några få stora aktörer?", "Vilka leverantörer har erfarenhet av offentlig upphandling i Sverige?", "Finns det internationella aktörer vi bör titta på?"], tips: "Använd SKL Kommentus, TendSign och liknande källor för att hitta tidigare upphandlingar. Googla även Gartner/Forrester-rapporter om relevanta produktkategorier." },
+        { title: "Analysera befintliga avtal i branschen", timeMinutes: 30, purpose: "Lära av andras erfarenheter genom att analysera befintliga avtal och upphandlingar inom samma område.", method: "Presentation", facilitationQuestions: ["Vilka ramavtal finns redan som vi kan avropa från?", "Vad kan vi lära av andra kommuners upphandlingar — vad fungerade och vad blev problem?", "Vilka prisnivåer ser vi i befintliga avtal?", "Finns det samordnad upphandling via SKR/Adda som vi bör beakta?"], tips: "Sök i upphandlingsdatabaser efter liknande upphandlingar. Kontakta kollegor i andra kommuner — erfarenhetsutbytet är ovärderligt och helt tillåtet enligt LOU." },
+        { title: "Benchmark mot liknande organisationer", timeMinutes: 30, purpose: "Jämföra med liknande organisationers lösningar och erfarenheter för att kalibrera förväntningar.", method: "Presentation", facilitationQuestions: ["Vilka jämförbara organisationer (storlek, komplexitet) bör vi titta på?", "Vad har de valt för lösningar och hur nöjda är de?", "Vilka lärdomar kan vi dra av deras implementeringsresor?", "Finns det siffror på kostnader och tidsåtgång vi kan jämföra med?"], tips: "Kontakta 3-5 referenskommuner direkt. Ställ strukturerade frågor: vad valde ni, vad kostade det, vad skulle ni gjort annorlunda? Dokumentera svaren systematiskt." },
+        { title: "RFI-strategi", timeMinutes: 25, purpose: "Planera om och hur en Request for Information (RFI) ska genomföras för att komplettera kunskapen.", method: "Brainstorming", facilitationQuestions: ["Vilka frågor behöver vi svar på som vi inte kan besvara utan leverantörskontakt?", "Ska vi genomföra RFI, marknadsdag eller enskilda leverantörsdialoger?", "Vilka leverantörer bör bjudas in och hur säkerställer vi likabehandling?", "Hur tidigt i processen bör vi genomföra RFI:n?"], tips: "Kom ihåg att all leverantörskontakt under upphandlingsprocessen måste ske med likabehandling. Dokumentera alla kontakter noggrant. En RFI är inte bindande men ger värdefull information." },
+      ],
+      preparation: "Sök i upphandlingsdatabaser (e-Avrop, TendSign, Mercell) efter liknande upphandlingar de senaste 3 åren. Samla in information om befintliga ramavtal. Förbered en kort sammanfattning av behovsanalysen.",
+      followUp: ["Dokumentera marknadsanalysen i en strukturerad rapport med leverantörsöversikt", "Besluta om RFI eller marknadsdialog ska genomföras och i vilken form", "Uppdatera behovsanalysen med insikter från marknadsanalysen", "Upprätta en leverantörslista med kontaktuppgifter och produktbeskrivningar", "Kalibrera budget och tidsplan utifrån marknadens erbjudanden"],
+      sparkboardSuggestion: [
+        { boardTitle: "Marknadskännedom", questions: ["Vilka leverantörer har du hört talas om eller haft kontakt med inom detta område?", "Vilka erfarenheter har du av liknande system — bra eller dåliga?", "Vad tror du marknaden kan erbjuda som vi kanske inte tänkt på?"], timeLimit: 8 },
+        { boardTitle: "RFI-frågor", questions: ["Vilka frågor skulle du vilja ställa till leverantörerna om du fick chansen?", "Vad behöver du veta för att kunna bedöma om en lösning passar er verksamhet?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: Utvärderingsdesign",
+      description: "Workshop för att designa utvärderingsmodell och kriterier.",
+      suggestedParticipants: ["Upphandlare", "Verksamhetsansvarig", "Jurist", "Kvalitetssäkrare"],
+      agenda: ["Välj utvärderingsmodell (pris/kvalitet-balans)", "Definiera kriterier och vikter", "Skapa poängskalor med ankare", "Granska proportionalitet", "Dokumentera i utvärderingsprotokoll"],
+      expectedOutputs: ["Utvärderingsmodell", "Kriteriematris med vikter", "Poängskalor"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Välj utvärderingsmodell (pris/kvalitet-balans)", timeMinutes: 30, purpose: "Bestämma grundmodell för utvärderingen: lägsta pris, bästa pris-kvalitetsförhållande eller bästa kvalitet till fast pris.", method: "Presentation", facilitationQuestions: ["Vad är viktigast i denna upphandling — pris eller kvalitet — och i vilken proportion?", "Har vi en tydlig budget som kan styra mot fast-pris-modell?", "Vilken utvärderingsmodell har använts i liknande upphandlingar?", "Finns det risk att lägsta-pris-modellen ger anbud som inte möter våra behov?"], tips: "Visa konkreta exempel på olika modeller och deras utfall. En 60/40-fördelning kvalitet/pris är vanlig vid IT-upphandlingar. Undvik komplicerade formler — juristen ska kunna förklara modellen i en överprövning." },
+        { title: "Definiera kriterier och vikter", timeMinutes: 40, purpose: "Fastställa vilka utvärderingskriterier som ska användas och hur de viktas mot varandra.", method: "Brainstorming", facilitationQuestions: ["Vilka kvalitetsaspekter är avgörande för att upphandlingen ska bli lyckad?", "Hur ska vi vikta funktionalitet kontra implementeringskompetens?", "Finns det kriterier som är knock-out — dvs. underkänt leder till diskvalificering?", "Är vikterna proportionerliga i förhållande till verksamhetsnyttan?", "Kan vi motivera varje vikt inför en eventuell överprövning?"], tips: "Begränsa till 4-6 huvudkriterier. Fler kriterier gör utvärderingen ohanterlig och ökar risken för godtyckliga bedömningar. Varje kriterium ska vara mätbart och verifierbart." },
+        { title: "Skapa poängskalor med ankare", timeMinutes: 40, purpose: "Definiera tydliga poängskalor med beskrivande ankarpunkter som minskar subjektiviteten i bedömningen.", method: "Brainstorming", facilitationQuestions: ["Vad skiljer ett utmärkt anbud från ett godkänt anbud rent konkret?", "Kan vi formulera ankare så att två oberoende utvärderare skulle ge samma poäng?", "Ska vi använda 0-5-skala, 1-3-skala eller annan gradering?", "Behöver vi exemplifiera med konkreta scenarier för varje poängnivå?"], tips: "Skriv ankare som beskriver observerbara egenskaper, inte vaga begrepp. 'Leverantören visar 3+ relevanta referensuppdrag' är bättre än 'God erfarenhet'. Testa skalan mot fiktiva anbud." },
+        { title: "Granska proportionalitet", timeMinutes: 25, purpose: "Säkerställa att utvärderingsmodellen är proportionerlig och inte oavsiktligt diskriminerar leverantörer.", method: "Presentation", facilitationQuestions: ["Kan en liten leverantör med bra lösning konkurrera med denna modell?", "Finns det kriterier som oavsiktligt gynnar en specifik leverantör?", "Är vikterna motiverade utifrån verksamhetsbehov — inte preferenser?", "Skulle modellen klara en överprövning?"], tips: "Be juristen granska modellen ur ett LOU-perspektiv. Vanliga fallgropar: vikter som inte speglar faktiska behov, kriterier som bara en leverantör kan uppfylla, oklara ankare som ger utrymme för godtycke." },
+        { title: "Dokumentera i utvärderingsprotokoll", timeMinutes: 20, purpose: "Skapa ett komplett utvärderingsprotokoll som grund för förfrågningsunderlaget.", method: "Presentation", facilitationQuestions: ["Är allt dokumenterat så att en utomstående kan förstå och tillämpa modellen?", "Finns alla motiveringar dokumenterade — varför just dessa kriterier och vikter?", "Hur kommunicerar vi utvärderingsmodellen till anbudsgivarna?"], tips: "Transparens är nyckeln. Anbudsgivarna ska förstå exakt hur deras anbud kommer utvärderas. Publicera hela modellen i förfrågningsunderlaget — det ger bättre anbud." },
+      ],
+      preparation: "Samla in behovsanalysen och kravspecifikationen. Granska utvärderingsmodeller från liknande upphandlingar (referensupphandlingar). Ha juristen förberedd med relevanta LOU-paragrafer och rättspraxis kring utvärderingsmodeller.",
+      followUp: ["Dokumentera komplett utvärderingsmodell med kriterier, vikter och poängskalor", "Juridisk granskning av modellen ur LOU-perspektiv", "Testa modellen mot fiktiva anbud för att verifiera att den ger önskat utfall", "Integrera modellen i förfrågningsunderlaget"],
+      sparkboardSuggestion: [
+        { boardTitle: "Kvalitetskriterier", questions: ["Vad skiljer en riktigt bra leverantör från en medelmåttig — konkret?", "Vilka kvalitetsaspekter är du beredd att betala extra för?", "Beskriv ett scenario där lägsta pris INTE gav bästa resultat."], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Kravrevidering",
+      description: "Workshop för att revidera och kvalitetssäkra krav.",
+      suggestedParticipants: ["Kravansvarig", "Verksamhetsansvarig", "IT-arkitekt", "Juridik"],
+      agenda: ["Gå igenom befintliga krav", "Kontrollera spårbarhet till behov", "Granska SKA/BÖR-nivåer", "Kontrollera verifierbarhet", "Proportionalitetsbedömning"],
+      expectedOutputs: ["Reviderad kravlista", "Spårbarhetsmatris", "Proportionalitetsanalys"],
+      duration: "4h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Gå igenom befintliga krav", timeMinutes: 50, purpose: "Gå igenom kravlistan och verifiera att varje krav är tydligt, entydigt och mätbart. Identifiera oklara eller överlappande krav.", method: "Presentation", facilitationQuestions: ["Är kravet formulerat så att en leverantör entydigt kan förstå vad som efterfrågas?", "Finns det dubbletter eller överlappningar mellan kraven?", "Är kravet testbart — hur verifierar vi att det uppfylls?", "Finns det krav som är för tekniskt specificerade och styr mot en viss lösning?", "Saknas det krav som borde finnas baserat på behovsanalysen?"], tips: "Gå igenom krav för krav med projektorn. Markera varje krav med grön (OK), gul (behöver omformuleras) eller röd (stryk/skriv om). Begränsa diskussionen till 2 minuter per krav." },
+        { title: "Kontrollera spårbarhet till behov", timeMinutes: 35, purpose: "Säkerställa att varje krav kan spåras tillbaka till ett identifierat behov. Krav utan behovsgrund ska ifrågasättas.", method: "Affinity mapping", facilitationQuestions: ["Vilket behov svarar detta krav mot — och finns det dokumenterat?", "Finns det behov som inte täcks av något krav?", "Finns det krav som inte kan kopplas till något identifierat behov — varför finns de?", "Har vi säkerställt att de viktigaste behoven (P1) har tillräcklig kravtäckning?"], tips: "Använd en matris med behov på ena axeln och krav på den andra. Tomma rader (behov utan krav) och tomma kolumner (krav utan behov) indikerar brister." },
+        { title: "Granska SKA/BÖR-nivåer", timeMinutes: 40, purpose: "Kvalitetssäkra att rätt kravnivå (SKA = obligatoriskt, BÖR = önskvärt) är satt för varje krav.", method: "Dot-voting", facilitationQuestions: ["Är detta krav verkligen ett SKA-krav — kan vi inte leva utan det?", "Vad händer om vi sänker detta från SKA till BÖR — utesluter vi leverantörer i onödan?", "Finns det BÖR-krav som egentligen borde vara SKA — dvs. krav vi inte kan kompromissa om?", "Hur påverkar antalet SKA-krav konkurrensen — riskerar vi att få för få anbud?"], tips: "Tumregel: om ett SKA-krav inte är absolut nödvändigt, gör det till BÖR med hög vikt i utvärderingen istället. Det ger fler anbud och bättre konkurrens utan att ge avkall på kvalitet." },
+        { title: "Kontrollera verifierbarhet", timeMinutes: 35, purpose: "Säkerställa att varje krav kan verifieras objektivt — antingen genom demo, test, referens eller dokumentation.", method: "Presentation", facilitationQuestions: ["Hur ska leverantören bevisa att kravet uppfylls — demo, referens, certifikat?", "Kan två oberoende bedömare komma fram till samma slutsats om kravet är uppfyllt?", "Finns det krav som bara kan verifieras genom att testa systemet i drift?", "Är verifieringsmetoden proportionerlig — kräver vi inte för mycket dokumentation?"], tips: "Ange verifieringsmetod direkt i kravlistan. Acceptabla metoder: demo, testfall, referens, certifikat, egendeklaration med rätt att verifiera. Undvik krav som bara kan verifieras i drift." },
+        { title: "Proportionalitetsbedömning", timeMinutes: 40, purpose: "Säkerställa att kravmassan som helhet är proportionerlig och inte utgör ett onödigt hinder för leverantörer.", method: "Presentation", facilitationQuestions: ["Är kravmassan rimlig i förhållande till upphandlingens värde och komplexitet?", "Finns det krav som kan uppfattas som diskriminerande mot vissa leverantörskategorier?", "Kan en SME (liten/medelstor leverantör) rimligen svara på alla krav?", "Har vi tagit hänsyn till marknadens mognad — kan leverantörerna faktiskt uppfylla kraven?"], tips: "Jämför med liknande upphandlingar. Om ni har dubbelt så många krav som genomsnittet, fundera på om alla behövs. Fråga: 'Vad händer om vi tar bort detta krav — hur påverkas resultatet?'" },
+      ],
+      preparation: "Sammanställ befintlig kravlista med spårbarhet till behov. Förbered spårbarhetsmatrisen (behov-till-krav). Samla in referensupphandlingar med kravlistor för jämförelse. Ha en kopia av behovsanalysen tillgänglig.",
+      followUp: ["Uppdatera kravlistan med alla ändringar från workshopen (omformuleringar, nivåändringar, strykningar)", "Komplettera spårbarhetsmatrisen med eventuella nya kopplingar", "Juridisk slutgranskning av reviderade krav ur LOU-perspektiv", "Cirkulera reviderad kravlista till verksamhetsansvariga för godkännande", "Lägg till verifieringsmetod för varje krav"],
+      sparkboardSuggestion: [
+        { boardTitle: "Kravkvalitet", questions: ["Vilket krav tycker du är otydligast formulerat och varför?", "Finns det krav som du tror leverantörerna kommer ha svårt att förstå?", "Vilket krav är du mest osäker på om det borde vara SKA eller BÖR?"], timeLimit: 8 },
+        { boardTitle: "Saknade krav", questions: ["Finns det behov som du inte ser täckta i kravlistan?", "Vilka självklarheter saknas — saker vi förutsätter men inte har skrivit ner?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: Riskworkshop",
+      description: "Workshop för riskidentifiering och riskbedömning.",
+      suggestedParticipants: ["Projektledare", "IT-ansvarig", "Verksamhetsansvarig", "Juridik", "Säkerhetsansvarig"],
+      agenda: ["Brainstorm risker per kategori", "Bedöm sannolikhet och konsekvens", "Prioritera (riskmatris)", "Definiera åtgärder per risk", "Tilldela riskägare"],
+      expectedOutputs: ["Riskregister", "Riskmatris", "Åtgärdsplan"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Brainstorm risker per kategori", timeMinutes: 40, purpose: "Identifiera så många relevanta risker som möjligt inom kategorierna: teknisk, organisatorisk, juridisk, ekonomisk och leverantörsrelaterad.", method: "Brainstorming", facilitationQuestions: ["Vad kan gå fel tekniskt — med systemet, integrationer, data eller infrastruktur?", "Vilka organisatoriska risker finns — motstånd, resursbrist, kompetenstapp?", "Vilka juridiska risker finns — överprövning, GDPR-brister, avtalsrisker?", "Vilka ekonomiska risker finns — budgetöverdrag, dolda kostnader, valutarisker?", "Vilka leverantörsrisker finns — konkurs, inlåsning, nyckelpersoner som slutar?"], tips: "Kör brainstorm i tystnad först (5 min per kategori, skriv på lappar), sedan gruppering och diskussion. Det ger fler unika risker. Uppmuntra osannolika risker — det är ofta de mest destruktiva." },
+        { title: "Bedöm sannolikhet och konsekvens", timeMinutes: 35, purpose: "Bedöma varje identifierad risk på en skala 1-5 för sannolikhet och konsekvens.", method: "Dot-voting", facilitationQuestions: ["Hur troligt är det att denna risk faktiskt inträffar under projektets livstid?", "Om risken inträffar — vad är den värsta konsekvensen?", "Har denna typ av risk inträffat i liknande projekt?", "Kan vi kvantifiera konsekvensen i tid eller pengar?"], tips: "Använd en 5-gradig skala för både sannolikhet och konsekvens. Låt deltagarna först bedöma individuellt, sedan diskutera avvikelser. Dokumentera motiveringen — inte bara siffran." },
+        { title: "Prioritera (riskmatris)", timeMinutes: 25, purpose: "Placera alla risker i en riskmatris (sannolikhet x konsekvens) och identifiera de mest kritiska riskerna.", method: "Affinity mapping", facilitationQuestions: ["Vilka risker hamnar i den röda zonen (hög sannolikhet + hög konsekvens)?", "Finns det risker vi accepterar utan åtgärd — och varför?", "Hur många röda risker kan vi hantera parallellt med tillgängliga resurser?"], tips: "Rita matrisen på tavlan och flytta lappar in i rätt ruta. Röd zon = åtgärd krävs, gul = bevaka, grön = acceptera. Fokusera diskussionen på röda och gula risker." },
+        { title: "Definiera åtgärder per risk", timeMinutes: 35, purpose: "Bestämma åtgärdsstrategi per risk: undvika, minska, överföra eller acceptera.", method: "Brainstorming", facilitationQuestions: ["Kan vi eliminera denna risk helt — till vilken kostnad?", "Kan vi minska sannolikheten eller konsekvensen med rimliga åtgärder?", "Kan vi överföra risken till leverantören via avtalsvillkor?", "Om vi accepterar risken — vad är vår beredskapsplan om den ändå inträffar?"], tips: "Var konkret med åtgärderna. 'Mitigera risk' är inte en åtgärd. 'Kräv escrow-avtal i upphandlingen' är en åtgärd. Ange vem, vad, och när för varje åtgärd." },
+        { title: "Tilldela riskägare", timeMinutes: 20, purpose: "Utse en ansvarig person (riskägare) per risk som ansvarar för att åtgärden genomförs och risken bevakas.", method: "Presentation", facilitationQuestions: ["Vem har bäst förutsättningar att hantera denna risk?", "Har riskägaren mandat och resurser att genomföra åtgärden?", "Hur ofta ska riskregistret uppdateras och av vem?"], tips: "En risk utan ägare är en risk ingen hanterar. Riskägaren behöver inte göra allt själv men ansvarar för att åtgärden sker. Boka in riskrevidering i projektets stående mötesagenda." },
+      ],
+      preparation: "Förbered riskkategorier (teknisk, organisatorisk, juridisk, ekonomisk, leverantör). Samla in risklistor från liknande projekt. Ha en tom riskmatris (5x5) utskriven. Förbered riskmallarna från biblioteket som inspiration.",
+      followUp: ["Dokumentera alla risker i ett strukturerat riskregister med sannolikhet, konsekvens och åtgärder", "Skapa den visuella riskmatrisen i projektverktyget", "Distribuera riskregistret till alla riskägare med deras specifika ansvar", "Lägg in riskreviderings-möten i projektkalendern (minst månadsvis)", "Integrera relevanta risker som kravställning i upphandlingsunderlaget"],
+      sparkboardSuggestion: [
+        { boardTitle: "Riskidentifiering", questions: ["Vad oroar dig mest med detta projekt/denna upphandling?", "Beskriv ett worst-case-scenario som vi måste planera för.", "Vilka risker har du sett i liknande projekt?", "Finns det risker som ingen vill prata om men som vi måste ta på allvar?"], timeLimit: 10 },
+        { boardTitle: "Åtgärdsidéer", questions: ["Hur kan vi skydda oss mot leverantörsinlåsning?", "Vilka avtalsvillkor bör vi kräva för att hantera de största riskerna?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: Integrationsplanering",
+      description: "Workshop för att planera systemintegrationer.",
+      suggestedParticipants: ["IT-arkitekt", "Systemförvaltare", "Leverantör (befintliga system)", "Projektledare"],
+      agenda: ["Kartlägg integrationslandskap", "Definiera dataflöden", "API-krav och format", "Autentisering och säkerhet", "Test- och godkännandestrategi"],
+      expectedOutputs: ["Integrationskarta", "API-kravlista", "Testplan"],
+      duration: "4h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Kartlägg integrationslandskap", timeMinutes: 50, purpose: "Skapa en komplett bild av vilka system som ska integreras, i vilken riktning data flödar och vilka beroenden som finns.", method: "Affinity mapping", facilitationQuestions: ["Vilka system behöver utbyta data med det nya systemet?", "Vilka integrationer finns idag och vilka är nya?", "Vilka system ägs av oss, vilka ägs av leverantörer och vilka är myndighetssystem?", "Finns det system som vi planerar att avveckla — behöver vi tillfälliga integrationer?", "Vilka integrationer är realtid och vilka kan vara batch/schemalagda?"], tips: "Rita ett integrationsdiagram på tavlan med det nya systemet i mitten. Dra linjer till varje system det ska integreras med. Ange riktning (pilar), frekvens och datamängd på varje linje." },
+        { title: "Definiera dataflöden", timeMinutes: 45, purpose: "Detaljera vilken data som flödar mellan systemen, i vilken riktning, med vilken frekvens och vem som äger datan.", method: "Presentation", facilitationQuestions: ["Vilken data ska synkroniseras mellan systemen — och vem är master för varje dataobjekt?", "Hur ofta behöver data synkroniseras — realtid, dagligen, veckovis?", "Vad händer om en integration är nere — hur påverkas verksamheten?", "Finns det regelverk som styr vilken data som får överföras (GDPR, sekretess)?"], tips: "Skapa ett dataflödesdiagram per integration. Ange för varje flöde: dataobjekt, volym, frekvens, riktning, master-system och felhantering. Det blir grunden för API-kravställningen." },
+        { title: "API-krav och format", timeMinutes: 40, purpose: "Specificera tekniska krav på API:er: format, protokoll, versionshantering och dokumentation.", method: "Brainstorming", facilitationQuestions: ["Vilka API-standarder stödjer de system vi ska integrera med (REST, SOAP, GraphQL)?", "Vilka dataformat ska användas (JSON, XML, CSV)?", "Hur ska versionshantering av API:er ske — vad händer vid uppgradering?", "Finns det branschstandarder vi bör följa (t.ex. SS12000 för skola, Mina meddelanden)?", "Vilka krav har vi på API-dokumentation?"], tips: "Standardisera på REST+JSON om möjligt. Kräv OpenAPI/Swagger-dokumentation. Undvik proprietära format — de skapar inlåsning. Fråga befintliga systemleverantörer om deras API-mognad innan workshopen." },
+        { title: "Autentisering och säkerhet", timeMinutes: 35, purpose: "Definiera säkerhetskrav för integrationer: autentisering, auktorisering, kryptering och loggning.", method: "Presentation", facilitationQuestions: ["Vilken autentiseringsmetod ska användas för system-till-system-kommunikation (OAuth2, certifikat, API-nycklar)?", "Vilka krav finns på kryptering av data i transit och i vila?", "Hur ska behörighet hanteras — vilka system får läsa respektive skriva vilken data?", "Vilka loggningskrav finns på integrationstrafiken?"], tips: "Involvera informationssäkerhetsansvarig. Kräv minst TLS 1.2 för all kommunikation. OAuth2 med client credentials är standard för system-till-system. Logga alla API-anrop med tidsstämpel, avsändare och status." },
+        { title: "Test- och godkännandestrategi", timeMinutes: 40, purpose: "Planera hur integrationer ska testas, godkännas och sättas i produktion.", method: "Brainstorming", facilitationQuestions: ["Hur ska vi testa integrationer — i gemensam testmiljö eller med mockar?", "Vilka testscenarier är kritiska: normala flöden, felhantering, stresstest?", "Vem godkänner att en integration är klar att sättas i produktion?", "Hur hanterar vi felsökning när integrationsproblem uppstår i drift?", "Behöver vi en gemensam integrationstestmiljö med alla parter?"], tips: "Planera testmiljöerna tidigt — de är ofta en flaskhals. Kräv att alla parter tillgängliggör testmiljöer. Skapa testfall som inkluderar felscenarier (timeout, felaktiga data, otillgängligt system)." },
+      ],
+      preparation: "Kartlägg befintliga integrationer och deras dokumentation. Samla in API-dokumentation från befintliga system. Bjud in systemförvaltare för alla system som ska integreras. Förbered ett tomt integrationsdiagram.",
+      followUp: ["Dokumentera integrationskarta med alla system, dataflöden och beroenden", "Skapa detaljerade API-kravspecifikationer per integration", "Etablera gemensam testmiljö med alla integrationsparter", "Definiera SLA per integration (tillgänglighet, svarstider, felhantering)", "Planera integrationstest med tidslinje och ansvariga per integration"],
+      sparkboardSuggestion: [
+        { boardTitle: "Integrationsutmaningar", questions: ["Vilken integration oroar dig mest och varför?", "Beskriv ett problem du upplevt med en befintlig integration.", "Vilka system har dålig eller obefintlig API-dokumentation?", "Finns det integrationer som fungerar dåligt idag och måste bli bättre?"], timeLimit: 10 },
+      ],
+    },
+    {
+      title: "Workshopmall: Förändringsledning",
+      description: "Workshop för att planera organisatorisk förändringsledning.",
+      suggestedParticipants: ["Projektledare", "HR", "Enhetschefer", "Kommunikatör", "Fackrepresentant"],
+      agenda: ["Intressentanalys", "Kommunikationsplan", "Utbildningsbehov och -plan", "Superanvändarstrategi", "Motstånd och hantering"],
+      expectedOutputs: ["Förändringsledningsplan", "Kommunikationsplan", "Utbildningsplan"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Intressentanalys", timeMinutes: 35, purpose: "Identifiera alla intressentgrupper som påverkas av förändringen och bedöma deras inställning, inflytande och behov.", method: "Affinity mapping", facilitationQuestions: ["Vilka grupper berörs direkt av systembytet och hur påverkas deras arbetsvardag?", "Vilka personer eller grupper har störst inflytande på projektets framgång?", "Var förväntar vi oss mest motstånd — och varför?", "Vilka intressenter är positiva till förändringen och kan fungera som ambassadörer?", "Finns det fackliga aspekter vi behöver beakta?"], tips: "Placera intressenter i en intressentmatris (inflytande/intresse). Fokusera förändringsledningsinsatserna på grupper med hög påverkan. Glöm inte chefer i mellannivå — de är avgörande för framgång." },
+        { title: "Kommunikationsplan", timeMinutes: 30, purpose: "Planera hur, när och av vem information om förändringen ska kommuniceras till olika intressentgrupper.", method: "Brainstorming", facilitationQuestions: ["Vilka budskap behöver nå ut till olika grupper och i vilken ordning?", "Vilka kommunikationskanaler är mest effektiva för respektive grupp?", "Vem ska stå som avsändare — projektet, ledningen eller enhetscheferna?", "Hur hanterar vi ryktesspridning och felaktig information?", "Hur ofta behöver vi kommunicera under projektets olika faser?"], tips: "Kommunicera tidigt och ofta. 'Varför' är viktigare än 'vad'. Använd enhetschefer som kommunikationskanal — de når sina team bäst. Boka regelbundna informationsträffar och använd intranätet aktivt." },
+        { title: "Utbildningsbehov och -plan", timeMinutes: 35, purpose: "Kartlägga utbildningsbehov per grupp och planera utbildningsinsatser inför och efter go-live.", method: "Brainstorming", facilitationQuestions: ["Vilka kompetenser behöver de olika användargrupperna — och vad kan de redan?", "Vilken utbildningsform passar bäst: klassrum, e-learning, workshops, learning by doing?", "När i projektet ska utbildningen genomföras — och hur nära go-live?", "Hur följer vi upp att utbildningen har gett resultat?", "Behöver vi utbilda chefer separat — de har andra behov än slutanvändare?"], tips: "Utbilda inte för tidigt — folk glömmer snabbt. Ideal timing: 2-4 veckor före go-live. Kombinera olika format. Ge möjlighet att öva i testmiljö. Skapa lathundar och snabbguider som komplement." },
+        { title: "Superanvändarstrategi", timeMinutes: 25, purpose: "Definiera en superanvändarstrategi med urval, utbildning, roll och mandat.", method: "Presentation", facilitationQuestions: ["Hur många superanvändare behöver vi och hur väljer vi ut dem?", "Vilka egenskaper ska en superanvändare ha — teknikintresse, ledarskap, tålamod?", "Vilken roll har superanvändaren i sin vardag efter go-live?", "Hur kompenserar vi superanvändare för den extra tid detta tar?"], tips: "Välj superanvändare med omsorg — de ska vara respekterade av kollegorna och genuint intresserade. Ge dem extra tid i sin tjänst för rollen. Starta utbildningen av superanvändare 1-2 månader före övriga." },
+        { title: "Motstånd och hantering", timeMinutes: 25, purpose: "Identifiera potentiellt motstånd och ta fram strategier för att hantera det konstruktivt.", method: "Brainstorming", facilitationQuestions: ["Vilka typer av motstånd förväntar vi oss — aktivt, passivt, öppet, dolt?", "Vad ligger bakom motståndet — rädsla, osäkerhet, dåliga erfarenheter?", "Hur kan vi vända motstånd till engagemang?", "Vilka åtgärder behövs om nyckelpersoner aktivt motarbetar förändringen?"], tips: "Motstånd är naturligt och ofta rationellt. Lyssna genuint på invändningar — de innehåller ofta viktig information. Involvera skeptiker tidigt i processen, de blir ofta de bästa ambassadörerna om de blir hörda." },
+      ],
+      preparation: "Kartlägg organisationsstrukturen och alla berörda enheter. Samla in erfarenheter från tidigare förändringsinitiativ. Förbered en intressentkarta med preliminär bedömning. Stäm av med fack om samverkansprocessen.",
+      followUp: ["Dokumentera förändringsledningsplanen med intressentanalys, kommunikationsplan och utbildningsplan", "Utse och rekrytera superanvändare i samråd med enhetschefer", "Starta kommunikationsinsatserna enligt den framtagna planen", "Planera och boka utbildningstillfällen", "Etablera en kanal för löpande feedback från organisationen under projektet"],
+      sparkboardSuggestion: [
+        { boardTitle: "Oro & förväntningar", questions: ["Vad oroar dig mest med det kommande systembytet?", "Vad ser du mest fram emot med det nya systemet?", "Vad behöver du för att känna dig trygg med förändringen?", "Beskriv ett tidigare systembyte — vad fungerade bra och vad var dåligt?"], timeLimit: 10 },
+        { boardTitle: "Utbildning & stöd", questions: ["Hur lär du dig bäst — klassrum, video, prova själv?", "Vilken hjälp behöver du de första veckorna med ett nytt system?"], timeLimit: 6 },
+      ],
+    },
   ];
 
   for (const tmpl of workshopTemplates) {
@@ -625,24 +1152,564 @@ async function main() {
 
   console.log("  ✓ 10 extra kravblock");
 
+  // ── KRAVBLOCK: ICKE-FUNKTIONELLA IT-KRAV (12 st) ────────────────
+  // Generiska icke-funktionella krav för IT-upphandling i offentlig sektor
+  // 108 krav uppdelade i 12 tematiska kravblock
+
+  // 1. Användare & behörigheter
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Användare & behörigheter",
+      title: "Kravblock: Användare & behörigheter",
+      description: "Krav på behörighetshantering, rollstyrning och automatiserad användarhantering för IT-system i offentlig sektor.",
+      content: JSON.stringify({ requirements: [
+        { title: "Beställaren styr behörigheter", reqType: "icke-funktionellt", level: "SKA", text: "Beställaren/kunden skall vara den part som styr behörigheter i systemet samt vilken form av autentisering som krävs för att nå vilken information och funktion i lösningen.", rationale: "Säkerställer att kunden har full kontroll över åtkomst till systemet.", cluster: "Användare & behörigheter" },
+        { title: "Behörighetsstyrt gränssnitt", reqType: "funktion", level: "SKA", text: "Behörighetsfunktionen styr användares tillgång till data och funktioner i systemet. Med funktioner avses även det grafiska gränssnittet – om man ej har behörighet till en funktion skall den ej heller synas i det grafiska gränssnittet.", rationale: "Undviker förvirring och minskar risken för obehöriga åtkomstförsök.", cluster: "Användare & behörigheter" },
+        { title: "Rollbaserade behörigheter", reqType: "funktion", level: "BOR", text: "Systemet bör hantera rollbaserade behörigheter. Om behörigheten ändras på en roll skall det slå igenom på alla som har den specifika rollen.", rationale: "Effektiv och skalbar behörighetshantering.", cluster: "Användare & behörigheter" },
+        { title: "Multipla roller per användare", reqType: "funktion", level: "SKA", text: "En användare skall kunna ha flera roller.", rationale: "Stödjer organisationer där medarbetare har flera ansvarsområden.", cluster: "Användare & behörigheter" },
+        { title: "Obegränsat antal roller", reqType: "funktion", level: "SKA", text: "Det skall gå att skapa ett obegränsat antal roller.", rationale: "Flexibilitet att anpassa behörighetsmodellen efter organisationens behov.", cluster: "Användare & behörigheter" },
+        { title: "Behörighetshistorik", reqType: "funktion", level: "SKA", text: "Systemet skall behålla behörighetshistorik för en användare som tas bort eller görs inaktiv.", rationale: "Nödvändigt för spårbarhet och revision.", cluster: "Användare & behörigheter" },
+        { title: "Gemensamt behörighetssystem", reqType: "icke-funktionellt", level: "BOR", text: "Systemet bör ha ett gemensamt behörighetssystem för alla delar och moduler.", rationale: "Undviker inkonsistenta behörighetsmodeller mellan systemdelar.", cluster: "Användare & behörigheter" },
+        { title: "Automatiserad användarhantering", reqType: "funktion", level: "SKA", text: "Systemet ska stödja automatiserad provisionering av användare via minst en av följande tekniker: SCIM, REST-API, LDAPS eller filöverföring. Systemet måste även kunna hantera användare från olika domäner.", rationale: "Automatiserad användarhantering minskar manuellt arbete och säkerställer att behörigheter hålls aktuella.", cluster: "Användare & behörigheter" },
+      ] }),
+      tags: JSON.stringify(["behörigheter", "roller", "användarhantering", "generisk"]),
+    },
+  });
+
+  // 2. Användargränssnitt
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Användargränssnitt",
+      title: "Kravblock: Användargränssnitt",
+      description: "Krav på tillgänglighet, responsivitet, webbläsarstöd och grafisk anpassningsbarhet för IT-system i offentlig sektor.",
+      content: JSON.stringify({ requirements: [
+        { title: "Responsiv design", reqType: "icke-funktionellt", level: "SKA", text: "Samtliga webbaserade gränssnitt skall vara responsiva (responsive web design) så att de anpassar sig efter den enhet som besökaren använder.", rationale: "Säkerställer användbarhet på alla enheter.", cluster: "Användargränssnitt" },
+        { title: "WCAG 2.1 nivå AA", reqType: "icke-funktionellt", level: "SKA", text: "Samtliga webbaserade gränssnitt skall minimum uppfylla kraven enligt WCAG 2.1 nivå AA.", rationale: "Lagkrav enligt lagen om tillgänglighet till digital offentlig service.", cluster: "Användargränssnitt" },
+        { title: "Tillgänglighetslagen", reqType: "icke-funktionellt", level: "SKA", text: "Samtliga delar i den offererade lösningen som omfattas av lagen (2018:1937) om tillgänglighet till digital offentlig service skall följa denna lagstiftning.", rationale: "Direkt lagkrav för offentlig sektor.", cluster: "Användargränssnitt" },
+        { title: "Marknadsledande webbläsare", reqType: "icke-funktionellt", level: "SKA", text: "Samtliga webbaserade gränssnitt skall fungera utan väsentliga funktionsbrister i senaste versionen av marknadsledande webbläsare. Gränssnitt som kräver Silverlight, Shockwave eller Flash accepteras ej.", rationale: "Säkerställer bred kompatibilitet.", cluster: "Användargränssnitt" },
+        { title: "Stöd för mobila operativsystem", reqType: "icke-funktionellt", level: "SKA", text: "Om den offererade lösningen använder appar skall dessa ha stöd för marknadsledande operativsystem för mobila enheter.", rationale: "Bred tillgänglighet på mobila enheter.", cluster: "Användargränssnitt" },
+        { title: "Anpassningsbar visuell identitet", reqType: "funktion", level: "SKA", text: "Samtliga gränssnitt skall gå att anpassa grafiskt för att följa organisationens visuella identitet, minimum genom ändring av logotyper och färgscheman.", rationale: "Enhetlig visuell identitet stärker organisationens varumärke.", cluster: "Användargränssnitt" },
+        { title: "Svenskt gränssnitt", reqType: "icke-funktionellt", level: "SKA", text: "Systemets gränssnitt mot användare skall vara på svenska.", rationale: "Grundläggande krav för svenska offentliga organisationer.", cluster: "Användargränssnitt" },
+        { title: "Webbaserat utan klientinstallation", reqType: "icke-funktionellt", level: "SKA", text: "Systemet ska vara webbaserat i alla funktioner och inte kräva klientinstallation på PC.", rationale: "Minimerar driftkostnader och förenklar utrullning.", cluster: "Användargränssnitt" },
+      ] }),
+      tags: JSON.stringify(["tillgänglighet", "wcag", "gränssnitt", "generisk"]),
+    },
+  });
+
+  // 3. Dokumentation
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Dokumentation",
+      title: "Kravblock: Dokumentation",
+      description: "Krav på system-, användar- och API-dokumentation samt kontextuella hjälptexter för IT-system.",
+      content: JSON.stringify({ requirements: [
+        { title: "Heltäckande dokumentation", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören ska tillhandahålla adekvat dokumentation för beställarens användare, förvaltningsorganisation och integratörer. Dokumentationen ska minst omfatta användarinstruktioner, systemdokumentation inklusive specifika inställningar och konfiguration, samt API-dokumentation.", rationale: "Nödvändigt för effektiv förvaltning och självständig drift.", cluster: "Dokumentation" },
+        { title: "Systemdokumentation", reqType: "kontraktsvillkor", level: "SKA", text: "Systemdokumentationen ska innehålla adekvat beskrivning av tjänsten, systemkrav, systemdesign och kommunikation. Dokumentationen ska kompletteras med beställarens specifika inställningar.", rationale: "Säkerställer att beställaren förstår systemets arkitektur.", cluster: "Dokumentation" },
+        { title: "Användarmanualer", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall tillhandahålla användarmanualer eller inbyggd hjälpfunktion för funktionaliteten i systemet.", rationale: "Minskar behovet av support och underlättar onboarding.", cluster: "Dokumentation" },
+        { title: "Ändringslogg och releasenotes", reqType: "kontraktsvillkor", level: "SKA", text: "Ändringsdokumentation (changelog) och releasenotes skall produceras löpande i samband med leverans av ändringar och nya funktioner.", rationale: "Ger beställaren insyn i vad som förändrats mellan versioner.", cluster: "Dokumentation" },
+        { title: "Felmeddelanden i klartext", reqType: "funktion", level: "SKA", text: "Systemet ska visa felmeddelanden i klartext som är begripliga för en slutanvändare, inte enbart felkoder.", rationale: "Förbättrar användarupplevelsen och minskar supportbehovet.", cluster: "Dokumentation" },
+        { title: "Kontextuella hjälptexter", reqType: "funktion", level: "BOR", text: "Systemet bör innehålla funktionsorienterade hjälptexter kopplade till den sida och funktion användaren har framför sig. Hjälptexterna bör kunna ersättas med kundanpassade texter.", rationale: "Kontextuell hjälp ökar produktiviteten och möjliggör organisationsanpassning.", cluster: "Dokumentation" },
+      ] }),
+      tags: JSON.stringify(["dokumentation", "manualer", "hjälptexter", "generisk"]),
+    },
+  });
+
+  // 4. Informationsmängder: Ägarskap & portabilitet
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Informationsmängder",
+      title: "Kravblock: Dataägarskap & portabilitet",
+      description: "Krav på dataägarskap, nyttjanderätt, exportmöjligheter och datamigration vid avveckling av IT-system.",
+      content: JSON.stringify({ requirements: [
+        { title: "Full ägande- och nyttjanderätt till data", reqType: "kontraktsvillkor", level: "SKA", text: "All data och information som beställaren genererar och lagrar i systemet skall beställaren ha full kostnadsfri ägande- och nyttjanderätt till.", rationale: "Grundläggande krav för att undvika leverantörsinlåsning.", cluster: "Informationsmängder" },
+        { title: "Ingen delning utan godkännande", reqType: "kontraktsvillkor", level: "SKA", text: "All data som lagras i systemet ska ägas av kunden och leverantören har ingen rätt att dela denna data med andra aktörer eller använda kundens data utan kundens explicita godkännande.", rationale: "Skyddar kundens informationstillgångar.", cluster: "Informationsmängder" },
+        { title: "Nyttjanderätt efter avtal", reqType: "kontraktsvillkor", level: "SKA", text: "All data som leverantören skapar eller tillhandahåller i systemet under avtalstiden ska kunden erhålla en nyttjanderätt som innebär att kunden kan använda och dela data vidare även efter avtalets upphörande.", rationale: "Säkerställer att kundens datatillgång inte är beroende av avtalsrelationen.", cluster: "Informationsmängder" },
+        { title: "Förvarning vid datamodellförändringar", reqType: "kontraktsvillkor", level: "SKA", text: "Vid förändringar i systemets datamodell, datahantering eller funktioner för informationsutbyte ska leverantören skriftligen underrätta kunden inom skälig tid och tillhandahålla dokumentation, testmiljö och testdata.", rationale: "Förhindrar oväntade konsekvenser för integrationer och processer.", cluster: "Informationsmängder" },
+        { title: "Export med bibehållen integritet", reqType: "funktion", level: "SKA", text: "Data i systemet ska kunna exporteras med bibehållen funktionalitet utan att informationens autenticitet, tillförlitlighet och integritet påverkas.", rationale: "Krävs för dataportabilitet och leverantörsoberoende.", cluster: "Informationsmängder" },
+        { title: "Migrationsstöd vid avveckling", reqType: "kontraktsvillkor", level: "SKA", text: "Vid avveckling ska leverantören kostnadsfritt tillhandahålla kompetens och resurser för att exportera och migrera data till annat system, samt bistå med dokumentation.", rationale: "Minskar risken och kostnaden vid systembyte.", cluster: "Informationsmängder" },
+        { title: "Dokumentation av API och datautbyte", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören ska på kundens begäran tillhandahålla dokumentation av systemets funktioner för datautbyte inklusive API:er, standarder och metadata.", rationale: "Nödvändigt för integration och analys.", cluster: "Informationsmängder" },
+        { title: "Radering vid avtalsupphörande", reqType: "kontraktsvillkor", level: "SKA", text: "När avtalet upphör ska leverantören radera all kunddata senast 30 dagar efter att kunden meddelat detta.", rationale: "Säkerställer att data inte finns kvar hos leverantören efter avslutad relation.", cluster: "Informationsmängder" },
+      ] }),
+      tags: JSON.stringify(["dataägarskap", "portabilitet", "export", "generisk"]),
+    },
+  });
+
+  // 5. Informationsmängder: Arkivering & gallring
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Informationsmängder",
+      title: "Kravblock: Arkivering & gallring",
+      description: "Krav på e-arkiv, FGS-stöd, gallringsfunktioner och långtidsbevarande för IT-system i offentlig sektor.",
+      content: JSON.stringify({ requirements: [
+        { title: "Stöd för e-arkiv (FGS Paketstruktur)", reqType: "funktion", level: "SKA", text: "Systemet skall ha stöd för att exportera information till beställarens e-arkiv enligt Riksarkivets FGS Paketstruktur.", rationale: "Standardiserad arkiveringsprocess enligt Riksarkivets krav.", cluster: "Informationsmängder" },
+        { title: "Riksarkivets föreskrifter", reqType: "icke-funktionellt", level: "SKA", text: "Systemet ska följa Riksarkivets föreskrifter, rekommendationer och specifikationer gällande information som ska bevaras, inklusive arkivbeständiga filformat.", rationale: "Lagkrav för offentlig verksamhet.", cluster: "Informationsmängder" },
+        { title: "Gallring vid valfri tidpunkt", reqType: "funktion", level: "SKA", text: "Föreskriven eller beslutad gallring av information i systemet skall kunna utföras vid valfri tidpunkt.", rationale: "Nödvändigt för att uppfylla dokumenthanteringsplanen.", cluster: "Informationsmängder" },
+        { title: "Oåterkallelig gallring", reqType: "funktion", level: "SKA", text: "Gallrad information skall gallras på ett sådant sätt att den inte går att återskapa.", rationale: "Uppfyller juridiska krav och dataskyddslagstiftning.", cluster: "Informationsmängder" },
+        { title: "Separering av gallringsbar information", reqType: "funktion", level: "SKA", text: "I systemet ska det vara möjligt att skilja på information som ska bevaras från gallringsbar information, samt att skilja på information med olika gallringsfrister.", rationale: "Grundläggande för korrekt informationshantering enligt arkivlag.", cluster: "Informationsmängder" },
+        { title: "Automatiserad gallring", reqType: "funktion", level: "SKA", text: "Systemet ska ha funktion för att automatiskt radera data med definierade intervall enligt uppsatta regler. Gallringsfunktionen ska vara behörighetsstyrd.", rationale: "Automatisering minskar risk för förbiseende.", cluster: "Informationsmängder" },
+        { title: "Gallringsrapporter", reqType: "funktion", level: "SKA", text: "Systemet ska ha funktion för rapporter över utförd gallring. Begärd gallring ska kunna kontrolleras innan den verkställs.", rationale: "Spårbarhet och kontroll av gallringsåtgärder.", cluster: "Informationsmängder" },
+        { title: "Långtidsbevarande i XML", reqType: "funktion", level: "SKA", text: "Uttag för långtidsbevarande ska kunna ske i XML-format med tillhörande XML-schema (XSD) samt extern XSL-stilmall.", rationale: "Standardiserat format för långtidsbevarande i offentlig sektor.", cluster: "Informationsmängder" },
+      ] }),
+      tags: JSON.stringify(["arkivering", "gallring", "e-arkiv", "riksarkivet", "generisk"]),
+    },
+  });
+
+  // 6. Informationssäkerhet: Leverantörskrav
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Informationssäkerhet",
+      title: "Kravblock: Informationssäkerhet – Leverantörskrav",
+      description: "Krav på leverantörens ledningssystem för informationssäkerhet, åtkomststyrning och säker utvecklingsmetodik.",
+      content: JSON.stringify({ requirements: [
+        { title: "Ledningssystem för informationssäkerhet", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall ha ett ledningssystem för informationssäkerhet (LIS) baserat på ISO/IEC 27001 eller motsvarande med dokumenterade roller, ansvar och befogenheter.", rationale: "Grundläggande trygghetskrav för offentlig sektors IT-upphandling.", cluster: "Informationssäkerhet" },
+        { title: "Säkerhetspolicy för distansarbete", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall ha policy och säkerhetsåtgärder som skyddar information vid distansarbete avseende drift, förvaltning och support.", rationale: "Distansarbete kräver särskild hantering av informationssäkerhet.", cluster: "Informationssäkerhet" },
+        { title: "Säkerhetsklassad personal", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall garantera att endast säkerhetsklassad och godkänd personal har tillgång till beställarens information.", rationale: "Skyddar mot obehörig åtkomst till känslig information.", cluster: "Informationssäkerhet" },
+        { title: "Regelbundna risk- och sårbarhetsanalyser", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall genomföra risk- och sårbarhetsanalyser minst årligen. Identifierade brister skall åtgärdas enligt dokumenterad plan.", rationale: "Proaktiv säkerhetshantering minskar risken för incidenter.", cluster: "Informationssäkerhet" },
+        { title: "Minsta möjliga behörighet", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantörens behörigheter skall tilldelas enligt principen om minsta möjliga behörighet utifrån roll och arbetsuppgifter.", rationale: "Grundprincip i informationssäkerhet (principle of least privilege).", cluster: "Informationssäkerhet" },
+        { title: "Krypteringsrutiner", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall ha rutiner för kryptering med dokumenterade algoritmer, protokoll, nyckellängder och nyckelhantering.", rationale: "Säkerställer adekvat skydd av data i transit och lagring.", cluster: "Informationssäkerhet" },
+        { title: "Backup geografiskt åtskild", reqType: "funktion", level: "SKA", text: "Leverantören skall ha funktioner för återställande av information. Säkerhetskopior skall skyddas enligt samma nivåer som originalet och förvaras geografiskt åtskilt.", rationale: "Skyddar mot dataförlust.", cluster: "Informationssäkerhet" },
+        { title: "Säker utvecklingsmetodik", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall ha dokumenterade principer för utveckling av säkra system. Vid webbutveckling ska OWASP:s rekommendationer eller motsvarande följas.", rationale: "Säker utveckling minskar sårbarheter i levererad programvara.", cluster: "Informationssäkerhet" },
+      ] }),
+      tags: JSON.stringify(["informationssäkerhet", "iso27001", "leverantörskrav", "generisk"]),
+    },
+  });
+
+  // 7. Informationssäkerhet: Loggning & dataskydd
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Informationssäkerhet",
+      title: "Kravblock: Loggning & dataskydd",
+      description: "Krav på loggning av säkerhetshändelser, spårbarhet av personuppgiftsbehandling och incidenthantering.",
+      content: JSON.stringify({ requirements: [
+        { title: "Loggning av säkerhetshändelser", reqType: "funktion", level: "SKA", text: "Loggningsfunktioner skall finnas för säkerhetsrelaterade händelser, minst för felaktiga inloggningar, förändring av behörigheter och överträdelser.", rationale: "Grundläggande för att upptäcka och utreda säkerhetsincidenter.", cluster: "Informationssäkerhet" },
+        { title: "Loggning av behörighetsförändringar", reqType: "funktion", level: "SKA", text: "Behörighetssystemet skall logga när användare skapades, togs bort eller förändrades samt senaste inloggning.", rationale: "Spårbarhet av behörighetsförändringar är kritiskt för revision.", cluster: "Informationssäkerhet" },
+        { title: "Konfigurerbar loggningstid", reqType: "funktion", level: "SKA", text: "Tiden som logginformation sparas skall kunna bestämmas av beställaren.", rationale: "Organisationen måste kunna anpassa lagring efter lagkrav.", cluster: "Informationssäkerhet" },
+        { title: "Spårbarhet vid personuppgiftsbehandling", reqType: "funktion", level: "SKA", text: "Vid hantering av personuppgifter skall systemet logga vem som behandlat uppgiften, tidpunkt, vilken uppgift och vad behandlingen bestod av.", rationale: "GDPR kräver dokumenterad spårbarhet.", cluster: "Informationssäkerhet" },
+        { title: "Självbetjäning för logggranskning", reqType: "funktion", level: "SKA", text: "Systemet skall möjliggöra för beställaren att själv granska användarrelaterade loggar.", rationale: "Beställaren behöver kunna granska loggar utan leverantörsberoende.", cluster: "Informationssäkerhet" },
+        { title: "Skydd av loggar mot manipulation", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören skall skydda loggningsfunktioner och loggningsverktyg mot manipulation och obehörig åtkomst.", rationale: "Loggar är bevis vid incidenter och får inte kunna manipuleras.", cluster: "Informationssäkerhet" },
+        { title: "Incidenthanteringsrutiner", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall ha dokumenterade rutiner för utredning av säkerhetsincidenter enligt gällande lagar.", rationale: "Strukturerad incidenthantering minskar skadan vid säkerhetshändelser.", cluster: "Informationssäkerhet" },
+        { title: "Personuppgiftsbiträdesavtal", reqType: "kontraktsvillkor", level: "SKA", text: "Vid behandling av personuppgifter i systemet skall biträdesavtal tecknas vid avtalsstart.", rationale: "Lagkrav enligt GDPR.", cluster: "Informationssäkerhet" },
+      ] }),
+      tags: JSON.stringify(["loggning", "dataskydd", "gdpr", "spårbarhet", "generisk"]),
+    },
+  });
+
+  // 8. Integration & API
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Integration & API",
+      title: "Kravblock: Integration & API",
+      description: "Krav på integrationsgränssnitt, API-dokumentation, import/export och schemalagd datahantering.",
+      content: JSON.stringify({ requirements: [
+        { title: "Dokumenterade integrationsgränssnitt", reqType: "funktion", level: "SKA", text: "Samtliga system skall ha definierade och dokumenterade integrationsgränssnitt (Web Services, API). Dessa skall tillgängliggöras utan extra kostnad.", rationale: "Grundkrav för interoperabilitet.", cluster: "Integration & API" },
+        { title: "Import och export i standardformat", reqType: "funktion", level: "SKA", text: "Systemet ska ha import- och exportfunktionalitet i minst XML- och CSV-format.", rationale: "Standardformat möjliggör datautbyte utan specialanpassningar.", cluster: "Integration & API" },
+        { title: "Säkra API:er", reqType: "icke-funktionellt", level: "SKA", text: "Leverantören ansvarar för att extern åtkomst via API:er är säker och att obehöriga inte kan få åtkomst till data.", rationale: "API-säkerhet skyddar informationstillgångar.", cluster: "Integration & API" },
+        { title: "Diggs REST API-profil", reqType: "icke-funktionellt", level: "BOR", text: "Diggs allmänna krav på REST-API:er bör följas.", rationale: "Standardisering underlättar interoperabilitet i offentlig sektor.", cluster: "Integration & API" },
+        { title: "Strukturerad API-dokumentation", reqType: "kontraktsvillkor", level: "BOR", text: "API:erna bör finnas dokumenterade i Swagger/OpenAPI eller liknande ramverk.", rationale: "Standardiserad dokumentation sänker tröskeln för integration.", cluster: "Integration & API" },
+        { title: "Förvarning vid API-förändringar", reqType: "kontraktsvillkor", level: "SKA", text: "Vid planerad utfasning, ersättning eller borttagning av API ska leverantören i god tid meddela beställaren.", rationale: "Ger tid att anpassa integrationer.", cluster: "Integration & API" },
+        { title: "Schemalagd import och export", reqType: "funktion", level: "SKA", text: "Systemet skall kunna starta processer för inläsning och export av data utifrån förinställt klockslag eller tidsintervall utan manuell åtgärd.", rationale: "Automatiserad datahantering minskar manuellt arbete.", cluster: "Integration & API" },
+        { title: "Integrationsstatus", reqType: "funktion", level: "SKA", text: "Systemet skall visa status över utförda och pågående integrationer och bearbetningar.", rationale: "Ger insyn i att integrationer fungerar korrekt.", cluster: "Integration & API" },
+      ] }),
+      tags: JSON.stringify(["integration", "api", "interoperabilitet", "generisk"]),
+    },
+  });
+
+  // 9. Support & kundtjänst
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Support & kundtjänst",
+      title: "Kravblock: Support & kundtjänst",
+      description: "Krav på supportfunktion, öppettider, kundansvarig och ärendehantering för IT-leverantörer.",
+      content: JSON.stringify({ requirements: [
+        { title: "Supportfunktion på svenska", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören ska ha supportfunktion nåbar via telefon, e-post och eventuell chat. All kommunikation ska ske på svenska.", rationale: "Grundläggande tillgänglighet för supportärenden.", cluster: "Support & kundtjänst" },
+        { title: "Öppettider helgfria vardagar", reqType: "kontraktsvillkor", level: "SKA", text: "Öppettider för supportfunktion skall vara helgfri vardag kl 08:00 till 17:00.", rationale: "Säkerställer tillgänglighet under arbetstid.", cluster: "Support & kundtjänst" },
+        { title: "Kundansvarig kontaktperson", reqType: "kontraktsvillkor", level: "SKA", text: "Det skall finnas en utsedd kundansvarig för löpande kontakter, dialog om systemets utveckling och eskalering av ärenden.", rationale: "Namngiven kontaktperson underlättar kommunikation.", cluster: "Support & kundtjänst" },
+        { title: "Tillgång till ärendehistorik", reqType: "funktion", level: "SKA", text: "Beställaren skall ha tillgång till historiska ärenden och kunna erhålla statistik från leverantören.", rationale: "Möjliggör uppföljning av servicenivå.", cluster: "Support & kundtjänst" },
+        { title: "Teknisk support mot tredje part", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall tillhandahålla teknisk support gentemot beställaren och tredjepartsleverantörer.", rationale: "Nödvändigt i miljöer med flera leverantörer.", cluster: "Support & kundtjänst" },
+        { title: "Återrapportering inom 8 timmar", reqType: "kontraktsvillkor", level: "SKA", text: "Avslutade ärenden skall återrapporteras till anmälaren senast 8 timmar efter åtgärdande.", rationale: "Snabb återkoppling säkerställer att ärenden bekräftas lösta.", cluster: "Support & kundtjänst" },
+      ] }),
+      tags: JSON.stringify(["support", "kundtjänst", "sla", "generisk"]),
+    },
+  });
+
+  // 10. Teknik & autentisering
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Teknik & autentisering",
+      title: "Kravblock: Teknik & autentisering",
+      description: "Krav på federerad inloggning, MFA, testmiljö och teknisk infrastruktur för IT-system.",
+      content: JSON.stringify({ requirements: [
+        { title: "Federerad inloggning (SAML/OIDC)", reqType: "funktion", level: "SKA", text: "Inloggning för interna användare ska ske via befintliga AD-konton med federerad inloggning via SAML 2.0 eller OpenID Connect.", rationale: "SSO förenklar inloggning och centraliserar behörighetshantering.", cluster: "Teknik & autentisering" },
+        { title: "Stark autentisering via federation", reqType: "funktion", level: "SKA", text: "Stark autentisering (t.ex. BankID eller Freja+) för interna och externa användare ska ske via beställarens identitetslösning.", rationale: "Centraliserad autentisering ger enhetlig säkerhetsnivå.", cluster: "Teknik & autentisering" },
+        { title: "Behörighet från identitetsintyg", reqType: "funktion", level: "SKA", text: "Behörighet ska baseras på federerad identitetsdata i identitetsintyget som grund för behörighetsprofiler.", rationale: "Möjliggör automatisk rollmappning.", cluster: "Teknik & autentisering" },
+        { title: "MFA för lokala konton", reqType: "icke-funktionellt", level: "SKA", text: "Om systemet erbjuder lokala konton ska dessa skyddas av MFA med FIDO2 eller OATH-TOTP.", rationale: "Lokala konton utan MFA utgör en allvarlig säkerhetsrisk.", cluster: "Teknik & autentisering" },
+        { title: "Testmiljö inkluderad", reqType: "kontraktsvillkor", level: "SKA", text: "En testmiljö som kopia av produktionsmiljön ska ingå i leveransen. Leverantören ska kunna kopiera data från produktion till test.", rationale: "Testmiljö möjliggör verifiering utan risk för produktionsdata.", cluster: "Teknik & autentisering" },
+        { title: "MDM/EMM-distribution", reqType: "funktion", level: "SKA", text: "Systemets appar ska stödja distribution och konfiguration via EMM/MDM-lösningar.", rationale: "Centraliserad appdistribution minskar administrationskostnader.", cluster: "Teknik & autentisering" },
+        { title: "Ingen hårdvarulåst licensiering", reqType: "icke-funktionellt", level: "SKA", text: "Systemet skall inte använda licensiering som låser installationen till visst hårdvaru-id, vilket försvårar drift i virtualiserad miljö.", rationale: "Virtualisering är standard i modern IT-drift.", cluster: "Teknik & autentisering" },
+        { title: "Anpassningar bevaras vid uppgradering", reqType: "icke-funktionellt", level: "SKA", text: "Systemet skall bibehålla kundanpassad tilläggsfunktionalitet vid uppgraderingar och versionsbyten.", rationale: "Skyddar beställarens investeringar i anpassningar.", cluster: "Teknik & autentisering" },
+      ] }),
+      tags: JSON.stringify(["autentisering", "sso", "saml", "mfa", "generisk"]),
+    },
+  });
+
+  // 11. Underhåll & releasehantering
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Underhåll",
+      title: "Kravblock: Underhåll & releasehantering",
+      description: "Krav på releasehantering, felklassning, åtgärdstider och underhåll av kundunika lösningar.",
+      content: JSON.stringify({ requirements: [
+        { title: "Kostnadsfria releaser", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall kostnadsfritt tillhandahålla nya releaser och versioner av systemet.", rationale: "Beställaren ska få buggfixar och förbättringar utan tilläggskostnad.", cluster: "Underhåll" },
+        { title: "Löpande information om releaseplaner", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall kontinuerligt informera om pågående arbete, releaseplaner, avvikelser och upptäckta problem.", rationale: "Transparens möjliggör bättre planering.", cluster: "Underhåll" },
+        { title: "Testade releaser", reqType: "kontraktsvillkor", level: "SKA", text: "Alla nya releaser skall vara testade och godkända av leverantören innan de införs.", rationale: "Minskar risken för driftstörningar.", cluster: "Underhåll" },
+        { title: "Skriftlig ändringsdokumentation", reqType: "kontraktsvillkor", level: "SKA", text: "Innehållet i uppgraderingar skall meddelas skriftligt med förändringar beskrivna på teknisk nivå, administratörsnivå och användarnivå.", rationale: "Ger beställaren möjlighet att bedöma påverkan.", cluster: "Underhåll" },
+        { title: "Rätt att senarelägga uppgraderingar", reqType: "kontraktsvillkor", level: "SKA", text: "Beställaren skall ha rätt att senarelägga uppgraderingar med bibehållna servicenivåer.", rationale: "Beställaren behöver kunna styra tidpunkt utifrån sin verksamhet.", cluster: "Underhåll" },
+        { title: "Underhåll av kundunika anpassningar", reqType: "kontraktsvillkor", level: "SKA", text: "Underhållsavgiften skall inkludera underhåll av kundunika lösningar (anpassningar, integrationer).", rationale: "Undviker oväntade tilläggskostnader.", cluster: "Underhåll" },
+        { title: "Felavhjälpningsskyldighet", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall åtgärda dokumenterade fel. Fel är inte åtgärdat förrän systemet fungerar enligt avtal.", rationale: "Tydligt ansvar skyddar beställaren.", cluster: "Underhåll" },
+        { title: "Felklassificering i fyra nivåer", reqType: "kontraktsvillkor", level: "SKA", text: "Fel klassas efter påverkan: Kritisk (alla användare berörs), Hög (vissa användare), Medium (fåtal, verksamheten fortgår), Låg (mindre avvikelser). Klassning föreslås av beställaren.", rationale: "Standardiserad felklassificering möjliggör tydliga SLA-åtaganden.", cluster: "Underhåll" },
+      ] }),
+      tags: JSON.stringify(["underhåll", "releasehantering", "felhantering", "generisk"]),
+    },
+  });
+
+  // 12. Utveckling & utbildning
+  await prisma.libraryItem.create({
+    data: {
+      type: "requirement_block", profile: "", cluster: "Utveckling",
+      title: "Kravblock: Utveckling & utbildning",
+      description: "Krav på utbildning, vidareutveckling, användarsamverkan och utvecklingsplan för IT-leverantörer.",
+      content: JSON.stringify({ requirements: [
+        { title: "Utbildning för användargrupper", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall tillhandahålla utbildning inklusive dokumentation för aktuella användargrupper.", rationale: "Utbildning är avgörande för framgångsrik adoption.", cluster: "Utveckling" },
+        { title: "Möjlighet att föreslå vidareutveckling", reqType: "kontraktsvillkor", level: "SKA", text: "Beställaren skall kunna lämna förslag om vidareutveckling. Leverantören ska redogöra för hur förslag tillvaratas.", rationale: "Säkerställer att systemet utvecklas i linje med behoven.", cluster: "Utveckling" },
+        { title: "Användarsamverkan", reqType: "kontraktsvillkor", level: "BOR", text: "Leverantören bör ha en organisation för samverkan med användare, t.ex. en användarförening.", rationale: "Användarforum ger möjlighet att påverka och dela erfarenheter.", cluster: "Utveckling" },
+        { title: "Utvecklingsplan", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall ange utvecklingsplan för kommande år avseende både teknik och funktion.", rationale: "Ger insyn i systemets framtida riktning.", cluster: "Utveckling" },
+        { title: "Kundspecifik utveckling", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall erbjuda utveckling av funktioner efter beställning av enskild kund.", rationale: "Möjliggör anpassning till specifika verksamhetsbehov.", cluster: "Utveckling" },
+        { title: "Delning av kundspecifika lösningar", reqType: "kontraktsvillkor", level: "SKA", text: "Leverantören skall beskriva hur andra kunder kan ta del av lösningar utvecklade för en specifik kund.", rationale: "Kan sänka kostnader genom delad utveckling.", cluster: "Utveckling" },
+      ] }),
+      tags: JSON.stringify(["utveckling", "utbildning", "generisk"]),
+    },
+  });
+
+  console.log("  ✓ 12 IT-kravblock (108 krav)");
+
   // ── EXTRA RISKMALLAR (10 st) ────────────────────────────────
 
   const extraRiskTemplates = [
-    { title: "Riskmall: Bristande testning", category: "teknik", description: "Risk att otillräcklig testning leder till produktionsproblem.", likelihood: 3, impact: 4, mitigation: "Kräv testrapporter, acceptanstestperiod och regressionstester." },
-    { title: "Riskmall: Skalbarhetsproblem", category: "teknik", description: "Risk att systemet inte klarar ökade volymer.", likelihood: 2, impact: 4, mitigation: "Prestandakrav i SLA, lasttester vid leveransgodkännande." },
-    { title: "Riskmall: Bristande dokumentation", category: "leverans", description: "Risk att leverantören inte dokumenterar tillräckligt.", likelihood: 3, impact: 3, mitigation: "Dokumentationskrav i avtal, granskning vid milstolpar." },
-    { title: "Riskmall: Underleverantörsberoende", category: "leverans", description: "Risk att kritisk funktionalitet hänger på underleverantör.", likelihood: 2, impact: 4, mitigation: "Krav på transparens om underleverantörer, back-to-back-avtal." },
-    { title: "Riskmall: Bristande utbildning", category: "verksamhet", description: "Risk att användare inte får tillräcklig utbildning.", likelihood: 3, impact: 3, mitigation: "Utbildningsplan i avtal, superanvändarstrategi." },
-    { title: "Riskmall: Scope creep", category: "ekonomi", description: "Risk att projektet växer utanför ursprungligt scope.", likelihood: 4, impact: 3, mitigation: "Tydlig ändringshanteringsprocess, fast scope i avtal." },
-    { title: "Riskmall: Otillräcklig marknadsanalys", category: "verksamhet", description: "Risk att kravbilden inte matchar marknadens erbjudande.", likelihood: 2, impact: 4, mitigation: "RFI, marknadsdialog, benchmarking mot liknande upphandlingar." },
-    { title: "Riskmall: Konkurrensbrist", category: "juridik", description: "Risk att för få anbud leder till dålig konkurrens.", likelihood: 3, impact: 3, mitigation: "Bred annonsering, marknadsbevakning, rimliga kvalificeringskrav." },
-    { title: "Riskmall: Upphovsrättskonflikt", category: "juridik", description: "Risk att oklart ägande av anpassad kod/konfiguration uppstår.", likelihood: 2, impact: 3, mitigation: "Tydliga IP-klausuler i avtal, escrow-avtal." },
-    { title: "Riskmall: Driftstörning vid go-live", category: "teknik", description: "Risk för allvarliga driftstörningar vid produktionssättning.", likelihood: 3, impact: 5, mitigation: "Stegvis utrullning, rollback-plan, extra support under övergångsperiod." },
-    { title: "Riskmall: Bristande interoperabilitet", category: "teknik", description: "Risk att systemet inte kan kommunicera med befintliga standarder.", likelihood: 3, impact: 3, mitigation: "Krav på öppna standarder (REST, SAML, XML), PoC på integrationer." },
-    { title: "Riskmall: Leverantörskonkurs", category: "leverans", description: "Risk att leverantören går i konkurs under avtalsperioden.", likelihood: 1, impact: 5, mitigation: "Kreditupplysning vid kvalificering, escrow-avtal, exit-klausul." },
-    { title: "Riskmall: Bristande datakvalitet vid migrering", category: "data_exit", description: "Risk att befintlig data har låg kvalitet som försvårar migrering.", likelihood: 4, impact: 3, mitigation: "Datakvalitetsanalys före migrering, datarensningsplan, testmigrering." },
-    { title: "Riskmall: Felaktiga kravnivåer", category: "verksamhet", description: "Risk att SKA-krav ställs för högt och utesluter lämpliga leverantörer.", likelihood: 3, impact: 4, mitigation: "Proportionalitetsbedömning, marknadsdialog, BÖR istället för SKA." },
-    { title: "Riskmall: Avtalstolkningskonflikter", category: "juridik", description: "Risk att otydliga avtalsvillkor leder till tvister.", likelihood: 3, impact: 3, mitigation: "Juridisk granskning av avtal, tydliga definitioner, tolkningsordning." },
+    {
+      title: "Riskmall: Bristande testning",
+      category: "teknik",
+      description: "Risk att otillräcklig testning leder till produktionsproblem.",
+      likelihood: 3,
+      impact: 4,
+      mitigation: "Kräv testrapporter, acceptanstestperiod och regressionstester.",
+      assessmentQuestions: [
+        "Har upphandlingen krav på att leverantören ska tillhandahålla testrapporter?",
+        "Finns det en dedikerad acceptanstestperiod inplanerad i projektet?",
+        "Har organisationen kompetens och resurser för att genomföra egna tester?",
+        "Är systemet verksamhetskritiskt där produktionsfel får allvarliga konsekvenser?"
+      ],
+      indicators: [
+        "Leverantören levererar funktionalitet utan medföljande testdokumentation",
+        "Buggar som borde fångats i grundläggande testning upptäcks vid acceptanstest",
+        "Leverantören motsätter sig eller förkortar föreslagen acceptanstestperiod"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om leverantören inte kan uppvisa testrapporter vid milstolpe eller om acceptanstester visar mer än 10 kritiska defekter."
+    },
+    {
+      title: "Riskmall: Skalbarhetsproblem",
+      category: "teknik",
+      description: "Risk att systemet inte klarar ökade volymer.",
+      likelihood: 2,
+      impact: 4,
+      mitigation: "Prestandakrav i SLA, lasttester vid leveransgodkännande.",
+      assessmentQuestions: [
+        "Förväntas antalet användare eller datavolymer öka väsentligt under avtalsperioden?",
+        "Finns det perioder med hög belastning (t.ex. säsongsvariation)?",
+        "Har leverantören erfarenhet av installationer i samma storleksordning?",
+        "Ska systemet hantera realtidsdata eller stora mängder samtida transaktioner?"
+      ],
+      indicators: [
+        "Systemet visar prestandaförsämring redan vid lägre volymer under testperioden",
+        "Leverantören kan inte redovisa referensinstallationer med jämförbar storlek",
+        "Lasttester visar svarstider som överstiger SLA-nivåer vid förväntad toppbelastning"
+      ],
+      responseStrategy: "transfer",
+      escalationCriteria: "Eskalera till styrgrupp om lasttester visar att systemet inte klarar 150% av förväntad normalbelastning eller om prestandakrav i SLA inte uppfylls vid leveransgodkännande."
+    },
+    {
+      title: "Riskmall: Bristande dokumentation",
+      category: "leverans",
+      description: "Risk att leverantören inte dokumenterar tillräckligt.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Dokumentationskrav i avtal, granskning vid milstolpar.",
+      assessmentQuestions: [
+        "Ingår tydliga dokumentationskrav i avtalet (system-, drift-, användardokumentation)?",
+        "Behöver organisationen kunna förvalta eller vidareutveckla systemet utan leverantören?",
+        "Finns det krav på att dokumentation ska levereras på svenska?",
+        "Granskas dokumentation som en del av milstolpsgodkännande?"
+      ],
+      indicators: [
+        "Dokumentation saknas eller är ofullständig vid första milstolpsgodkännande",
+        "Leverantören hänvisar till online-wiki eller generisk produktdokumentation istället för anpassad",
+        "Driftpersonal rapporterar att de inte kan utföra grundläggande administration utan leverantörsstöd"
+      ],
+      responseStrategy: "transfer",
+      escalationCriteria: "Eskalera till styrgrupp om leverantören inte levererar avtalad dokumentation vid två på varandra följande milstolpar."
+    },
+    {
+      title: "Riskmall: Underleverantörsberoende",
+      category: "leverans",
+      description: "Risk att kritisk funktionalitet hänger på underleverantör.",
+      likelihood: 2,
+      impact: 4,
+      mitigation: "Krav på transparens om underleverantörer, back-to-back-avtal.",
+      assessmentQuestions: [
+        "Använder leverantören underleverantörer för kritiska delar av leveransen?",
+        "Finns det krav på att leverantören ska redovisa underleverantörer i anbudet?",
+        "Har organisationen insyn i underleverantörernas kapacitet och stabilitet?",
+        "Säkerställer avtalet att leverantören ansvarar för underleverantörers prestation?"
+      ],
+      indicators: [
+        "Leverantören byter eller tappar en underleverantör under implementeringen",
+        "Förseningar uppstår på grund av underleverantörens kapacitetsbrister",
+        "Underleverantören kommunicerar direkt med beställaren utan leverantörens medverkan"
+      ],
+      responseStrategy: "transfer",
+      escalationCriteria: "Eskalera till styrgrupp om en underleverantör som ansvarar för kritisk funktionalitet visar tecken på instabilitet eller om leverantören vill byta underleverantör utan godkännande."
+    },
+    {
+      title: "Riskmall: Bristande utbildning",
+      category: "verksamhet",
+      description: "Risk att användare inte får tillräcklig utbildning.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Utbildningsplan i avtal, superanvändarstrategi.",
+      assessmentQuestions: [
+        "Ingår utbildning som en del av leveransen i avtalet?",
+        "Finns det en plan för superanvändare som kan stötta kollegor efter go-live?",
+        "Har användarna varierande IT-mognad som kräver anpassad utbildning?",
+        "Finns det resurser avsatta för fortlöpande utbildning vid uppdateringar?"
+      ],
+      indicators: [
+        "Användare ställer grundläggande frågor som borde ha besvarats i utbildningen",
+        "Superanvändare rapporterar att utbildningsmaterialet är otillräckligt eller inaktuellt",
+        "Supportärenden ökar kraftigt efter go-live med frågor av utbildningskaraktär"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om utbildningsplanen inte är godkänd senast två månader före go-live eller om utvärdering av pilotutbildning visar att mindre än 70% av deltagarna nådde kunskapsmålen."
+    },
+    {
+      title: "Riskmall: Scope creep",
+      category: "ekonomi",
+      description: "Risk att projektet växer utanför ursprungligt scope.",
+      likelihood: 4,
+      impact: 3,
+      mitigation: "Tydlig ändringshanteringsprocess, fast scope i avtal.",
+      assessmentQuestions: [
+        "Finns det en formell ändringshanteringsprocess i projektet?",
+        "Är kravbilden tydligt avgränsad med dokumenterat scope-in och scope-out?",
+        "Finns det intressenter som förväntas vilja utöka scopet under projektets gång?",
+        "Har projektledningen mandat att avslå tilläggsönskemål utan styrgruppsbeslut?"
+      ],
+      indicators: [
+        "Ändringsförfrågningar inkommer redan under tidig implementering",
+        "Intressenter lyfter nya behov som inte fanns med i den ursprungliga kravspecifikationen",
+        "Leverantören föreslår tilläggsmoduler eller anpassningar utanför avtalat scope"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp om ackumulerade ändringsförfrågningar överstiger 10% av ursprunglig budget eller om scope-ändringar hotar att försena tidplanen med mer än en månad."
+    },
+    {
+      title: "Riskmall: Otillräcklig marknadsanalys",
+      category: "verksamhet",
+      description: "Risk att kravbilden inte matchar marknadens erbjudande.",
+      likelihood: 2,
+      impact: 4,
+      mitigation: "RFI, marknadsdialog, benchmarking mot liknande upphandlingar.",
+      assessmentQuestions: [
+        "Har en RFI eller marknadsdialog genomförts före kravställningen?",
+        "Baseras kravspecifikationen på kunskap om vad marknaden faktiskt kan erbjuda?",
+        "Har liknande upphandlingar inom offentlig sektor analyserats?",
+        "Finns det risk att SKA-krav utesluter samtliga eller de flesta leverantörer?"
+      ],
+      indicators: [
+        "Få eller inga anbud inkommer vid anbudstidens utgång",
+        "Leverantörer ställer frågor som tyder på att kravnivåerna uppfattas som orealistiska",
+        "RFI-svar visar att marknaden inte erbjuder det som efterfrågas som standardfunktion"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp om RFI-svar indikerar att färre än tre leverantörer kan möta grundkraven, eller om inga anbud inkommer."
+    },
+    {
+      title: "Riskmall: Konkurrensbrist",
+      category: "juridik",
+      description: "Risk att för få anbud leder till dålig konkurrens.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Bred annonsering, marknadsbevakning, rimliga kvalificeringskrav.",
+      assessmentQuestions: [
+        "Är det ett nischat område med få aktörer på marknaden?",
+        "Är kvalificeringskraven proportionerliga eller kan de avskräcka leverantörer?",
+        "Annonseras upphandlingen i rätt kanaler för att nå internationella aktörer?",
+        "Har tidigare liknande upphandlingar lockat tillräckligt med anbud?"
+      ],
+      indicators: [
+        "Få leverantörer laddar ner upphandlingsdokumenten",
+        "Leverantörer ställer inga eller mycket få frågor under anbudstiden",
+        "Bara ett eller två anbud inkommer"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om färre än tre anbud inkommer, särskilt om prisbilden avviker markant från förväntan."
+    },
+    {
+      title: "Riskmall: Upphovsrättskonflikt",
+      category: "juridik",
+      description: "Risk att oklart ägande av anpassad kod/konfiguration uppstår.",
+      likelihood: 2,
+      impact: 3,
+      mitigation: "Tydliga IP-klausuler i avtal, escrow-avtal.",
+      assessmentQuestions: [
+        "Ingår det anpassningsutveckling i leveransen?",
+        "Är det tydligt i avtalet vem som äger anpassad kod och konfigurationer?",
+        "Kan organisationen behöva överföra anpassningarna till en ny leverantör vid byte?",
+        "Använder leverantören öppen källkod i kombination med proprietär kod?"
+      ],
+      indicators: [
+        "Avtalet saknar eller har vaga formuleringar om immateriella rättigheter",
+        "Leverantören hävdar äganderätt till anpassningar som beställaren bekostat",
+        "Oklarheter om licensvillkor för tredjepartskomponenter i leveransen"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp och juridik om tvist om IP-rättigheter uppstår under implementeringen eller om leverantören vägrar inkludera IP-klausuler i avtalet."
+    },
+    {
+      title: "Riskmall: Driftstörning vid go-live",
+      category: "teknik",
+      description: "Risk för allvarliga driftstörningar vid produktionssättning.",
+      likelihood: 3,
+      impact: 5,
+      mitigation: "Stegvis utrullning, rollback-plan, extra support under övergångsperiod.",
+      assessmentQuestions: [
+        "Är systemet verksamhetskritiskt där driftstopp har allvarliga konsekvenser?",
+        "Finns det en detaljerad go-live-plan med rollback-strategi?",
+        "Planeras en stegvis utrullning eller big-bang-övergång?",
+        "Har leverantören tillräcklig supportkapacitet under övergångsperioden?"
+      ],
+      indicators: [
+        "Testmiljön visar instabilitet under de sista veckorna före planerad go-live",
+        "Go-live-checklistan har ofullständigt avprickade punkter",
+        "Leverantören har inte dedikerat extra supportresurser för go-live-perioden"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera omedelbart till styrgrupp om go-live-kriterierna inte är uppfyllda inom en vecka före planerad produktionssättning eller om rollback-planen inte har testats."
+    },
+    {
+      title: "Riskmall: Bristande interoperabilitet",
+      category: "teknik",
+      description: "Risk att systemet inte kan kommunicera med befintliga standarder.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Krav på öppna standarder (REST, SAML, XML), PoC på integrationer.",
+      assessmentQuestions: [
+        "Ska systemet utbyta data med andra system via standardiserade protokoll?",
+        "Använder organisationen gemensamma standarder (t.ex. SAML för SSO, SCIM)?",
+        "Finns det branschspecifika standarder som systemet måste stödja?",
+        "Har leverantören dokumenterat vilka standarder deras system stödjer?"
+      ],
+      indicators: [
+        "Leverantören erbjuder egenutvecklade gränssnitt istället för branschstandarder",
+        "PoC visar att standardintegration kräver anpassningsutveckling",
+        "Befintliga system kan inte kommunicera med leverantörens plattform utan mellanlager"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om PoC visar att kritiska standardintegrationer inte fungerar eller kräver omfattande anpassning som inte ingår i budgeten."
+    },
+    {
+      title: "Riskmall: Leverantörskonkurs",
+      category: "leverans",
+      description: "Risk att leverantören går i konkurs under avtalsperioden.",
+      likelihood: 1,
+      impact: 5,
+      mitigation: "Kreditupplysning vid kvalificering, escrow-avtal, exit-klausul.",
+      assessmentQuestions: [
+        "Har leverantörens finansiella stabilitet kontrollerats (kreditupplysning, årsredovisning)?",
+        "Är leverantören ett litet bolag med hög beroende av enskilda kunder?",
+        "Finns det ett escrow-avtal som ger tillgång till källkod vid konkurs?",
+        "Har exit-klausulen i avtalet prövats mot ett konkursscenario?"
+      ],
+      indicators: [
+        "Leverantörens kreditbetyg försämras under avtalsperioden",
+        "Nyckelpersoner lämnar leverantören i snabb takt",
+        "Leverantören begär förskottsbetalning eller ändrade betalningsvillkor"
+      ],
+      responseStrategy: "transfer",
+      escalationCriteria: "Eskalera omedelbart till styrgrupp om leverantörens kreditvärdighet försämras väsentligt, om det uppstår rykten om ekonomiska svårigheter eller om leverantören begär ändrade betalningsvillkor."
+    },
+    {
+      title: "Riskmall: Bristande datakvalitet vid migrering",
+      category: "data_exit",
+      description: "Risk att befintlig data har låg kvalitet som försvårar migrering.",
+      likelihood: 4,
+      impact: 3,
+      mitigation: "Datakvalitetsanalys före migrering, datarensningsplan, testmigrering.",
+      assessmentQuestions: [
+        "Har en datakvalitetsanalys genomförts på befintlig data?",
+        "Finns det kända problem med dubbletter, saknade fält eller inkonsistenta format?",
+        "Är datamängden stor nog att manuell korrigering är opraktisk?",
+        "Har det befintliga systemet genomgått flera uppgraderingar som kan ha påverkat datastrukturen?"
+      ],
+      indicators: [
+        "Datakvalitetsanalys visar mer än 5% felaktiga eller ofullständiga poster",
+        "Testmigrering resulterar i att poster inte kan mappas till nytt system",
+        "Användare rapporterar att befintlig data redan idag har kvalitetsproblem"
+      ],
+      responseStrategy: "mitigate",
+      escalationCriteria: "Eskalera till styrgrupp om datakvalitetsanalysen visar att mer än 15% av data kräver manuell korrigering eller om datarensning inte kan slutföras inom planerad tidsram."
+    },
+    {
+      title: "Riskmall: Felaktiga kravnivåer",
+      category: "verksamhet",
+      description: "Risk att SKA-krav ställs för högt och utesluter lämpliga leverantörer.",
+      likelihood: 3,
+      impact: 4,
+      mitigation: "Proportionalitetsbedömning, marknadsdialog, BÖR istället för SKA.",
+      assessmentQuestions: [
+        "Har proportionalitetsbedömning genomförts för alla SKA-krav?",
+        "Har marknadsdialog bekräftat att SKA-kravnivåerna är rimliga?",
+        "Finns det SKA-krav som egentligen borde vara BÖR-krav?",
+        "Har juridisk granskning bekräftat att kravnivåerna inte strider mot LOU:s proportionalitetsprincip?"
+      ],
+      indicators: [
+        "Leverantörer flaggar att enskilda SKA-krav är oproportionerliga vid marknadsdialog",
+        "Färre anbud än förväntat inkommer, med hänvisning till krävande SKA-krav",
+        "Utvärderingsgruppen ifrågasätter nödvändigheten av enskilda SKA-krav"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp om marknadsdialogen visar att SKA-kravnivåerna utesluter majoriteten av marknaden eller om proportionalitetsbedömningen inte godkänns av juridik."
+    },
+    {
+      title: "Riskmall: Avtalstolkningskonflikter",
+      category: "juridik",
+      description: "Risk att otydliga avtalsvillkor leder till tvister.",
+      likelihood: 3,
+      impact: 3,
+      mitigation: "Juridisk granskning av avtal, tydliga definitioner, tolkningsordning.",
+      assessmentQuestions: [
+        "Har avtalet granskats av juridisk expertis med erfarenhet av IT-upphandling?",
+        "Finns det en tydlig tolkningsordning mellan avtalsbilagor?",
+        "Är nyckelbegrepp (t.ex. acceptans, driftsättning, fel) tydligt definierade?",
+        "Har parterna en gemensam förståelse av vad som ingår i avtalet?"
+      ],
+      indicators: [
+        "Parterna har olika tolkning av avtalets omfattning redan under implementeringen",
+        "Leverantören hänvisar till avtalsformuleringar för att undvika leveransåtaganden",
+        "Återkommande diskussioner om vad som ingår i grundleveransen kontra tillägg"
+      ],
+      responseStrategy: "avoid",
+      escalationCriteria: "Eskalera till styrgrupp och juridik om tvist uppstår om avtalstolkning som parterna inte kan lösa på projektnivå, eller om leverantören hävdar att centrala leveranser inte ingår i avtalet."
+    },
   ];
 
   for (const tmpl of extraRiskTemplates) {
@@ -661,15 +1728,198 @@ async function main() {
   // ── EXTRA WORKSHOPMALLAR (6 st) ─────────────────────────────
 
   const extraWorkshopTemplates = [
-    { title: "Workshopmall: Taxelogik & fakturering (avfall)", description: "Workshop för att kartlägga taxemodeller och faktureringsbehov.", suggestedParticipants: ["Ekonomichef", "Taxeansvarig", "IT", "Kundtjänst"], agenda: ["Genomgång av befintlig taxemodell", "Identifiera förändringsönskemål", "Faktureringskrav", "Integration med ekonomisystem"], expectedOutputs: ["Taxemodellspecifikation", "Faktureringskrav"], duration: "3h", profile: "avfall_nyanskaffning" },
-    { title: "Workshopmall: Behörighet & loggning (socialtjänst)", description: "Workshop för att definiera behörighets- och loggningskrav.", suggestedParticipants: ["Enhetschef", "IT-säkerhet", "Dataskyddsombud", "Handläggare"], agenda: ["Kartlägg roller och behörighetsnivåer", "Definiera lägsta behörighetsprincipen", "Loggningskrav", "Spärrar och känsliga uppgifter"], expectedOutputs: ["Behörighetsmatris", "Loggningskrav", "Spärregler"], duration: "3h", profile: "socialtjanst_byte" },
-    { title: "Workshopmall: Rapportering & nyckeltal", description: "Workshop för att definiera rapporterings- och nyckeltalbehov.", suggestedParticipants: ["Verksamhetschef", "Controller", "IT-ansvarig", "Kvalitetsansvarig"], agenda: ["Identifiera nyckeltal per verksamhetsområde", "Rapporteringsfrekvens och format", "Myndighetsrapportering", "Dashboardbehov"], expectedOutputs: ["Nyckeltalskatalog", "Rapporteringsplan"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Acceptanstest", description: "Workshop för att planera och designa acceptanstester.", suggestedParticipants: ["Testledare", "Verksamhetsrepresentanter", "IT", "Leverantör"], agenda: ["Definiera testscenarier per kravkategori", "Prioritera tester (kritisk/viktig/nice-to-have)", "Testdatahantering", "Godkännandekriterier"], expectedOutputs: ["Testplan", "Testfall", "Godkännandekriterier"], duration: "4h", profile: "" },
-    { title: "Workshopmall: SLA-design", description: "Workshop för att designa servicenivåavtal.", suggestedParticipants: ["IT-driftansvarig", "Verksamhetschef", "Upphandlare", "Juridik"], agenda: ["Definiera tjänstenivåer (gold/silver/bronze)", "Svarstider och tillgänglighet", "Eskaleringsprocess", "Vitesmodell", "Mätning och rapportering"], expectedOutputs: ["SLA-specifikation", "Vitesmodell", "Mätplan"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Datamodell & migration (socialtjänst)", description: "Workshop för att analysera datamodellen och planera migration.", suggestedParticipants: ["DBA", "Systemförvaltare", "IT-arkitekt", "Verksamhetsexpert"], agenda: ["Kartlägg befintlig datamodell", "Identifiera datakvalitetsproblem", "Mappning till nytt system", "Testmigreringsplan", "Gallring och arkivering"], expectedOutputs: ["Datamappning", "Kvalitetsrapport", "Migreringsplan"], duration: "4h", profile: "socialtjanst_byte" },
-    { title: "Workshopmall: Proportionalitetsbedömning", description: "Workshop för att bedöma proportionaliteten i kravställningen.", suggestedParticipants: ["Upphandlare", "Jurist", "Verksamhetsansvarig", "Leverantörsrepresentant (vid RFI)"], agenda: ["Genomgång av SKA-krav", "Bedöm nödvändighet per krav", "Identifiera oproportionerliga krav", "Justera SKA→BÖR vid behov", "Dokumentera motiveringar"], expectedOutputs: ["Proportionalitetsanalys", "Reviderad kravlista"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Go-live planering", description: "Workshop för att planera produktionssättning.", suggestedParticipants: ["Projektledare", "IT-drift", "Leverantör", "Verksamhetschef", "Superanvändare"], agenda: ["Go-live kriterier", "Checklista inför produktionssättning", "Rollback-plan", "Supportplan första veckorna", "Kommunikationsplan"], expectedOutputs: ["Go-live plan", "Rollback-plan", "Supportplan"], duration: "3h", profile: "" },
-    { title: "Workshopmall: Nyttorealisering", description: "Workshop för att planera och mäta nyttorealisering.", suggestedParticipants: ["Verksamhetschef", "Controller", "Projektledare", "Kvalitetsansvarig"], agenda: ["Definiera förväntade nyttor", "Etablera baseline (nuläge)", "Definiera mätindikatorer", "Tidplan för mätning", "Ansvar för uppföljning"], expectedOutputs: ["Nyttorealiseringsplan", "Mätindikatorer", "Baseline-data"], duration: "3h", profile: "" },
+    {
+      title: "Workshopmall: Taxelogik & fakturering (avfall)",
+      description: "Workshop för att kartlägga taxemodeller och faktureringsbehov.",
+      suggestedParticipants: ["Ekonomichef", "Taxeansvarig", "IT", "Kundtjänst"],
+      agenda: ["Genomgång av befintlig taxemodell", "Identifiera förändringsönskemål", "Faktureringskrav", "Integration med ekonomisystem"],
+      expectedOutputs: ["Taxemodellspecifikation", "Faktureringskrav"],
+      duration: "3h",
+      profile: "avfall_nyanskaffning",
+      agendaDetailed: [
+        { title: "Genomgång av befintlig taxemodell", timeMinutes: 40, purpose: "Skapa en gemensam förståelse av nuvarande taxestruktur: grundavgift, rörlig del, rabatter, tilläggsavgifter och hur dessa beräknas.", method: "Presentation", facilitationQuestions: ["Hur är den nuvarande taxemodellen uppbyggd — vilka komponenter ingår?", "Vilka kundkategorier finns och hur skiljer sig taxan mellan dem?", "Hur hanteras säsongsvariationer, extra hämtningar och avvikelser?", "Vilka delar av taxemodellen skapar mest frågor från kunderna?", "Finns det politiska beslut eller regleringar som styr taxenivåerna?"], tips: "Ha aktuell taxedokumentation utskriven. Rita upp taxemodellen som ett diagram med alla komponenter. Markera vilka delar som är politiskt styrda respektive administrativa." },
+        { title: "Identifiera förändringsönskemål", timeMinutes: 35, purpose: "Samla in önskemål om hur taxemodellen bör utvecklas i det nya systemet — nya tjänster, flexibilitet och rättvisa.", method: "Brainstorming", facilitationQuestions: ["Vilka nya tjänster eller abonnemangstyper vill ni kunna erbjuda?", "Behöver taxemodellen kunna hantera viktbaserad debitering eller sorteringsgrad?", "Finns det önskemål om mer flexibla abonnemang (tillval, storleksanpassning)?", "Hur vill ni hantera undantag och specialavtal?"], tips: "Skilj på vad som är möjligt att ändra inom befintligt regelverk och vad som kräver politiska beslut. Fokusera på systemkrav, inte politiska prioriteringar." },
+        { title: "Faktureringskrav", timeMinutes: 35, purpose: "Specificera krav på fakturaflödet: format, frekvens, betalningsvillkor, påminnelser och kreditering.", method: "Brainstorming", facilitationQuestions: ["Vilka faktureringsperioder ska stödjas (månadsvis, kvartalsvis, årsvis)?", "Vilka fakturaformat behövs (e-faktura, PDF, Autogiro)?", "Hur ska kreditering och justering av felaktiga fakturor hanteras?", "Vilka krav finns på specificering — vad ska synas på fakturan?", "Hur ska påminnelse- och inkassoprocessen fungera?"], tips: "Tänk på att fakturaformatet ofta regleras av standarder (Peppol BIS). Stäm av med ekonomiavdelningen vilka format som redan används." },
+        { title: "Integration med ekonomisystem", timeMinutes: 30, purpose: "Definiera hur avfallssystemets fakturering ska integreras med kommunens ekonomisystem och eventuellt e-faktureringssystem.", method: "Presentation", facilitationQuestions: ["Vilket ekonomisystem ska fakturorna skickas till och i vilket format?", "Hur ska kontering ske — automatiskt eller manuellt?", "Vilka avstämningsrutiner behövs mellan systemen?", "Finns det krav på realtidsöverföring eller räcker batchkörning?"], tips: "Bjud in en representant från ekonomisystemets förvaltning. Stäm av vilka integrationsstandarder som redan finns etablerade i kommunen." },
+      ],
+      preparation: "Samla in aktuell taxedokumentation och politiska beslut om taxenivåer. Hämta statistik om kundfördelning per abonnemangstyp. Kartlägg nuvarande faktureringsflöde och integration med ekonomisystem.",
+      followUp: ["Dokumentera taxemodellspecifikation med alla kundkategorier, komponenter och beräkningsregler", "Specificera faktureringskrav som underlag till kravspecifikationen", "Utred integrationsalternativ med kommunens ekonomisystem", "Validera taxemodellen med politisk nämnd om förändringar krävs"],
+      sparkboardSuggestion: [
+        { boardTitle: "Taxemodellens brister", questions: ["Vad fungerar dåligt i dagens taxemodell ur kundens perspektiv?", "Vilka beräkningar eller undantag skapar mest manuellt arbete?", "Beskriv ett kundscenario som dagens taxemodell inte hanterar bra."], timeLimit: 8 },
+        { boardTitle: "Framtidens taxemodell", questions: ["Vilka nya tjänster eller abonnemang vill du kunna erbjuda kunderna?", "Hur kan taxemodellen uppmuntra bättre sortering och minskat avfall?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: Behörighet & loggning (socialtjänst)",
+      description: "Workshop för att definiera behörighets- och loggningskrav.",
+      suggestedParticipants: ["Enhetschef", "IT-säkerhet", "Dataskyddsombud", "Handläggare"],
+      agenda: ["Kartlägg roller och behörighetsnivåer", "Definiera lägsta behörighetsprincipen", "Loggningskrav", "Spärrar och känsliga uppgifter"],
+      expectedOutputs: ["Behörighetsmatris", "Loggningskrav", "Spärregler"],
+      duration: "3h",
+      profile: "socialtjanst_byte",
+      agendaDetailed: [
+        { title: "Kartlägg roller och behörighetsnivåer", timeMinutes: 45, purpose: "Identifiera alla roller i verksamheten och vilken åtkomst varje roll behöver till systemets olika delar.", method: "Affinity mapping", facilitationQuestions: ["Vilka roller finns i organisationen som behöver tillgång till systemet?", "Vilken information behöver varje roll se — och vad får de absolut inte se?", "Hur hanteras tillfälliga roller (vikarier, konsulter, studenter)?", "Skiljer sig behörigheterna mellan olika verksamhetsgrenar (barn/ungdom, vuxna, funktionshinder)?", "Hur hanteras chefers behörighet jämfört med handläggares?"], tips: "Rita en matris med roller på Y-axeln och systemfunktioner/dataområden på X-axeln. Markera med L (läsa), S (skriva), R (radera) eller - (ingen åtkomst). Testa med verkliga scenarier." },
+        { title: "Definiera lägsta behörighetsprincipen", timeMinutes: 30, purpose: "Tillämpa principen om minsta möjliga behörighet — varje användare ska bara ha tillgång till det som krävs för arbetsuppgiften.", method: "Presentation", facilitationQuestions: ["Finns det roller som idag har bredare åtkomst än de behöver?", "Hur hanterar vi att en handläggare byter enhet eller verksamhetsgren?", "Ska behörighet kopplas till organisatorisk tillhörighet, ärendetyp eller geografiskt område?", "Hur hanteras tidsbegränsade behörigheter (t.ex. projektmedlemmar)?"], tips: "Minsta behörighet är en grundprincip i GDPR och informationssäkerhet. Utgå från vad rollen behöver, inte vad den vill ha. Det är lättare att utöka behörighet än att begränsa den i efterhand." },
+        { title: "Loggningskrav", timeMinutes: 35, purpose: "Definiera vilka händelser som ska loggas, hur loggar ska skyddas och vem som får granska dem.", method: "Brainstorming", facilitationQuestions: ["Vilka händelser ska loggas — inloggning, läsning av ärende, ändring, utskrift, export?", "Hur länge ska loggar sparas och vem ansvarar för uppföljning?", "Vilka krav ställer IVO och Datainspektionen på loggning inom socialtjänsten?", "Hur ska obehörig åtkomst upptäckas och rapporteras?", "Ska det finnas automatiska varningar vid avvikande beteende (t.ex. ovanligt många sökningar)?"], tips: "Logga minst: vem, vad, när, vilken information. IVO kräver spårbarhet. Överväg automatisk logganalys som kan flagga avvikande åtkomstmönster." },
+        { title: "Spärrar och känsliga uppgifter", timeMinutes: 30, purpose: "Definiera regler för hur spärrmarkering, sekretess och skyddade personuppgifter ska hanteras tekniskt.", method: "Brainstorming", facilitationQuestions: ["Hur ska systemet hantera spärrmarkerade personer — vem får se att spärr finns?", "Vilka uppgifter klassas som extra känsliga (t.ex. HIV-status, missbruk, hot)?", "Hur förhindrar vi att en handläggare ser ärenden som rör egna familjemedlemmar (jäv)?", "Ska det finnas olika sekretessnivåer med olika åtkomstkrav?", "Hur hanteras utlämnande av handlingar vid begäran om allmän handling?"], tips: "Spärrar måste fungera i hela systemet — även i sökresultat, rapporter och utskrifter. Testa med konkreta scenarier. En miss kan äventyra personers fysiska säkerhet." },
+      ],
+      preparation: "Samla in gällande delegeringsordning och befintlig behörighetsmatris. Ta med IVO:s och Datainspektionens vägledning om loggning. Förbered en lista över alla roller och verksamhetsgrenar som finns i organisationen.",
+      followUp: ["Skapa en komplett behörighetsmatris med alla roller, funktioner och åtkomstnivåer", "Dokumentera loggningskrav med bevarandetider och uppföljningsansvar", "Definiera spärregler och testa dem mot konkreta scenarier", "Genomför juridisk granskning av behörighets- och loggningskraven"],
+      sparkboardSuggestion: [
+        { boardTitle: "Behörighetsutmaningar", questions: ["Beskriv en situation där du haft tillgång till information du inte borde sett.", "Vilka behörighetsproblem upplever du i nuvarande system?", "Hur borde systemet hantera att du byter enhet eller roll?"], timeLimit: 8 },
+        { boardTitle: "Loggning & kontroll", questions: ["Hur ofta granskas loggarna idag och av vem?", "Vilka typer av obehörig åtkomst oroar dig mest?", "Hur vill du bli varnad om någon obehörig ser ett av dina ärenden?"], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Rapportering & nyckeltal",
+      description: "Workshop för att definiera rapporterings- och nyckeltalbehov.",
+      suggestedParticipants: ["Verksamhetschef", "Controller", "IT-ansvarig", "Kvalitetsansvarig"],
+      agenda: ["Identifiera nyckeltal per verksamhetsområde", "Rapporteringsfrekvens och format", "Myndighetsrapportering", "Dashboardbehov"],
+      expectedOutputs: ["Nyckeltalskatalog", "Rapporteringsplan"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Identifiera nyckeltal per verksamhetsområde", timeMinutes: 50, purpose: "Definiera vilka nyckeltal (KPI:er) som behövs för att styra, följa upp och förbättra verksamheten.", method: "Brainstorming", facilitationQuestions: ["Vilka nyckeltal använder ni idag och vilka saknas?", "Vilka beslut ska nyckeltalen stödja — strategiska, taktiska eller operativa?", "Vilka nyckeltal rapporterar ni till politiken och vilka använder ni internt?", "Hur mäter ni kvalitet, effektivitet och kundnöjdhet idag?", "Finns det branschgemensamma nyckeltal vi bör inkludera (t.ex. Kolada)?"], tips: "Begränsa till 10-15 viktiga nyckeltal. Fler blir ohanterligt. Varje nyckeltal ska ha en tydlig ägare, datakälla och beräkningsformel. Använd SMART-principen." },
+        { title: "Rapporteringsfrekvens och format", timeMinutes: 25, purpose: "Bestämma hur ofta rapporter ska produceras, i vilket format och till vilken målgrupp.", method: "Presentation", facilitationQuestions: ["Hur ofta behöver olika intressenter rapporter — dagligen, veckovis, månadsvis, kvartalsvis?", "Vilka rapportformat behövs (PDF, Excel, dashboard, automatiska e-postutskick)?", "Ska rapporter kunna anpassas av användaren (ad hoc) eller vara fasta mallar?", "Hur ska rapporter distribueras — push (automatiska utskick) eller pull (användaren hämtar)?"], tips: "Erbjud en kombination av fasta standardrapporter och möjlighet till ad hoc-analys. De flesta behöver inte bygga egna rapporter — 10-15 väldefinierade standardrapporter täcker 90% av behoven." },
+        { title: "Myndighetsrapportering", timeMinutes: 30, purpose: "Identifiera lagstadgade rapporteringskrav till myndigheter som systemet måste stödja.", method: "Presentation", facilitationQuestions: ["Vilka myndighetsrapporter är ni skyldiga att lämna (SCB, Socialstyrelsen, SKR, Avfall Sverige)?", "I vilka format och med vilka tidsramar ska rapporterna levereras?", "Kan rapporterna genereras automatiskt från systemet eller krävs manuell bearbetning?", "Vilka rapporteringskrav förväntas tillkomma de närmaste åren?"], tips: "Kontrollera Socialstyrelsens och SCB:s rapporteringskrav noggrant. Automatiserad myndighetsrapportering sparar enormt med tid och minskar felrisken. Fråga leverantörer om de redan stödjer relevanta rapportformat." },
+        { title: "Dashboardbehov", timeMinutes: 25, purpose: "Definiera behov av visuella dashboards för realtidsöverblick och beslutsunderlag.", method: "Brainstorming", facilitationQuestions: ["Vilka nyckeltal vill ni se i realtid på en dashboard?", "Vilka roller behöver dashboards — chefer, handläggare, politiken?", "Behöver dashboards kunna drillas ner (från översikt till detalj)?", "Ska dashboards vara tillgängliga på mobil eller bara på dator?"], tips: "Mindre är mer i dashboards. Max 6-8 nyckeltal per vy. Använd tydlig färgkodning (röd/gul/grön). Separera strategiska dashboards (för ledning) från operativa (för medarbetare)." },
+      ],
+      preparation: "Samla in befintliga rapporter och nyckeltal. Identifiera lagstadgade rapporteringskrav. Titta på Kolada och andra branschdatabaser för jämförelsetal. Förbered en lista över alla roller som behöver rapportåtkomst.",
+      followUp: ["Skapa en nyckeltalskatalog med definition, datakälla, beräkningsformel och ägare per nyckeltal", "Dokumentera myndighetsrapporteringskrav med format och tidsfrister", "Specificera dashboardkrav per roll med prioritering", "Verifiera att alla nyckeltal kan hämtas från det nya systemet"],
+      sparkboardSuggestion: [
+        { boardTitle: "Rapporteringsbehov", questions: ["Vilken rapport saknar du idag som du verkligen behöver?", "Vilken information behöver du för att kunna styra din verksamhet effektivt?", "Vilka rapporter tar mest tid att ta fram manuellt idag?"], timeLimit: 8 },
+        { boardTitle: "Dashboard-vision", questions: ["Om du fick en skärm med realtidsinformation — vilka 5 saker vill du se?", "Vilken information vill du ha tillgänglig på mobilen?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: Acceptanstest",
+      description: "Workshop för att planera och designa acceptanstester.",
+      suggestedParticipants: ["Testledare", "Verksamhetsrepresentanter", "IT", "Leverantör"],
+      agenda: ["Definiera testscenarier per kravkategori", "Prioritera tester (kritisk/viktig/nice-to-have)", "Testdatahantering", "Godkännandekriterier"],
+      expectedOutputs: ["Testplan", "Testfall", "Godkännandekriterier"],
+      duration: "4h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Definiera testscenarier per kravkategori", timeMinutes: 60, purpose: "Bryta ned kraven till konkreta testscenarier som verifierar att systemet fungerar som förväntat i verkliga användarsituationer.", method: "Brainstorming", facilitationQuestions: ["Vilka vardagliga arbetsuppgifter måste systemet klara — beskriv dem steg för steg.", "Vilka ovanliga men kritiska scenarier måste vi testa (fel, undantag, gränsfall)?", "Vilka integrationer måste testas end-to-end?", "Finns det säsongsberoende scenarier (t.ex. årsfakturering, bokslut)?", "Vilka scenarier involverar flera roller eller avdelningar?"], tips: "Skriv testscenarier som berättelser: 'En handläggare tar emot en ansökan, granskar den, fattar beslut och meddelar den sökande.' Det gör dem begripliga för verksamheten." },
+        { title: "Prioritera tester (kritisk/viktig/nice-to-have)", timeMinutes: 30, purpose: "Säkerställa att de viktigaste scenarierna testas först och att testinsatsen är proportionerlig.", method: "Dot-voting", facilitationQuestions: ["Vilka testfall är absolut kritiska — systemet får inte godkännas utan dem?", "Vilka testfall är viktiga men inte showstoppers?", "Finns det testfall vi kan skjuta till efter go-live?", "Hur många testcykler hinner vi med innan planerad go-live?"], tips: "Kategorisera: Kritisk = stoppar go-live om underkänt. Viktig = ska testas men har workaround. Nice-to-have = testar om tid finns. Fokusera på kritiska först." },
+        { title: "Testdatahantering", timeMinutes: 30, purpose: "Planera hur testdata ska skapas, hanteras och skyddas — särskilt viktigt med personuppgifter.", method: "Presentation", facilitationQuestions: ["Kan vi använda anonymiserad produktionsdata för test eller måste vi skapa syntetisk data?", "Vilka datamängder behövs för att testa realistiskt (antal ärenden, kunder, transaktioner)?", "Hur säkerställer vi att testdata inte innehåller riktiga personuppgifter?", "Vem ansvarar för att testmiljön har aktuell och relevant data?"], tips: "Använd ALDRIG riktig produktionsdata med personuppgifter i testmiljöer utan anonymisering. Planera testdata tidigt — det är ofta en underskattad aktivitet som tar mer tid än förväntat." },
+        { title: "Godkännandekriterier", timeMinutes: 30, purpose: "Definiera tydliga kriterier för när acceptanstestet anses godkänt och systemet kan gå i produktion.", method: "Presentation", facilitationQuestions: ["Vilken andel av kritiska testfall måste vara godkända (100%?)?", "Hur hanterar vi kvarvarande fel — vad är acceptabelt vid go-live?", "Vem har mandat att godkänna acceptanstestet och signera leveransen?", "Hur lång tid efter godkänd leverans gäller garantiperioden?", "Vad händer om godkännandekriterierna inte uppnås — vad är plan B?"], tips: "Var tydlig med godkännandekriterierna INNAN testet börjar. 100% godkända kritiska testfall är standard. Definiera en process för felklassificering (A/B/C) där A-fel stoppar go-live." },
+      ],
+      preparation: "Samla in kravspecifikationen och bryt ned den i testbara enheter. Identifiera verksamhetsrepresentanter som kan delta i testningen. Klargör testmiljö och testdatastrategi med leverantören.",
+      followUp: ["Dokumentera testplan med alla testscenarier, prioritering och ansvariga", "Skapa detaljerade testfall med förväntat resultat för varje scenario", "Etablera testmiljö med representativ testdata", "Genomför utbildning av testare i systemet och testverktyget", "Boka testperiod och definiera rapporteringsrutin för testresultat"],
+      sparkboardSuggestion: [
+        { boardTitle: "Vardagsscenarier att testa", questions: ["Beskriv din vanligaste arbetsuppgift steg för steg — detta blir ett testfall.", "Vilken situation i ditt arbete har flest undantag och specialfall?", "Beskriv det svåraste scenariot du hanterar i nuvarande system."], timeLimit: 10 },
+        { boardTitle: "Risker vid test", questions: ["Vad oroar dig mest inför testperioden?", "Vilka delar av systemet tror du kommer vara svårast att testa?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: SLA-design",
+      description: "Workshop för att designa servicenivåavtal.",
+      suggestedParticipants: ["IT-driftansvarig", "Verksamhetschef", "Upphandlare", "Juridik"],
+      agenda: ["Definiera tjänstenivåer (gold/silver/bronze)", "Svarstider och tillgänglighet", "Eskaleringsprocess", "Vitesmodell", "Mätning och rapportering"],
+      expectedOutputs: ["SLA-specifikation", "Vitesmodell", "Mätplan"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Definiera tjänstenivåer (gold/silver/bronze)", timeMinutes: 30, purpose: "Definiera olika servicenivåer som matchar verksamhetens behov och budget — inte alla system behöver samma SLA.", method: "Presentation", facilitationQuestions: ["Vilka system/tjänster är affärskritiska och kräver högsta servicenivå?", "Vilka tjänster kan ha lägre tillgänglighet utan att verksamheten drabbas allvarligt?", "Vilka öppettider kräver verksamheten — kontorstid, utökad tid, dygnet runt?", "Hur påverkas medborgare/kunder om systemet är nere under olika tidsperioder?"], tips: "Inte allt behöver gold-nivå. Differentiera utifrån verksamhetspåverkan. Gold-SLA kostar typiskt 2-3 gånger mer än bronze. Låt verksamheten motivera varför en tjänst behöver en viss nivå." },
+        { title: "Svarstider och tillgänglighet", timeMinutes: 30, purpose: "Specificera konkreta svarstider för felanmälan och krav på systemtillgänglighet.", method: "Brainstorming", facilitationQuestions: ["Vilken tillgänglighet krävs (99%, 99.5%, 99.9%) och vad innebär det i praktiken i stilleståndstid?", "Vilka svarstider är acceptabla för kritiska respektive icke-kritiska fel?", "Hur definierar vi ett kritiskt fel — vad är kriterierna?", "Vilka tider ska undantas från SLA-beräkningen (planerat underhåll, helger)?"], tips: "99% tillgänglighet innebär 87,6 timmar nedtid per år. 99.9% innebär 8,76 timmar. Visa konkreta siffror. Definiera mätfönstret tydligt — per månad, kvartal eller år gör stor skillnad." },
+        { title: "Eskaleringsprocess", timeMinutes: 25, purpose: "Definiera tydlig eskaleringskedja med kontaktpersoner, tidsramar och beslutsmandat.", method: "Presentation", facilitationQuestions: ["Vem kontaktas först vid ett driftproblem och inom vilken tid?", "Vad händer om leverantören inte svarar inom avtalad tid — nästa steg?", "Vid vilken punkt eskaleras till ledningsnivå hos leverantören?", "Hur kommunicerar leverantören status under pågående incident?"], tips: "Definiera minst 3 eskaleringsnivåer med tydliga tidsramar. Ange namngivna roller (inte personer) hos båda parter. Kräv proaktiv statuskommunikation — inte att kunden ska behöva ringa och fråga." },
+        { title: "Vitesmodell", timeMinutes: 25, purpose: "Designa en vitesmodell som ger leverantören incitament att hålla servicenivåerna utan att vara oproportionerlig.", method: "Brainstorming", facilitationQuestions: ["Vid vilken typ av SLA-brott ska viten utlösas?", "Hur ska viten beräknas — per incident, per timme eller per månad?", "Finns det ett vitestak — och hur högt ska det vara?", "Ska viten kvittas mot fakturan automatiskt eller hanteras separat?", "Ska det finnas bonus vid överprestation?"], tips: "Viten ska vara tillräckligt kännbara för att ge incitament men inte så höga att leverantören höjer priset dramatiskt. 5-15% av månadskostnaden per SLA-brott är rimligt. Undvik att göra vitesmodellen så komplex att den blir omöjlig att administrera." },
+        { title: "Mätning och rapportering", timeMinutes: 20, purpose: "Definiera hur SLA:er ska mätas, rapporteras och följas upp.", method: "Presentation", facilitationQuestions: ["Vem ansvarar för att mäta och rapportera SLA-uppfyllnad — leverantören eller vi?", "Vilka mätverktyg och mätpunkter ska användas?", "Hur ofta ska SLA-rapporter levereras och i vilket format?", "Ska det finnas realtidsinstrumentpanel för SLA-status?"], tips: "Kräv att leverantören rapporterar proaktivt. Mätpunkten ska vara oberoende om möjligt — inte leverantörens eget verktyg. Definiera beräkningsmetod exakt i avtalet." },
+      ],
+      preparation: "Kartlägg verksamhetens tillgänglighetsbehov per system och tidsperiod. Samla in SLA-villkor från liknande upphandlingar som referens. Granska befintliga avtal och identifiera vad som fungerat bra respektive dåligt.",
+      followUp: ["Dokumentera komplett SLA-specifikation med tjänstenivåer, svarstider och tillgänglighetskrav", "Utforma vitesmodell med beräkningsexempel och vitestak", "Skapa mätplan med ansvar, verktyg och rapporteringsfrekvens", "Juridisk granskning av SLA-villkor och vitesmodell"],
+      sparkboardSuggestion: [
+        { boardTitle: "SLA-erfarenheter", questions: ["Beskriv ett tillfälle då bristande SLA påverkade er verksamhet negativt.", "Vilken servicenivå behöver du för att kunna göra ditt jobb utan avbrott?", "Vad fungerar bra respektive dåligt i era nuvarande SLA-avtal?"], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Datamodell & migration (socialtjänst)",
+      description: "Workshop för att analysera datamodellen och planera migration.",
+      suggestedParticipants: ["DBA", "Systemförvaltare", "IT-arkitekt", "Verksamhetsexpert"],
+      agenda: ["Kartlägg befintlig datamodell", "Identifiera datakvalitetsproblem", "Mappning till nytt system", "Testmigreringsplan", "Gallring och arkivering"],
+      expectedOutputs: ["Datamappning", "Kvalitetsrapport", "Migreringsplan"],
+      duration: "4h",
+      profile: "socialtjanst_byte",
+      agendaDetailed: [
+        { title: "Kartlägg befintlig datamodell", timeMinutes: 50, purpose: "Dokumentera den befintliga datamodellen med alla tabeller, relationer och datatyper som är relevanta för migrering.", method: "Presentation", facilitationQuestions: ["Vilka huvudentiteter finns i nuvarande system (person, ärende, beslut, insats)?", "Hur är relationerna mellan entiteterna — ett ärende per person eller flera?", "Finns det historikhantering — hur lagras ändringshistorik?", "Vilka fält är obligatoriska respektive valfria?", "Finns det fritexter, bilagor eller dokument som ska migreras?"], tips: "Ha ER-diagrammet från befintligt system utskrivet. Om det inte finns — be DBA:n ta fram det innan workshopen. Markera vilka tabeller som innehåller personuppgifter." },
+        { title: "Identifiera datakvalitetsproblem", timeMinutes: 35, purpose: "Kartlägga kända datakvalitetsproblem som kan försvåra migreringen: dubbletter, ofullständig data, felaktiga kopplingar.", method: "Brainstorming", facilitationQuestions: ["Vilka datakvalitetsproblem vet ni om i nuvarande system?", "Finns det dubbletter av personer, ärenden eller andra entiteter?", "Hur stor andel av posterna har ofullständig eller felaktig data?", "Finns det data som lagrats fel (t.ex. i fritext istället för strukturerade fält)?", "Har systemleverantören verktyg för datakvalitetsanalys?"], tips: "Kör om möjligt en automatisk datakvalitetsanalys innan workshopen. SQL-queries som hittar dubbletter, tomma obligatoriska fält och ogiltiga kopplingar ger konkreta siffror att diskutera kring." },
+        { title: "Mappning till nytt system", timeMinutes: 50, purpose: "Definiera hur data ska transformeras och mappas från gammalt till nytt system — fält för fält.", method: "Affinity mapping", facilitationQuestions: ["Vilka fält i gamla systemet motsvarar vilka fält i det nya?", "Finns det fält som inte har en direkt motsvarighet — hur hanteras de?", "Behöver data transformeras (t.ex. kodlistor som ändrat format)?", "Hur mappas statusvärden, ärendetyper och kategorier mellan systemen?", "Finns det data i fritext som borde struktureras i det nya systemet?"], tips: "Skapa ett mappningsdokument: gammalt fält, nytt fält, transformation, kommentar. Det är det viktigaste underlaget för migreringsarbetet. Var beredd på att mappningen tar tid — det finns alltid fler specialfall än man tror." },
+        { title: "Testmigreringsplan", timeMinutes: 30, purpose: "Planera testmigrering: hur många omgångar, med vilken data, vilka kontroller och vem som verifierar.", method: "Presentation", facilitationQuestions: ["Hur många testmigreringar behöver vi genomföra innan vi är trygga?", "Vilken data ska ingå i testmigreringen — ett urval eller allt?", "Vilka kontroller ska utföras efter varje testmigrering (antal poster, stickprov, checksummor)?", "Vem i verksamheten ska verifiera att data ser korrekt ut i det nya systemet?"], tips: "Planera minst 2-3 testmigreringar. Första omgången avslöjar de största problemen, andra verifierar fixes, tredje är generalrepetition. Involvera verksamheten i verifieringen — de ser fel som IT missar." },
+        { title: "Gallring och arkivering", timeMinutes: 25, purpose: "Definiera vilken data som ska gallras, arkiveras eller migreras baserat på regelverk och verksamhetsbehov.", method: "Presentation", facilitationQuestions: ["Vilka gallringsfrister gäller för olika datatyper inom socialtjänsten?", "Finns det data som är gallringspliktig men inte gallrats i nuvarande system?", "Ska all historisk data migreras eller bara aktiva ärenden och viss historik?", "Hur ska arkiverade ärenden göras sökbara i det nya systemet?"], tips: "Kontrollera kommunens dokumenthanteringsplan och arkivreglemente. Socialtjänstdata har ofta långa bevarandetider (ibland 70 år för barnavårdsärenden). Gallring ska alltid dokumenteras." },
+      ],
+      preparation: "Hämta datamodell/ER-diagram från befintligt system. Kör en grundläggande datakvalitetsanalys (dubbletter, tomma fält, volymer per tabell). Samla in gallringsregler och arkivreglemente. Skaffa tillgång till det nya systemets datamodell.",
+      followUp: ["Dokumentera komplett datamappning (gammalt fält till nytt fält med transformationsregler)", "Genomför datakvalitetsanalys och upprätta en datarensningsplan", "Planera och genomför första testmigrering", "Definiera gallrings- och arkiveringsstrategi med juridisk förankring", "Upprätta verifieringsprotokoll för testmigrering"],
+      sparkboardSuggestion: [
+        { boardTitle: "Datakvalitet", questions: ["Vilka dataproblem stör dig mest i nuvarande system?", "Beskriv ett ärende som du vet har felaktig eller ofullständig data.", "Vilken data är mest kritisk att få rätt vid migreringen?"], timeLimit: 8 },
+        { boardTitle: "Migreringsoro", questions: ["Vad oroar dig mest med datamigreringen?", "Vilken information får absolut inte gå förlorad?", "Hur lång tid kan du jobba utan tillgång till historisk data?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: Proportionalitetsbedömning",
+      description: "Workshop för att bedöma proportionaliteten i kravställningen.",
+      suggestedParticipants: ["Upphandlare", "Jurist", "Verksamhetsansvarig", "Leverantörsrepresentant (vid RFI)"],
+      agenda: ["Genomgång av SKA-krav", "Bedöm nödvändighet per krav", "Identifiera oproportionerliga krav", "Justera SKA till BÖR vid behov", "Dokumentera motiveringar"],
+      expectedOutputs: ["Proportionalitetsanalys", "Reviderad kravlista"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Genomgång av SKA-krav", timeMinutes: 35, purpose: "Skapa en översikt av alla obligatoriska krav (SKA-krav) och deras implikationer för konkurrensen.", method: "Presentation", facilitationQuestions: ["Hur många SKA-krav har vi totalt — är antalet rimligt i förhållande till upphandlingens storlek?", "Vilka SKA-krav härrör från lagkrav och vilka är verksamhetens egna?", "Finns det SKA-krav som tillkommit utan tydlig motivering?", "Hur ser fördelningen ut mellan funktionella, tekniska och icke-funktionella SKA-krav?"], tips: "Presentera en sammanställning: totalt antal krav, antal SKA vs BÖR, fördelning per kategori. Jämför med referensupphandlingar — 30-50 SKA-krav är vanligt för en medelstorIT-upphandling." },
+        { title: "Bedöm nödvändighet per krav", timeMinutes: 40, purpose: "Granska varje SKA-krav och bedöma om det verkligen är nödvändigt som obligatoriskt krav.", method: "Dot-voting", facilitationQuestions: ["Vad händer om en leverantör inte uppfyller detta krav — är det verkligen en showstopper?", "Kan vi nå samma mål genom att utvärdera kvaliteten istället för att ställa ett SKA-krav?", "Finns det alternativa sätt att uppfylla det underliggande behovet?", "Är kravet teknikneutralt eller styr det mot en specifik lösning?"], tips: "Använd 'tomtregel-testet': Om kravet inte uppfylls — klarar vi oss ändå i 6 månader? Om ja, överväg BÖR. Var extra kritisk mot tekniska SKA-krav — de begränsar konkurrensen mest." },
+        { title: "Identifiera oproportionerliga krav", timeMinutes: 30, purpose: "Hitta krav som är oproportionerliga i förhållande till upphandlingens värde, marknadens mognad eller leverantörernas kapacitet.", method: "Brainstorming", facilitationQuestions: ["Finns det krav som bara en eller två leverantörer kan uppfylla?", "Finns det krav som kräver oproportionerligt hög investering från leverantören?", "Har vi krävt certifieringar eller standarder som begränsar marknaden i onödan?", "Är referenskraven (antal år, antal uppdrag) proportionerliga?"], tips: "Om ett krav utesluter mer än hälften av marknaden, ifrågasätt det. Oproportionerliga krav leder till färre anbud, högre priser och risk för överprövning. Marknadsdialog kan verifiera proportionaliteten." },
+        { title: "Justera SKA till BÖR vid behov", timeMinutes: 25, purpose: "Konkret ändra kravnivån från SKA till BÖR för krav som bedömts vara oproportionerliga men fortfarande önskvärda.", method: "Presentation", facilitationQuestions: ["Vilka krav ska ändras från SKA till BÖR — och hur viktar vi dem i utvärderingen?", "Finns det BÖR-krav som borde uppgraderas till SKA baserat på vår analys?", "Hur säkerställer vi att de nya BÖR-kraven ändå prioriteras av leverantörerna?"], tips: "BÖR-krav med hög vikt i utvärderingen ger samma styrande effekt som SKA-krav men utan att utesluta leverantörer. Det är ofta den bästa kompromissen." },
+        { title: "Dokumentera motiveringar", timeMinutes: 20, purpose: "Dokumentera motiveringen för varje SKA-krav — både de som behålls och de som ändras till BÖR.", method: "Presentation", facilitationQuestions: ["Kan vi motivera varje kvarvarande SKA-krav inför en överprövning?", "Har vi dokumenterat varför vi ändrade krav från SKA till BÖR?", "Finns det prejudikat eller rättspraxis vi bör referera till?"], tips: "Dokumentationen ska klara en överprövning. Motivera varje SKA-krav med: lagstöd, säkerhetskrav eller dokumenterat affärskritiskt behov. Spara all dokumentation — den kan behövas om upphandlingen överklagas." },
+      ],
+      preparation: "Sammanställ alla SKA-krav med nuvarande motivering. Förbered en analys av marknadens mognad (vilka leverantörer finns och vad klarar de). Ha referensupphandlingar med kravlistor för jämförelse. Bjud in jurist med LOU-kompetens.",
+      followUp: ["Uppdatera kravlistan med alla nivåändringar (SKA till BÖR och vice versa)", "Dokumentera motivering för varje SKA-krav i proportionalitetsanalysen", "Verifiera med juristen att den reviderade kravmassan är LOU-konform", "Kommunicera eventuella kravändringar till berörd verksamhet"],
+      sparkboardSuggestion: [
+        { boardTitle: "Kravproportionalitet", questions: ["Vilka SKA-krav tror du begränsar konkurrensen mest — och behöver vi dem verkligen?", "Beskriv ett krav som du tror kan vara oproportionerligt.", "Vilket krav vill du absolut inte ge avkall på — och varför?"], timeLimit: 8 },
+      ],
+    },
+    {
+      title: "Workshopmall: Go-live planering",
+      description: "Workshop för att planera produktionssättning.",
+      suggestedParticipants: ["Projektledare", "IT-drift", "Leverantör", "Verksamhetschef", "Superanvändare"],
+      agenda: ["Go-live kriterier", "Checklista inför produktionssättning", "Rollback-plan", "Supportplan första veckorna", "Kommunikationsplan"],
+      expectedOutputs: ["Go-live plan", "Rollback-plan", "Supportplan"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Go-live kriterier", timeMinutes: 30, purpose: "Definiera tydliga, mätbara kriterier som måste vara uppfyllda innan systemet sätts i produktion.", method: "Brainstorming", facilitationQuestions: ["Vilka testresultat krävs innan vi kan gå live (t.ex. 100% kritiska testfall godkända)?", "Vilka tekniska förutsättningar måste vara på plats (integrationer, prestanda, säkerhet)?", "Vilken utbildningsnivå krävs bland användarna?", "Måste all data vara migrerad eller kan vi gå live med delmängd?", "Vem fattar det slutgiltiga go/no-go-beslutet?"], tips: "Formulera go-live-kriterierna som en checklista med ja/nej. Det ska vara kristallklart om vi är redo eller inte. Undvik subjektiva kriterier som 'tillräckligt testat'. Bestäm i förväg vem som har vetorätt." },
+        { title: "Checklista inför produktionssättning", timeMinutes: 30, purpose: "Skapa en detaljerad checklista med alla aktiviteter som ska utföras dagarna före och under go-live.", method: "Affinity mapping", facilitationQuestions: ["Vilka tekniska aktiviteter måste utföras (slutmigrering, DNS-pekare, konfiguration)?", "Vilka verksamhetsaktiviteter måste förberedas (stänga gamla systemet, informera kunder)?", "I vilken ordning ska aktiviteterna utföras och hur lång tid tar varje steg?", "Vilka beroenden finns mellan aktiviteterna?", "Vem ansvarar för varje aktivitet och hur bekräftar de att den är genomförd?"], tips: "Skapa en minutplan för go-live-dagen. Ange exakta tider, ansvarig och hur bekräftelse sker. Ha en kommunikationskanal (t.ex. Teams) där alla rapporterar status i realtid." },
+        { title: "Rollback-plan", timeMinutes: 25, purpose: "Ta fram en konkret plan för att rulla tillbaka till gamla systemet om go-live misslyckas.", method: "Brainstorming", facilitationQuestions: ["Vid vilken punkt beslutar vi att rulla tillbaka — vad är triggern?", "Hur lång tid tar en rollback och vad krävs tekniskt?", "Vilken data som skapats i det nya systemet riskeras vid rollback?", "Finns det en point of no return — och när infaller den?", "Vem fattar beslut om rollback och inom vilken tidsram?"], tips: "En rollback-plan du aldrig behöver använda är ändå värd guld — den ger trygghet. Öva rollback-planen innan go-live. Definiera point of no return tydligt — efter den tidpunkten måste vi lösa problemen framåt." },
+        { title: "Supportplan första veckorna", timeMinutes: 25, purpose: "Planera förstärkt support under de kritiska första veckorna efter go-live.", method: "Presentation", facilitationQuestions: ["Vilken extrasupport behövs de första dagarna/veckorna — on-site, telefon, chat?", "Vilka superanvändare finns tillgängliga och i vilken omfattning?", "Hur rapporterar användare problem och hur snabbt ska de få svar?", "När kan vi gå tillbaka till normal supportnivå?", "Behöver leverantören vara on-site under go-live-perioden?"], tips: "De första 2 veckorna är kritiska. Ha superanvändare tillgängliga i varje enhet. Leverantören bör ha förstärkt support (kortare svarstider). Dokumentera alla problem — de är värdefull input för förbättringar." },
+        { title: "Kommunikationsplan", timeMinutes: 20, purpose: "Planera kommunikation till alla berörda intressenter före, under och efter go-live.", method: "Presentation", facilitationQuestions: ["Vilka grupper behöver informeras om go-live och med vilken framförhållning?", "Hur kommunicerar vi om go-live försenas eller stöter på problem?", "Ska vi informera kunder/medborgare om systembytet?", "Vem är kommunikationsansvarig under go-live-dagen?"], tips: "Skicka ut information minst 2 veckor innan go-live. Förbered kommunikationsmallar: 'Vi har gått live som planerat', 'Vi har stött på problem', 'Vi har beslutat att skjuta upp'. Det sparar tid under press." },
+      ],
+      preparation: "Samla in testresultat och status på go-live-kriterier. Kartlägg alla tekniska beroenden och förbered rollback-procedurer. Stäm av med leverantören om deras supportinsats under go-live.",
+      followUp: ["Dokumentera go-live-plan med tidslinje, ansvariga och beslutskedja", "Testa rollback-planen i testmiljö", "Utse go-live-team med tydliga roller och kontaktuppgifter", "Förbered kommunikationsmallar för olika scenarier (lyckat, försenat, avbrutet)", "Boka extra support och superanvändartid för de första 2 veckorna"],
+      sparkboardSuggestion: [
+        { boardTitle: "Go-live-beredskap", questions: ["Vad behöver du för att känna dig redo för go-live?", "Vilken information saknar du idag inför produktionssättningen?", "Beskriv ditt största orosmoment inför go-live."], timeLimit: 8 },
+        { boardTitle: "Stödbehov", questions: ["Vilken typ av hjälp behöver du de första dagarna med det nya systemet?", "Vem vill du kunna vända dig till vid problem — superanvändare, IT, leverantör?"], timeLimit: 6 },
+      ],
+    },
+    {
+      title: "Workshopmall: Nyttorealisering",
+      description: "Workshop för att planera och mäta nyttorealisering.",
+      suggestedParticipants: ["Verksamhetschef", "Controller", "Projektledare", "Kvalitetsansvarig"],
+      agenda: ["Definiera förväntade nyttor", "Etablera baseline (nuläge)", "Definiera mätindikatorer", "Tidplan för mätning", "Ansvar för uppföljning"],
+      expectedOutputs: ["Nyttorealiseringsplan", "Mätindikatorer", "Baseline-data"],
+      duration: "3h",
+      profile: "",
+      agendaDetailed: [
+        { title: "Definiera förväntade nyttor", timeMinutes: 40, purpose: "Identifiera och formulera alla förväntade nyttor av systembytet — både kvantifierbara och kvalitativa.", method: "Brainstorming", facilitationQuestions: ["Vilka tidsbessparingar förväntar vi oss och i vilka processer?", "Vilka kvalitetsförbättringar hoppas vi uppnå (färre fel, bättre service, snabbare handläggning)?", "Finns det ekonomiska nyttor (minskade licenskostnader, färre manuella moment)?", "Vilka strategiska nyttor ger bytet (bättre beslutsunderlag, ökad digitalisering)?", "Vilka nyttor är svåra att kvantifiera men ändå viktiga (medarbetarnöjdhet, trygghet)?"], tips: "Skilj på direkt kvantifierbara nyttor (tid, pengar) och kvalitativa nyttor (bättre service, ökad trygghet). Båda är viktiga. Var realistisk — överdrivna nyttokalkyler underminerar förtroendet." },
+        { title: "Etablera baseline (nuläge)", timeMinutes: 30, purpose: "Dokumentera nuläget för varje nyttomått så att vi har en referenspunkt att mäta förbättringen mot.", method: "Presentation", facilitationQuestions: ["Har vi mätdata för nuläget — t.ex. handläggningstider, antal ärenden, felfrekvens?", "Vilka nulägesmätningar saknas och hur kan vi samla in dem innan go-live?", "Finns det tillförlitliga data eller bygger nulägesbilden på uppskattningar?", "Vilka kostnader har vi idag som kan fungera som baseline (licenser, support, arbetstid)?"], tips: "Baseline måste mätas INNAN det nya systemet lanseras — annars har vi inget att jämföra med. Starta mätningarna 3-6 månader före go-live för att få tillförlitliga siffror." },
+        { title: "Definiera mätindikatorer", timeMinutes: 30, purpose: "Skapa konkreta, mätbara indikatorer (KPI:er) för varje identifierad nytta.", method: "Presentation", facilitationQuestions: ["Hur mäter vi varje nytta konkret — vilken indikator och vilken datakälla?", "Är mätmetoden tillförlitlig och reproducerbar?", "Vad är målvärdet — vilken förbättring siktar vi på?", "Behöver vi nya mätverktyg eller kan befintliga system leverera data?"], tips: "Varje nytta ska ha: mätindikator, datakälla, baseline-värde, målvärde och tidpunkt för mätning. Använd SMART-principen: Specifik, Mätbar, Accepterad, Realistisk, Tidsbunden." },
+        { title: "Tidplan för mätning", timeMinutes: 20, purpose: "Planera när nyttorna ska mätas: omedelbart efter go-live, efter 6 månader, efter 1 år.", method: "Presentation", facilitationQuestions: ["Hur snart efter go-live kan vi börja mäta nyttor realistiskt?", "Vilka nyttor realiseras tidigt och vilka tar längre tid?", "Hur lång inkörningsperiod behöver vi räkna med innan mätning blir meningsfull?", "Vid vilka tidpunkter ska vi rapportera nyttorealisering till ledning/styrelse?"], tips: "Mät inte för tidigt — de första 3 månaderna är en inlärningsfas där produktiviteten ofta sjunker. Första riktiga mätningen efter 6 månader, uppföljning vid 12 och 24 månader." },
+        { title: "Ansvar för uppföljning", timeMinutes: 20, purpose: "Utse ansvariga för att samla in data, beräkna nyttorealisering och rapportera till ledningen.", method: "Presentation", facilitationQuestions: ["Vem ansvarar för att samla in mätdata och beräkna nyttorna?", "Vem ska rapporten ställas till och i vilket forum?", "Vad händer om nyttorna inte realiseras som planerat — vem agerar?", "Ska nyttorealiseringen vara en del av projektets avslut eller pågå efter projektet?"], tips: "Nyttorealisering pågår långt efter att projektet avslutats. Förankra ansvaret i linjeorganisationen, inte i projektorganisationen. Koppla nyttorealiseringen till verksamhetsplanen." },
+      ],
+      preparation: "Samla in befintliga nyttokalkyler och affärsfall. Identifiera tillgängliga mätdata för nuläget. Förbered en mall för nyttorealiseringsplan. Ha ekonomiska nyckeltal tillgängliga (licenskostnader, personalkostnader per process).",
+      followUp: ["Dokumentera nyttorealiseringsplan med alla nyttor, indikatorer, baseline och målvärden", "Starta baseline-mätningar minst 3 månader före go-live", "Utse nyttorealiseringsansvarig i linjeorganisationen", "Boka in mätpunkter i verksamhetskalendern (6, 12, 24 månader efter go-live)", "Rapportera nyttorealiseringsplan till styrgrupp för godkännande"],
+      sparkboardSuggestion: [
+        { boardTitle: "Förväntade nyttor", questions: ["Vilken enskild förbättring ser du mest fram emot med det nya systemet?", "Hur mycket tid tror du att du kan spara per vecka med ett nytt system?", "Vilken kvalitetsförbättring hoppas du på mest?"], timeLimit: 8 },
+        { boardTitle: "Nyttomätning", questions: ["Vilka nyttor tror du blir svårast att mäta — och hur kan vi ändå fånga dem?", "Vad tycker du vore ett realistiskt mål för tidsbesparing inom ditt område?"], timeLimit: 6 },
+      ],
+    },
   ];
 
   for (const tmpl of extraWorkshopTemplates) {
@@ -832,6 +2082,20 @@ async function main() {
       owner: "Anna Johansson",
       governance: JSON.stringify({ steeringGroup: ["Anna Johansson (PL)", "Erik Svensson (IT-chef)"], projectGroup: ["Maria Lindström", "Per Eriksson"], decisionForums: ["Upphandlingsnämnd"] }),
       timeline: JSON.stringify({ startDate: "2025-10-01", targetAwardDate: "2026-04-15", targetContractDate: "2026-06-01" }),
+      evaluationStatus: JSON.stringify({
+        announced: true,
+        announcedDate: "2026-01-15",
+        externalSystem: "TendSign",
+        externalRef: "TS-2026-0042",
+        checklist: [
+          { id: "chk-1", label: "Formell kvalificering genomförd", checked: true, date: "2026-02-05" },
+          { id: "chk-2", label: "Kravuppfyllelse bedömd (SKA-krav)", checked: true, date: "2026-02-10" },
+          { id: "chk-3", label: "Utvärdering av tilldelningskriterier genomförd", checked: true, date: "2026-02-15" },
+          { id: "chk-4", label: "Utvärderingsprotokoll upprättat", checked: true, date: "2026-02-16" },
+          { id: "chk-5", label: "Tilldelningsbeslut fattat", checked: false },
+          { id: "chk-6", label: "Avtalspärr löpt ut (10 dagar)", checked: false },
+        ],
+      }),
     },
   });
 
@@ -944,43 +2208,15 @@ async function main() {
   await prisma.idCounter.upsert({ where: { prefix: "BID" }, create: { prefix: "BID", counter: 3 }, update: { counter: 3 } });
   await prisma.bid.createMany({
     data: [
-      { id: "BID-000001", caseId: case1Id, title: "Anbud: WasteFlow AB", supplierName: "WasteFlow AB", receivedAt: "2026-02-01T10:00:00Z", qualified: true, qualificationNotes: "Uppfyller alla kvalificeringskrav. Etablerad leverantör med 15 kommunreferenser.", status: "active", tags: JSON.stringify(["kvalificerad"]) },
-      { id: "BID-000002", caseId: case1Id, title: "Anbud: EcoManage Systems", supplierName: "EcoManage Systems", receivedAt: "2026-02-01T14:30:00Z", qualified: true, qualificationNotes: "Uppfyller kvalificeringskraven. Relativt ny aktör men lovande demo.", status: "active", tags: JSON.stringify(["kvalificerad"]) },
-      { id: "BID-000003", caseId: case1Id, title: "Anbud: SmartWaste Nordic", supplierName: "SmartWaste Nordic", receivedAt: "2026-02-01T16:00:00Z", qualified: false, qualificationNotes: "Uppfyller inte SKA-krav REQ-000001 (kundregister med historik). Saknar ändringshistorik.", status: "active", tags: JSON.stringify(["diskvalificerad"]) },
+      { id: "BID-000001", caseId: case1Id, title: "Anbud: WasteFlow AB", supplierName: "WasteFlow AB", receivedAt: "2026-02-01T10:00:00Z", qualified: true, qualificationNotes: "Uppfyller alla kvalificeringskrav. Etablerad leverantör med 15 kommunreferenser.", externalRef: "TS-2026-0042-A1", status: "active", tags: JSON.stringify(["kvalificerad"]) },
+      { id: "BID-000002", caseId: case1Id, title: "Anbud: EcoManage Systems", supplierName: "EcoManage Systems", receivedAt: "2026-02-01T14:30:00Z", qualified: true, qualificationNotes: "Uppfyller kvalificeringskraven. Relativt ny aktör men lovande demo.", externalRef: "TS-2026-0042-A2", status: "active", tags: JSON.stringify(["kvalificerad"]) },
+      { id: "BID-000003", caseId: case1Id, title: "Anbud: SmartWaste Nordic", supplierName: "SmartWaste Nordic", receivedAt: "2026-02-01T16:00:00Z", qualified: false, qualificationNotes: "Uppfyller inte SKA-krav REQ-000001 (kundregister med historik). Saknar ändringshistorik.", externalRef: "TS-2026-0042-A3", status: "active", tags: JSON.stringify(["diskvalificerad"]) },
     ],
   });
 
-  // BidResponses for Case 1 — kvalificerade anbud × alla krav
-  await prisma.bidResponse.createMany({
-    data: [
-      // WasteFlow AB responses
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000001", meets: "yes", supplierStatement: "Fullständigt kundregister med detaljerad ändringshistorik per fält. Audit trail sedan 2018.", reviewNotes: "Verifierat via demo." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000002", meets: "yes", supplierStatement: "Drag-and-drop taxekonfigurator med regelmotor. Ingen kod krävs.", reviewNotes: "Imponerande demo med komplext taxeexempel." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000003", meets: "yes", supplierStatement: "Responsiv kundportal med WCAG 2.1 AA. Tillgänglighetsrapport bifogad.", reviewNotes: "Komplett portal." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000004", meets: "yes", supplierStatement: "GIS-baserad ruttoptimering med stöd för fyllnadsgradsdata.", reviewNotes: "Beprövad modul." },
-      { caseId: case1Id, bidId: "BID-000001", requirementId: "REQ-000005", meets: "yes", supplierStatement: "Export i CSV, JSON och XML. API för programmatisk export.", reviewNotes: "Komplett exportfunktion." },
-      // EcoManage Systems responses
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000001", meets: "yes", supplierStatement: "Kundregister med versionshantering. Alla ändringar spåras.", reviewNotes: "Godkänt men enklare historikvy." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000002", meets: "partial", supplierStatement: "Taxekonfig via admin-gränssnitt. Vissa komplexa regler kräver supportinsats.", reviewNotes: "Uppfyller delvis — komplexa taxeändringar kräver leverantörsstöd." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000003", meets: "yes", supplierStatement: "Kundportal med responsiv design. WCAG-granskning planerad Q2 2026.", reviewNotes: "Bra grund men WCAG-granskning ej genomförd." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000004", meets: "partial", supplierStatement: "Basruttplanering finns. GIS-integration planerad i v2.5.", reviewNotes: "Rudimentär ruttplanering utan full GIS." },
-      { caseId: case1Id, bidId: "BID-000002", requirementId: "REQ-000005", meets: "yes", supplierStatement: "Export i CSV och JSON. XLSX-export under utveckling.", reviewNotes: "Acceptabel export." },
-    ],
-  });
-
-  // Scores for Case 1 — kvalificerade anbud × alla kriterier
-  await prisma.score.createMany({
-    data: [
-      // WasteFlow AB scores
-      { caseId: case1Id, bidId: "BID-000001", criterionId: "CRIT-000001", rawScore: 5, normalizedScore: 50, justification: "Uppfyller alla SKA- och BÖR-krav med mervärde. Imponerande kundregister och taxekonfigurator.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000001", criterionId: "CRIT-000002", rawScore: 3, normalizedScore: 18, justification: "Mellanpris bland anbuden. 4,2 MSEK totalt under 5 år.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000001", criterionId: "CRIT-000003", rawScore: 4, normalizedScore: 16, justification: "15 kommunreferenser, lång branscherfarenhet, stabil organisation.", scorer: "Erik Svensson", scoredAt: "2026-02-15T11:00:00Z" },
-      // EcoManage Systems scores
-      { caseId: case1Id, bidId: "BID-000002", criterionId: "CRIT-000001", rawScore: 3, normalizedScore: 30, justification: "Uppfyller alla SKA-krav men BÖR-krav delvis (taxehantering, GIS-rutter). Grundläggande men kompetent.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000002", criterionId: "CRIT-000002", rawScore: 5, normalizedScore: 30, justification: "Lägst pris bland anbuden. 3,1 MSEK totalt under 5 år.", scorer: "Anna Johansson", scoredAt: "2026-02-15T10:00:00Z" },
-      { caseId: case1Id, bidId: "BID-000002", criterionId: "CRIT-000003", rawScore: 2, normalizedScore: 8, justification: "Relativt nytt företag, 3 kommunreferenser. God teknisk kompetens men begränsad erfarenhet.", scorer: "Erik Svensson", scoredAt: "2026-02-15T11:00:00Z" },
-    ],
-  });
+  // NOTE: BidResponses and Scores removed in hybrid model.
+  // Detailed evaluation data lives in external procurement system (TendSign/Mercell).
+  // Only traceability skeleton (qualification status, checklist) is kept here.
 
   // Additional documents for Case 1
   await prisma.idCounter.upsert({ where: { prefix: "DOC" }, update: { counter: 3 }, create: { prefix: "DOC", counter: 3 } });
@@ -991,7 +2227,7 @@ async function main() {
     ],
   });
 
-  console.log("  ✓ Case 1 enriched: 2 decisions, 3 bids, 10 bid responses, 6 scores, 3 documents");
+  console.log("  ✓ Case 1 enriched: 2 decisions, 3 bids (hybrid — no responses/scores), 3 documents");
 
   // ============================================================
   // Sample Case 2: Socialtjänst byte

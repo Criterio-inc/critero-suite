@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Tabs, TabPanel } from "@/components/ui/tabs";
+import { BarChart3, AlertTriangle, Link as LinkIcon, ClipboardList, X, Check } from "lucide-react";
 
 interface CoverageMetric {
   count: number;
@@ -72,9 +73,9 @@ export function TraceabilityDashboard({ caseId }: { caseId: string }) {
   const totalOrphans = data.orphans.needs.length + data.orphans.requirements.length + data.orphans.risks.length;
 
   const tabs = [
-    { id: "coverage", label: "Täckningsgrad", icon: "📊" },
-    { id: "orphans", label: `Saknar koppling (${totalOrphans})`, icon: "⚠️" },
-    { id: "chains", label: "Spårbarhetskedjor", icon: "🔗" },
+    { id: "coverage", label: "Täckningsgrad", icon: <BarChart3 size={16} /> },
+    { id: "orphans", label: `Saknar koppling (${totalOrphans})`, icon: <AlertTriangle size={16} /> },
+    { id: "chains", label: "Spårbarhetskedjor", icon: <LinkIcon size={16} /> },
   ];
 
   return (
@@ -119,7 +120,7 @@ export function TraceabilityDashboard({ caseId }: { caseId: string }) {
       <TabPanel active={activeTab === "orphans"}>
         {totalOrphans === 0 ? (
           <div className="text-center py-12 text-green-600">
-            <div className="text-4xl mb-2">✓</div>
+            <div className="flex justify-center mb-2"><Check size={40} /></div>
             <p className="font-medium">Alla entiteter är kopplade!</p>
             <p className="text-sm text-muted-foreground mt-1">Ingen föräldralös entitet hittades.</p>
           </div>
@@ -230,7 +231,7 @@ export function TraceabilityDashboard({ caseId }: { caseId: string }) {
                 <div className="flex items-center gap-2 text-sm">
                   {/* Need node */}
                   <div className="flex items-center gap-1 bg-blue-100 text-blue-800 rounded-md px-2 py-1 text-xs font-medium">
-                    <span>📋</span>
+                    <ClipboardList size={12} />
                     <Link href={`/cases/${caseId}/needs/${chain.needId}`} className="hover:underline">
                       {chain.needId}
                     </Link>
@@ -253,7 +254,7 @@ export function TraceabilityDashboard({ caseId }: { caseId: string }) {
                       ))}
                     </div>
                   ) : (
-                    <span className="text-red-500 text-xs">✗ Inga krav</span>
+                    <span className="text-red-500 text-xs flex items-center gap-0.5"><X size={12} /> Inga krav</span>
                   )}
 
                   {/* Arrow */}
@@ -279,7 +280,7 @@ export function TraceabilityDashboard({ caseId }: { caseId: string }) {
                   {/* Status */}
                   <span className="ml-auto">
                     {chain.complete ? (
-                      <span className="text-green-600 text-xs font-medium">✓ Komplett</span>
+                      <span className="text-green-600 text-xs font-medium flex items-center gap-0.5"><Check size={12} /> Komplett</span>
                     ) : (
                       <span className="text-yellow-600 text-xs font-medium">Ofullständig</span>
                     )}

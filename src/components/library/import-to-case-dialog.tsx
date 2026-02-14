@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface LibraryItem {
@@ -63,7 +64,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
 
   if (!open) {
     return (
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)} title="Öppna biblioteket och importera färdiga mallar till denna upphandling">
         Importera från bibliotek
       </Button>
     );
@@ -71,14 +72,14 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-xl rounded-lg border border-border bg-background shadow-lg">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="font-semibold">Importera från bibliotek</h2>
+      <div className="w-full max-w-xl rounded-2xl border border-border bg-card shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
+          <h2 className="font-semibold tracking-tight">Importera från bibliotek</h2>
           <button
             onClick={() => setOpen(false)}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            &times;
+            <X size={16} />
           </button>
         </div>
         <div className="max-h-96 overflow-auto p-4">
@@ -94,7 +95,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
                 return (
                   <div
                     key={item.id}
-                    className="flex items-start justify-between rounded-md border border-border p-3"
+                    className="flex items-start justify-between rounded-xl border border-border/60 p-3.5"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -137,7 +138,7 @@ export function ImportToCaseDialog({ caseId }: { caseId: string }) {
             </div>
           )}
         </div>
-        <div className="flex justify-end border-t border-border px-4 py-3">
+        <div className="flex justify-end border-t border-border/40 px-5 py-4">
           <Button variant="outline" onClick={() => setOpen(false)}>
             Stäng
           </Button>

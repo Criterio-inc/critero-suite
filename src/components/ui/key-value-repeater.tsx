@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface KeyValueRepeaterProps {
@@ -106,7 +107,7 @@ function ObjectRepeater({
                       onClick={() => removeEntry(k)}
                       className="text-muted-foreground hover:text-destructive text-xs"
                     >
-                      ✕
+                      <X size={12} />
                     </button>
                   </td>
                 </tr>
@@ -218,7 +219,7 @@ function ArrayRepeater({
                       onClick={() => removeRow(ri)}
                       className="text-muted-foreground hover:text-destructive text-xs"
                     >
-                      ✕
+                      <X size={12} />
                     </button>
                   </td>
                 </tr>

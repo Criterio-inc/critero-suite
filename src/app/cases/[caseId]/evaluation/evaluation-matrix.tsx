@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabPanel } from "@/components/ui/tabs";
+import { BarChart3, Check, Trophy, X, AlertTriangle } from "lucide-react";
 
 interface BidInfo {
   id: string;
@@ -116,9 +117,9 @@ export function EvaluationMatrix({
   }
 
   const tabs = [
-    { id: "scores", label: "Poängmatris", icon: "📊" },
-    { id: "qualification", label: "Kravuppfyllelse", icon: "✅" },
-    { id: "ranking", label: "Ranking & tilldelning", icon: "🏆" },
+    { id: "scores", label: "Poängmatris", icon: <BarChart3 size={16} /> },
+    { id: "qualification", label: "Kravuppfyllelse", icon: <Check size={16} /> },
+    { id: "ranking", label: "Ranking & tilldelning", icon: <Trophy size={16} /> },
   ];
 
   return (
@@ -277,9 +278,9 @@ export function EvaluationMatrix({
                           const meets = resp?.meets ?? "no";
                           return (
                             <td key={bid.id} className="text-center py-2 px-3">
-                              {meets === "yes" && <span className="text-green-600">✓</span>}
+                              {meets === "yes" && <span className="text-green-600"><Check size={16} className="inline" /></span>}
                               {meets === "partial" && <span className="text-yellow-600">~</span>}
-                              {meets === "no" && <span className="text-red-600">✗</span>}
+                              {meets === "no" && <span className="text-red-600"><X size={16} className="inline" /></span>}
                             </td>
                           );
                         })}
@@ -340,8 +341,8 @@ export function EvaluationMatrix({
                         </div>
                         <div className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
                           <span className="font-mono text-xs">{bid.id}</span>
-                          <span className={allSkaOk ? "text-green-600" : "text-red-600"}>
-                            {allSkaOk ? "✓ Alla SKA uppfyllda" : `✗ ${skaStatus.failed} SKA ej uppfyllda`}
+                          <span className={`flex items-center gap-1 ${allSkaOk ? "text-green-600" : "text-red-600"}`}>
+                            {allSkaOk ? <><Check size={14} /> Alla SKA uppfyllda</> : <><X size={14} /> {skaStatus.failed} SKA ej uppfyllda</>}
                           </span>
                         </div>
                       </div>
@@ -393,8 +394,8 @@ export function EvaluationMatrix({
                           högst viktat totalpoäng ({winner.total}) baserat på {scoredCriteria.length} utvärderade kriterier.
                         </p>
                         {!skaOk && (
-                          <p className="text-red-600">
-                            ⚠️ OBS: Detta anbud uppfyller inte alla SKA-krav. Kontrollera kravuppfyllelsen.
+                          <p className="text-red-600 flex items-center gap-1">
+                            <AlertTriangle size={14} /> OBS: Detta anbud uppfyller inte alla SKA-krav. Kontrollera kravuppfyllelsen.
                           </p>
                         )}
                         {bidTotals.length > 1 && (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 import type { ValidationWarning, ValidationInsight } from "@/lib/validation";
 
 const ENTITY_LABELS: Record<string, string> = {
@@ -33,18 +34,18 @@ const ENTITY_ROUTE: Record<string, string> = {
 };
 
 const CATEGORY_LABELS: Record<string, { label: string; icon: string }> = {
-  coverage: { label: "Täckningsgrad", icon: "📊" },
-  quality: { label: "Kvalitet", icon: "✅" },
-  balance: { label: "Balans", icon: "⚖️" },
-  readiness: { label: "Beredskap", icon: "🚀" },
-  tip: { label: "Tips", icon: "💡" },
+  coverage: { label: "Täckningsgrad", icon: "bar-chart-3" },
+  quality: { label: "Kvalitet", icon: "check" },
+  balance: { label: "Balans", icon: "scale" },
+  readiness: { label: "Beredskap", icon: "rocket" },
+  tip: { label: "Tips", icon: "lightbulb" },
 };
 
 const SEVERITY_STYLES: Record<string, { bg: string; border: string; text: string; icon: string }> = {
-  success: { bg: "bg-green-50", border: "border-green-200", text: "text-green-800", icon: "✓" },
-  warning: { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-800", icon: "⚠" },
-  info: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-800", icon: "ℹ" },
-  error: { bg: "bg-red-50", border: "border-red-200", text: "text-red-800", icon: "✕" },
+  success: { bg: "bg-green-50", border: "border-green-200", text: "text-green-800", icon: "check" },
+  warning: { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-800", icon: "alert-triangle" },
+  info: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-800", icon: "info" },
+  error: { bg: "bg-red-50", border: "border-red-200", text: "text-red-800", icon: "x" },
 };
 
 export function ValidationPanel({ caseId }: { caseId: string }) {
@@ -90,16 +91,16 @@ export function ValidationPanel({ caseId }: { caseId: string }) {
         <Card>
           <CardContent>
             <CardTitle className="mb-4 flex items-center gap-2">
-              <span>📋</span>
+              <Icon name="clipboard-list" size={16} />
               Verksamhetsanalys
             </CardTitle>
             <div className="space-y-4">
               {Object.entries(insightsByCategory).map(([category, items]) => {
-                const catMeta = CATEGORY_LABELS[category] ?? { label: category, icon: "📌" };
+                const catMeta = CATEGORY_LABELS[category] ?? { label: category, icon: "flag" };
                 return (
                   <div key={category}>
                     <div className="flex items-center gap-1.5 mb-2">
-                      <span className="text-sm">{catMeta.icon}</span>
+                      <Icon name={catMeta.icon} size={14} className="text-muted-foreground" />
                       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {catMeta.label}
                       </h4>
@@ -113,8 +114,8 @@ export function ValidationPanel({ caseId }: { caseId: string }) {
                             className={`rounded-lg border p-3 ${style.bg} ${style.border}`}
                           >
                             <div className="flex items-start gap-2">
-                              <span className={`text-sm font-bold ${style.text} mt-0.5`}>
-                                {style.icon}
+                              <span className={`${style.text} mt-0.5`}>
+                                <Icon name={style.icon} size={14} />
                               </span>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -175,7 +176,7 @@ export function ValidationPanel({ caseId }: { caseId: string }) {
               className="w-full flex items-center justify-between"
             >
               <CardTitle className="flex items-center gap-2">
-                <span className="text-yellow-600">&#9888;</span>
+                <Icon name="alert-triangle" size={16} className="text-yellow-600" />
                 Detaljerade varningar ({warningCount} varningar, {infoCount} tips)
               </CardTitle>
               <span className="text-muted-foreground text-sm">
@@ -193,7 +194,7 @@ export function ValidationPanel({ caseId }: { caseId: string }) {
                       {items.map((w, i) => (
                         <div key={`${w.entityId}-${w.field}-${i}`} className="flex items-start gap-2 text-sm">
                           <span className={w.severity === "warning" ? "text-yellow-600" : "text-blue-500"}>
-                            {w.severity === "warning" ? "⚠" : "ℹ"}
+                            <Icon name={w.severity === "warning" ? "alert-triangle" : "info"} size={14} />
                           </span>
                           <div>
                             <Link

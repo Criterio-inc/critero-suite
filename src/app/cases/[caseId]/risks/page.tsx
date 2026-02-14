@@ -8,6 +8,7 @@ import { FilterBar } from "@/components/filters/filter-bar";
 import { getEntityMeta } from "@/config/entity-meta";
 import { findEntities } from "@/lib/entity-helpers";
 import { LibrarySuggestions } from "@/components/library/library-suggestions";
+import { MethodologyGuide } from "@/components/library/methodology-guide";
 
 export default async function RisksPage({
   params,
@@ -53,6 +54,7 @@ export default async function RisksPage({
         }
       />
       <div className="p-6 space-y-4">
+        <MethodologyGuide type="risk" />
         <LibrarySuggestions entityType="risk" itemCount={items.length} caseId={caseId} />
         {filterFields.length > 0 && (
           <FilterBar filters={filterFields} clusterOptions={clusterOptions} />

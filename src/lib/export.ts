@@ -8,6 +8,7 @@ export async function exportCaseJson(caseId: string) {
   const c = await prisma.case.findUnique({ where: { id: caseId } });
   if (!c) throw new Error("Case not found");
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const [stakeholders, workshops, evidence, needs, risks, requirements, criteria, bids, bidResponses, scores, decisions, documents, traceLinks] = await Promise.all([
     prisma.stakeholder.findMany({ where: { caseId } }),
     prisma.workshop.findMany({ where: { caseId } }),
@@ -22,7 +23,7 @@ export async function exportCaseJson(caseId: string) {
     prisma.decision.findMany({ where: { caseId } }),
     prisma.document.findMany({ where: { caseId } }),
     prisma.traceLink.findMany({ where: { caseId } }),
-  ]);
+  ]) as [any[], any[], any[], any[], any[], any[], any[], any[], any[], any[], any[], any[], any[]];
 
   return {
     exportedAt: new Date().toISOString(),

@@ -2,6 +2,9 @@ import { prisma } from "@/lib/db";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
+import { Icon } from "@/components/ui/icon";
+
+export const dynamic = "force-dynamic";
 
 export default async function LibraryPage() {
   const [reqBlocks, riskTemplates, workshopTemplates] = await Promise.all([
@@ -16,21 +19,21 @@ export default async function LibraryPage() {
       label: "Kravbibliotek",
       description: "Återanvändbara kravblock med fördefinierade krav",
       count: reqBlocks,
-      icon: "📐",
+      icon: "ruler",
     },
     {
       type: "risk_template",
       label: "Riskbibliotek",
       description: "Riskmallar för vanliga riskområden",
       count: riskTemplates,
-      icon: "⚠️",
+      icon: "shield-alert",
     },
     {
       type: "workshop_template",
       label: "Workshopmallar",
       description: "Färdiga agendor och upplägg för workshops",
       count: workshopTemplates,
-      icon: "🏛️",
+      icon: "presentation",
     },
   ];
 
@@ -44,7 +47,7 @@ export default async function LibraryPage() {
               <Card className="hover:border-primary/50 transition-colors cursor-pointer">
                 <CardContent>
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-2xl">{cat.icon}</span>
+                    <Icon name={cat.icon} size={24} className="text-muted-foreground" />
                     <div>
                       <CardTitle className="text-base">{cat.label}</CardTitle>
                       <CardDescription>{cat.description}</CardDescription>

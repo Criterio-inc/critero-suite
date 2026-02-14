@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EntityPickerProps {
@@ -110,7 +111,7 @@ export function EntityPicker({
                 onClick={() => removeItem(e.id)}
                 className="text-muted-foreground hover:text-destructive ml-0.5"
               >
-                ✕
+                <X size={12} />
               </button>
             </span>
           ))}
@@ -172,7 +173,7 @@ export function EntityPicker({
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border"
                     )}>
-                      {selected && "✓"}
+                      {selected && <Check size={10} />}
                     </span>
                     <span className="font-mono text-muted-foreground">{e.id}</span>
                     <span className="truncate">{e.title}</span>

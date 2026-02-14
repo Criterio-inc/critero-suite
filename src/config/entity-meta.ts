@@ -48,7 +48,7 @@ export interface EntityMeta {
   singularLabel: string;
   pluralLabel: string;
   prefix: string;
-  icon: string; // emoji for simple display
+  icon: string; // lucide icon name (e.g. "lightbulb", "ruler")
   listFields: string[];
   filterFields: string[];
   fields: FieldMeta[];
@@ -93,7 +93,7 @@ const levelField: FieldMeta = {
     { value: "BOR", label: "BÖR (önskvärt)" },
   ],
   listVisible: true,
-  helpText: "SKA = obligatoriskt, anbud som inte uppfyller SKA-krav diskvalificeras. BÖR = utvärderas men eliminerar inte.",
+  helpText: "SKA = obligatoriskt, anbud som inte uppfyller diskvalificeras. BÖR = utvärderas men eliminerar inte. Tips: om ett krav ändras från SKA till BÖR, lägg till en utvärderingsfråga där anbudsgivaren redogör för sin uppfyllnad.",
 };
 
 const ownerField: FieldMeta = {
@@ -129,7 +129,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Upphandling",
     pluralLabel: "Upphandlingar",
     prefix: "CASE",
-    icon: "📋",
+    icon: "clipboard-list",
     listFields: ["name", "domainProfile", "status", "currentPhase", "owner"],
     filterFields: ["status", "domainProfile"],
     fields: [
@@ -172,7 +172,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Intressent",
     pluralLabel: "Intressenter",
     prefix: "STAK",
-    icon: "👥",
+    icon: "users",
     listFields: ["title", "role", "unit", "influence", "interest", "status"],
     filterFields: ["status"],
     fields: [
@@ -195,7 +195,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Workshop",
     pluralLabel: "Workshops",
     prefix: "WS",
-    icon: "🏛️",
+    icon: "presentation",
     listFields: ["title", "date", "status"],
     filterFields: ["status"],
     fields: [
@@ -217,7 +217,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Evidens",
     pluralLabel: "Evidens",
     prefix: "EVID",
-    icon: "📎",
+    icon: "paperclip",
     listFields: ["title", "type", "source", "status"],
     filterFields: ["status", "type"],
     fields: [
@@ -254,7 +254,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Behov",
     pluralLabel: "Behov",
     prefix: "NEED",
-    icon: "💡",
+    icon: "lightbulb",
     listFields: ["title", "cluster", "priority", "status"],
     filterFields: ["status", "priority", "cluster"],
     fields: [
@@ -294,7 +294,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Risk",
     pluralLabel: "Risker",
     prefix: "RISK",
-    icon: "⚠️",
+    icon: "shield-alert",
     listFields: ["title", "category", "score", "status"],
     filterFields: ["status", "category"],
     fields: [
@@ -348,7 +348,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Krav",
     pluralLabel: "Krav",
     prefix: "REQ",
-    icon: "📐",
+    icon: "ruler",
     listFields: ["title", "reqType", "cluster", "level", "status"],
     filterFields: ["status", "reqType", "level", "cluster"],
     fields: [
@@ -364,12 +364,12 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
           { value: "kontraktsvillkor", label: "Kontraktsvillkor" },
         ],
         listVisible: true,
-        helpText: "Funktionellt = vad systemet gör. NFR = kvalitet (prestanda, säkerhet). Leverantörskrav = på företaget. Kontraktsvillkor = avtalsspecifika.",
+        helpText: "Funktionellt = vad systemet gör. Icke-funktionellt = kvalitetskrav (prestanda, säkerhet, tillgänglighet). Leverantörskrav = krav på företaget (LIS, bemanning). Kontraktsvillkor = avtalsspecifika (SLA, viten, exit).",
       },
       { ...clusterField },
       { ...levelField },
-      { key: "text", label: "Kravtext", type: "textarea", required: true, helpText: "Skriv verifierbart. Undvik vaga ord som 'bra', 'lämplig'. SKA-krav måste vara binärt testbara (uppfyllt/ej uppfyllt)." },
-      { key: "rationale", label: "Motivering", type: "textarea", helpText: "Varför finns kravet? Koppla till behov, risk eller LOU-krav. Stärker proportionaliteten vid eventuell överprövning." },
+      { key: "text", label: "Kravtext", type: "textarea", required: true, helpText: "Skriv verifierbart. Undvik vaga ord som 'bra', 'lämplig'. SKA-krav måste vara binärt testbara. Tips: komplettera BÖR-krav med en utvärderingsfråga i TendSign/anbudsformulär, t.ex. 'Redogör för ert stöd för...'." },
+      { key: "rationale", label: "Motivering", type: "textarea", helpText: "Varför finns kravet? Koppla till behov, risk eller lagkrav. En stark motivering stärker proportionaliteten vid överprövning. Beskriv konsekvensen om kravet inte uppfylls." },
       {
         key: "linkedNeeds",
         label: "Kopplade behov",
@@ -388,7 +388,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
         key: "verification",
         label: "Verifieringsplan",
         type: "verification",
-        helpText: "Hur verifieras kravet i tre steg? Vid anbud (vad leverantören visar), vid implementation, och löpande i drift.",
+        helpText: "Hur verifieras kravet? Anbud: t.ex. demo, intyg, referens. Implementation: testprotokoll, acceptanstest. Drift: SLA-uppföljning, revision. Tips: ställ utvärderingsfrågor i anbudsformuläret kopplat till verifieringen.",
       },
       {
         key: "conflictPriority",
@@ -413,7 +413,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Kriterium",
     pluralLabel: "Kriterier",
     prefix: "CRIT",
-    icon: "⚖️",
+    icon: "scale",
     listFields: ["title", "weight", "scale", "status"],
     filterFields: ["status"],
     fields: [
@@ -457,7 +457,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Anbud",
     pluralLabel: "Anbud",
     prefix: "BID",
-    icon: "📨",
+    icon: "inbox",
     listFields: ["title", "supplierName", "qualified", "status"],
     filterFields: ["status"],
     fields: [
@@ -466,6 +466,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
       { key: "receivedAt", label: "Mottaget", type: "date", helpText: "Datum anbud mottogs. Anbud inkomna efter anbudstidens utgång ska avvisas." },
       { key: "qualified", label: "Kvalificerad", type: "boolean", listVisible: true, helpText: "Uppfyller leverantören alla SKA-krav och kvalificeringskrav? Ej kvalificerade anbud utvärderas inte." },
       { key: "qualificationNotes", label: "Kvalificeringsnoteringar", type: "textarea", helpText: "Dokumentera kvalificeringsbeslut och eventuella avvikelser. Viktigt vid överprövning." },
+      { key: "externalRef", label: "Extern referens", type: "text", helpText: "Referens i ert upphandlingssystem, t.ex. TendSign diarienummer eller Mercell referensnr. Möjliggör spårbarhet mellan systemen." },
       ownerField,
       statusField,
       tagsField,
@@ -478,7 +479,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Beslut",
     pluralLabel: "Beslut",
     prefix: "DEC",
-    icon: "🔨",
+    icon: "gavel",
     listFields: ["title", "decisionType", "chosen", "status"],
     filterFields: ["status", "decisionType"],
     fields: [
@@ -521,7 +522,7 @@ export const ENTITY_META: Record<EntityType, EntityMeta> = {
     singularLabel: "Dokument",
     pluralLabel: "Dokument",
     prefix: "DOC",
-    icon: "📄",
+    icon: "file-text",
     listFields: ["title", "docType", "format", "status"],
     filterFields: ["status", "docType"],
     fields: [

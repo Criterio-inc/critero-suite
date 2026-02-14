@@ -9,6 +9,7 @@ import { getEntityMeta } from "@/config/entity-meta";
 import { getClusters } from "@/config/workflow";
 import { findEntities } from "@/lib/entity-helpers";
 import { LibrarySuggestions } from "@/components/library/library-suggestions";
+import { MethodologyGuide } from "@/components/library/methodology-guide";
 import type { DomainProfile } from "@/types/entities";
 
 export default async function RequirementsPage({
@@ -55,6 +56,7 @@ export default async function RequirementsPage({
         }
       />
       <div className="p-6 space-y-4">
+        <MethodologyGuide type="requirement" />
         <LibrarySuggestions entityType="requirement" itemCount={items.length} caseId={caseId} />
         {filterFields.length > 0 && (
           <FilterBar filters={filterFields} clusterOptions={clusterOptions} />

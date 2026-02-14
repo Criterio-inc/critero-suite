@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Check, X, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -260,7 +261,7 @@ export function CaseSettingsForm({ caseId, initialData }: CaseSettingsFormProps)
                               : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {isPast && "✓ "}{phase.label.split(".")[0]}
+                        <span className="inline-flex items-center gap-1">{isPast && <Check size={12} />}{phase.label.split(".")[0]}</span>
                       </div>
                     </div>
                   );
@@ -296,7 +297,7 @@ export function CaseSettingsForm({ caseId, initialData }: CaseSettingsFormProps)
                               : "bg-yellow-50 text-yellow-800"
                         }`}
                       >
-                        <span>{gate.passed ? "✓" : gate.severity === "blocker" ? "✗" : "⚠"}</span>
+                        <span>{gate.passed ? <Check size={12} /> : gate.severity === "blocker" ? <X size={12} /> : <AlertTriangle size={12} />}</span>
                         <span className="flex-1">{gate.label}</span>
                         {gate.severity === "blocker" && !gate.passed && (
                           <span className="text-[10px] font-medium bg-red-200 px-1 rounded">BLOCKERARE</span>
@@ -315,7 +316,7 @@ export function CaseSettingsForm({ caseId, initialData }: CaseSettingsFormProps)
                           onClick={handleRevertPhase}
                           disabled={advancing}
                         >
-                          ← Tillbaka till {prevPhaseData.label.split(".")[0]}
+                          <ArrowLeft size={14} /> Tillbaka till {prevPhaseData.label.split(".")[0]}
                         </Button>
                       )}
                     </div>
@@ -330,7 +331,7 @@ export function CaseSettingsForm({ caseId, initialData }: CaseSettingsFormProps)
                             onClick={handleAdvancePhase}
                             disabled={advancing || !canAdvance}
                           >
-                            {advancing ? "Avancerar..." : `Avancera till ${nextPhaseData.label.split(".")[0]} →`}
+                            <span className="inline-flex items-center gap-1">{advancing ? "Avancerar..." : <>{`Avancera till ${nextPhaseData.label.split(".")[0]}`} <ArrowRight size={14} /></>}</span>
                           </Button>
                         </div>
                       ) : (

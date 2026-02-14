@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Lightbulb } from "lucide-react";
 
 interface Criterion {
   id: string;
@@ -160,8 +161,8 @@ export function BidScoresForm({ caseId, bidId, criteria, existingScores }: BidSc
 
                 {/* Scoring guidance */}
                 {crit.scoringGuidance && (
-                  <div className="text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
-                    💡 {crit.scoringGuidance}
+                  <div className="text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2 flex items-start gap-1.5">
+                    <Lightbulb size={14} className="shrink-0 mt-0.5" /> {crit.scoringGuidance}
                   </div>
                 )}
 

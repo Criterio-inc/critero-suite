@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { TagListEditor } from "@/components/ui/tag-list-editor";
 import { Tooltip } from "@/components/ui/tooltip";
+import { Icon } from "@/components/ui/icon";
 
 const PROFILE_OPTIONS = [
   { value: "generisk_lou", label: "Generisk LOU" },
@@ -173,7 +174,7 @@ export default function NewCasePage() {
               }`}
             >
               <span className="w-5 h-5 rounded-full bg-current/20 flex items-center justify-center text-xs font-bold">
-                {s.id < step ? "✓" : s.id}
+                {s.id < step ? <Icon name="check" size={12} /> : s.id}
               </span>
               {s.label}
             </button>
@@ -188,14 +189,19 @@ export default function NewCasePage() {
                 <h2 className="text-lg font-semibold">Grunduppgifter</h2>
                 <p className="text-sm text-muted-foreground">Ange grundläggande information om upphandlingen.</p>
 
-                <Input
-                  id="name"
-                  label="Namn på upphandling"
-                  required
-                  placeholder="T.ex. Nytt avfallssystem 2026"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Ge upphandlingen ett kort, beskrivande namn. Bör innehålla vad som upphandlas och gärna årtal, t.ex. 'Nytt HR-system 2026' eller 'Avfallshantering – nyanskaffning'." side="left" />
+                  </div>
+                  <Input
+                    id="name"
+                    label="Namn på upphandling"
+                    required
+                    placeholder="T.ex. Nytt avfallssystem 2026"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
                 <div className="relative">
                   <div className="absolute right-0 top-0">
                     <Tooltip content={PROFILE_DESCRIPTIONS[domainProfile] ?? ""} side="left" />
@@ -256,35 +262,55 @@ export default function NewCasePage() {
                   </div>
                 )}
 
-                <Input
-                  id="orgName"
-                  label="Organisation"
-                  placeholder="T.ex. Sundsvalls kommun"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
-                />
-                <Select
-                  id="procurementType"
-                  label="Typ av upphandling"
-                  options={PROCUREMENT_TYPE_OPTIONS}
-                  value={procurementType}
-                  onChange={(e) => setProcurementType(e.target.value)}
-                />
-                <Input
-                  id="estimatedValueSek"
-                  label="Uppskattat värde (SEK)"
-                  type="number"
-                  placeholder="0"
-                  value={estimatedValueSek}
-                  onChange={(e) => setEstimatedValueSek(e.target.value)}
-                />
-                <Input
-                  id="owner"
-                  label="Ansvarig"
-                  placeholder="Namn eller roll"
-                  value={owner}
-                  onChange={(e) => setOwner(e.target.value)}
-                />
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Den upphandlande myndighetens namn. Används för dokumentgenerering och spårbarhet." side="left" />
+                  </div>
+                  <Input
+                    id="orgName"
+                    label="Organisation"
+                    placeholder="T.ex. Sundsvalls kommun"
+                    value={orgName}
+                    onChange={(e) => setOrgName(e.target.value)}
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Nyanskaffning = inget befintligt system finns. Byte = ersätter befintligt system (kräver migreringsplanering). Utökning = komplettering av befintligt avtal." side="left" />
+                  </div>
+                  <Select
+                    id="procurementType"
+                    label="Typ av upphandling"
+                    options={PROCUREMENT_TYPE_OPTIONS}
+                    value={procurementType}
+                    onChange={(e) => setProcurementType(e.target.value)}
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Upphandlingens totala beräknade kontraktsvärde inklusive optioner och förlängningar. Avgör vilka tröskelvärden och förfaranden enligt LOU som gäller." side="left" />
+                  </div>
+                  <Input
+                    id="estimatedValueSek"
+                    label="Uppskattat värde (SEK)"
+                    type="number"
+                    placeholder="0"
+                    value={estimatedValueSek}
+                    onChange={(e) => setEstimatedValueSek(e.target.value)}
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Upphandlingsansvarig som driver processen. Ofta en upphandlare eller projektledare. Kan ändras senare under Inställningar." side="left" />
+                  </div>
+                  <Input
+                    id="owner"
+                    label="Ansvarig"
+                    placeholder="Namn eller roll"
+                    value={owner}
+                    onChange={(e) => setOwner(e.target.value)}
+                  />
+                </div>
               </div>
             )}
 
@@ -294,24 +320,39 @@ export default function NewCasePage() {
                 <h2 className="text-lg font-semibold">Mål & avgränsning</h2>
                 <p className="text-sm text-muted-foreground">Definiera upphandlingens mål och vad som ingår respektive inte ingår.</p>
 
-                <TagListEditor
-                  label="Mål"
-                  value={goals}
-                  onChange={setGoals}
-                  placeholder="Skriv mål och tryck Enter..."
-                />
-                <TagListEditor
-                  label="Ingår (scope in)"
-                  value={scopeIn}
-                  onChange={setScopeIn}
-                  placeholder="Vad ingår i upphandlingen..."
-                />
-                <TagListEditor
-                  label="Ingår inte (scope out)"
-                  value={scopeOut}
-                  onChange={setScopeOut}
-                  placeholder="Vad ingår INTE..."
-                />
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Beskriv de övergripande målen med upphandlingen. Vad ska det nya systemet/tjänsten uppnå? Tänk effektmål snarare än lösning, t.ex. 'Effektivisera ärendehantering med 30%'." side="left" />
+                  </div>
+                  <TagListEditor
+                    label="Mål"
+                    value={goals}
+                    onChange={setGoals}
+                    placeholder="Skriv mål och tryck Enter..."
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Vad omfattas av upphandlingen? Beskriv moduler, funktioner, integrationer, utbildning, support m.m. som ska ingå. Tydlig avgränsning minskar risken för scope creep." side="left" />
+                  </div>
+                  <TagListEditor
+                    label="Ingår (scope in)"
+                    value={scopeIn}
+                    onChange={setScopeIn}
+                    placeholder="Vad ingår i upphandlingen..."
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Vad ingår uttryckligen INTE? Viktigt att klargöra tidigt för att undvika missförstånd med leverantörer, t.ex. 'Hårdvaruinköp', 'Datamigration från äldre system'." side="left" />
+                  </div>
+                  <TagListEditor
+                    label="Ingår inte (scope out)"
+                    value={scopeOut}
+                    onChange={setScopeOut}
+                    placeholder="Vad ingår INTE..."
+                  />
+                </div>
               </div>
             )}
 
@@ -321,24 +362,39 @@ export default function NewCasePage() {
                 <h2 className="text-lg font-semibold">Organisation</h2>
                 <p className="text-sm text-muted-foreground">Definiera styrgrupp, projektgrupp och beslutsforum. Kan kompletteras senare.</p>
 
-                <TagListEditor
-                  label="Styrgrupp"
-                  value={steeringGroup}
-                  onChange={setSteeringGroup}
-                  placeholder="Namn och roll..."
-                />
-                <TagListEditor
-                  label="Projektgrupp"
-                  value={projectGroup}
-                  onChange={setProjectGroup}
-                  placeholder="Namn och roll..."
-                />
-                <TagListEditor
-                  label="Beslutsforum"
-                  value={decisionForums}
-                  onChange={setDecisionForums}
-                  placeholder="T.ex. Kommunstyrelsen, Upphandlingsenheten..."
-                />
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Beslutsfattare med mandat att godkänna upphandlingens riktning. Ofta förvaltningschef, IT-chef eller ekonomichef. Ange namn och roll." side="left" />
+                  </div>
+                  <TagListEditor
+                    label="Styrgrupp"
+                    value={steeringGroup}
+                    onChange={setSteeringGroup}
+                    placeholder="Namn och roll..."
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="De som aktivt arbetar med upphandlingen: upphandlare, IT-specialist, verksamhetsrepresentanter, jurist m.fl. Dessa driver kravarbete och utvärdering." side="left" />
+                  </div>
+                  <TagListEditor
+                    label="Projektgrupp"
+                    value={projectGroup}
+                    onChange={setProjectGroup}
+                    placeholder="Namn och roll..."
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Formella organ som fattar beslut i upphandlingsprocessen, t.ex. nämnd, kommunstyrelse eller upphandlingsenhet. Viktigt för att veta vem som fattar tilldelningsbeslut." side="left" />
+                  </div>
+                  <TagListEditor
+                    label="Beslutsforum"
+                    value={decisionForums}
+                    onChange={setDecisionForums}
+                    placeholder="T.ex. Kommunstyrelsen, Upphandlingsenheten..."
+                  />
+                </div>
               </div>
             )}
 
@@ -348,27 +404,42 @@ export default function NewCasePage() {
                 <h2 className="text-lg font-semibold">Tidplan</h2>
                 <p className="text-sm text-muted-foreground">Ange planerade milstolpar. Kan justeras löpande.</p>
 
-                <Input
-                  id="startDate"
-                  label="Startdatum"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-                <Input
-                  id="targetAwardDate"
-                  label="Planerad tilldelning"
-                  type="date"
-                  value={targetAwardDate}
-                  onChange={(e) => setTargetAwardDate(e.target.value)}
-                />
-                <Input
-                  id="targetContractDate"
-                  label="Planerad avtalsstart"
-                  type="date"
-                  value={targetContractDate}
-                  onChange={(e) => setTargetContractDate(e.target.value)}
-                />
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="När upphandlingsarbetet påbörjas (behovsanalys, intressentmöten). Inte samma som annonseringsdag." side="left" />
+                  </div>
+                  <Input
+                    id="startDate"
+                    label="Startdatum"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Planerat datum för tilldelningsbeslut. Räkna bakåt från önskat avtalsdatum: tilldelning → avtalsspärr (10 dgr) → avtal. En IT-upphandling tar ofta 6–12 månader." side="left" />
+                  </div>
+                  <Input
+                    id="targetAwardDate"
+                    label="Planerad tilldelning"
+                    type="date"
+                    value={targetAwardDate}
+                    onChange={(e) => setTargetAwardDate(e.target.value)}
+                  />
+                </div>
+                <div className="relative">
+                  <div className="absolute right-0 top-0">
+                    <Tooltip content="Datum då avtalet planeras börja gälla. Beakta avtalsspärr (10 dagar efter tilldelning) och eventuell implementerings-/övergångsperiod." side="left" />
+                  </div>
+                  <Input
+                    id="targetContractDate"
+                    label="Planerad avtalsstart"
+                    type="date"
+                    value={targetContractDate}
+                    onChange={(e) => setTargetContractDate(e.target.value)}
+                  />
+                </div>
               </div>
             )}
 

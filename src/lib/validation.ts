@@ -1,5 +1,9 @@
 import { prisma } from "./db";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// We use `any` record types to avoid Vercel's strict TS losing types from Promise.all
+type AnyRecord = Record<string, any>;
+
 export interface ValidationWarning {
   entityType: string;
   entityId: string;
@@ -44,7 +48,7 @@ export async function validateCase(caseId: string): Promise<ValidationWarning[]>
     prisma.workshop.findMany({ where: { caseId } }),
     prisma.decision.findMany({ where: { caseId } }),
     prisma.document.findMany({ where: { caseId } }),
-  ]);
+  ]) as [AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[]];
 
   // ===================== NEED VALIDATIONS =====================
 
@@ -299,7 +303,7 @@ export async function validateCaseWithInsights(caseId: string): Promise<Validati
     prisma.workshop.findMany({ where: { caseId } }),
     prisma.evidence.findMany({ where: { caseId } }),
     prisma.document.findMany({ where: { caseId } }),
-  ]);
+  ]) as [AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[], AnyRecord[]];
 
   // ===================== COVERAGE ANALYSIS =====================
 
