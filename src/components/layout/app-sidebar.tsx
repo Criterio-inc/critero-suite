@@ -225,8 +225,11 @@ export function AppSidebar() {
     <aside className="flex h-screen w-56 flex-col border-r border-border/60 bg-card">
       <div className="flex h-14 items-center border-b border-border/60 px-5">
         <Link href="/" className="flex items-center gap-2.5 font-semibold text-foreground">
-          <Icon name="scale" size={20} className="text-primary" />
-          <span className="text-sm font-semibold tracking-tight">Critero</span>
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 text-[13px] font-bold text-white leading-none">C</span>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold tracking-tight leading-tight">Critero</span>
+            <span className="text-[9px] font-medium text-muted-foreground/60 tracking-wider uppercase leading-tight">Suite</span>
+          </div>
         </Link>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">

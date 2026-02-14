@@ -7,7 +7,7 @@ export default function TermsPage() {
       <div className="border-b border-border/60 bg-card/60">
         <div className="px-8 py-8">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <Link href="/cases" className="hover:text-foreground transition-colors">Upphandlingar</Link>
+            <Link href="/" className="hover:text-foreground transition-colors">Hem</Link>
             <span>/</span>
             <span className="text-foreground">Villkor & information</span>
           </div>
@@ -29,9 +29,9 @@ export default function TermsPage() {
           </div>
           <div className="text-sm text-muted-foreground space-y-3 leading-relaxed">
             <p>
-              Critero Upphandling LOU (&quot;Tjänsten&quot;) tillhandahålls av Critero Consulting AB
-              som ett verktyg för stöd vid offentlig upphandling enligt Lagen om offentlig
-              upphandling (LOU).
+              Critero Suite (&quot;Tjänsten&quot;) tillhandahålls av Critero Consulting AB
+              som en plattform för verksamhetsstöd — inklusive upphandling enligt LOU,
+              analysverktyg och mognadsmätning.
             </p>
             <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 space-y-2">
               <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
@@ -244,17 +244,17 @@ export default function TermsPage() {
 
         {/* Senast uppdaterad */}
         <p className="text-[10px] text-muted-foreground/50 text-center">
-          Senast uppdaterad: februari 2025
+          Senast uppdaterad: februari 2026
         </p>
 
         {/* Tillbaka */}
         <div className="pt-2 pb-8">
           <Link
-            href="/cases"
+            href="/"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
           >
             <Icon name="arrow-left" size={14} />
-            Tillbaka till upphandlingar
+            Tillbaka till startsidan
           </Link>
         </div>
       </div>

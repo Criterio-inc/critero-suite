@@ -68,15 +68,15 @@ export default function PlatformDashboard() {
       <div className="border-b border-border/60 bg-card/60">
         <div className="px-8 py-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10">
-              <Icon name="scale" size={20} className="text-primary" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-lg font-bold text-white">
+              C
             </div>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                Critero
+                Critero <span className="font-light text-muted-foreground">Suite</span>
               </h1>
               <p className="text-sm text-muted-foreground">
-                Din plattform för verksamhetsstöd och mognadsmätning
+                Upphandling &middot; Verktyg &middot; Mognadsmätning
               </p>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function PlatformDashboard() {
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-foreground">Plattform</p>
-                <p className="text-muted-foreground">Critero v2.0</p>
+                <p className="text-muted-foreground">Critero Suite v2.0</p>
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-foreground">Support</p>

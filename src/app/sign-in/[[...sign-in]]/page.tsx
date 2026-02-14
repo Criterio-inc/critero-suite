@@ -1,5 +1,4 @@
 import { SignIn } from "@clerk/nextjs";
-import { Icon } from "@/components/ui/icon";
 
 export default function SignInPage() {
   return (
@@ -7,15 +6,15 @@ export default function SignInPage() {
       <div className="w-full max-w-md space-y-8 px-4">
         {/* Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2.5">
-            <Icon name="scale" size={28} className="text-primary" />
+          <div className="inline-flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-lg font-bold text-white">C</div>
             <div className="text-left">
-              <h1 className="text-xl font-bold tracking-tight text-foreground">Critero</h1>
-              <p className="text-[10px] text-muted-foreground tracking-wide">Upphandling LOU</p>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">Critero <span className="font-light text-muted-foreground">Suite</span></h1>
+              <p className="text-[10px] text-muted-foreground tracking-wider uppercase">Upphandling &middot; Verktyg &middot; Mognadsmätning</p>
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
-            Logga in för att hantera dina upphandlingar
+            Logga in för att komma åt plattformen
           </p>
         </div>
 
@@ -24,7 +23,7 @@ export default function SignInPage() {
           <SignIn
             routing="path"
             path="/sign-in"
-            forceRedirectUrl="/cases"
+            forceRedirectUrl="/"
             appearance={{
               elements: {
                 rootBox: "w-full",

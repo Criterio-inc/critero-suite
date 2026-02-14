@@ -17,8 +17,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Critero — Upphandlingsstöd",
-  description: "Verktyg för offentlig upphandling enligt LOU",
+  title: {
+    default: "Critero Suite",
+    template: "%s — Critero Suite",
+  },
+  description:
+    "Upphandling, verktyg och mognadsmätning — samlad plattform för verksamhetsstöd från Critero Consulting.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://critero.vercel.app",
+  ),
+  openGraph: {
+    title: "Critero Suite",
+    description:
+      "Upphandling · Verktyg · Mognadsmätning — samlad plattform för verksamhetsstöd.",
+    siteName: "Critero Suite",
+    locale: "sv_SE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Critero Suite",
+    description:
+      "Upphandling · Verktyg · Mognadsmätning — samlad plattform för verksamhetsstöd.",
+  },
 };
 
 export default function RootLayout({
