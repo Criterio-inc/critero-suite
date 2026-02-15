@@ -106,8 +106,13 @@ export default function PlatformDashboard() {
       .catch(() => setFeatures(null));
 
     fetch("/api/dashboard")
-      .then((r) => r.json())
-      .then((data) => setDashboard(data))
+      .then((r) => {
+        if (!r.ok) return null;
+        return r.json();
+      })
+      .then((data) => {
+        if (data && !data.error) setDashboard(data);
+      })
       .catch(() => {});
   }, []);
 

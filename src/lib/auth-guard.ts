@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { ensureTables } from "@/lib/ensure-tables";
 import { NextResponse } from "next/server";
 
 /* ------------------------------------------------------------------ */
@@ -26,6 +27,14 @@ export class ApiError {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Platform admin emails (env-driven with default fallback)           */
+/* ------------------------------------------------------------------ */
+
+const PLATFORM_ADMIN_EMAILS = (
+  process.env.PLATFORM_ADMIN_EMAILS ?? "par.levander@criteroconsulting.se"
+).split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+
+/* ------------------------------------------------------------------ */
 /*  Clerk auth helper (centralized — replaces all duplicates)          */
 /* ------------------------------------------------------------------ */
 
@@ -37,6 +46,53 @@ export async function getClerkUserId(): Promise<string | null> {
   } catch {
     // Clerk not configured or not available
     return null;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Auto-sync Clerk user to DB (eliminates webhook dependency)         */
+/* ------------------------------------------------------------------ */
+
+async function autoSyncClerkUser(userId: string): Promise<boolean> {
+  try {
+    const { currentUser } = await import("@clerk/nextjs/server");
+    const user = await currentUser();
+    if (!user) return false;
+
+    const primaryEmail =
+      user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)
+        ?.emailAddress ??
+      user.emailAddresses[0]?.emailAddress ??
+      "";
+
+    const isAdmin =
+      !!primaryEmail &&
+      PLATFORM_ADMIN_EMAILS.includes(primaryEmail.toLowerCase());
+
+    await ensureTables();
+    await prisma.user.upsert({
+      where: { id: userId },
+      update: {
+        email: primaryEmail,
+        firstName: user.firstName ?? "",
+        lastName: user.lastName ?? "",
+        imageUrl: user.imageUrl ?? "",
+        isAdmin,
+      },
+      create: {
+        id: userId,
+        email: primaryEmail,
+        firstName: user.firstName ?? "",
+        lastName: user.lastName ?? "",
+        imageUrl: user.imageUrl ?? "",
+        isAdmin,
+      },
+    });
+
+    return isAdmin;
+  } catch (err) {
+    console.error("autoSyncClerkUser failed:", err);
+    return false;
   }
 }
 
@@ -83,16 +139,22 @@ export async function requireAuth(): Promise<AuthContext> {
     return ensureDevOrg();
   }
 
-  // Check platform admin status
+  // Check platform admin status — first from DB, then auto-sync from Clerk
   let isPlatformAdmin = false;
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { isAdmin: true },
     });
-    isPlatformAdmin = user?.isAdmin ?? false;
+    if (user) {
+      isPlatformAdmin = user.isAdmin;
+    } else {
+      // User not in DB yet (webhook hasn't fired) — auto-sync from Clerk session
+      isPlatformAdmin = await autoSyncClerkUser(userId);
+    }
   } catch {
-    // User table may not exist yet
+    // Tables may not exist — try auto-sync which calls ensureTables
+    isPlatformAdmin = await autoSyncClerkUser(userId);
   }
 
   // Find active membership (pick first org — future: support org switching)
