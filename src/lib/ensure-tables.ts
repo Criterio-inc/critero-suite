@@ -18,6 +18,122 @@ export async function ensureTables(): Promise<void> {
   if (_ensured) return;
 
   try {
+    // ---- Organization / multi-tenancy tables ----
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "Organization" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL,
+        "slug" TEXT NOT NULL,
+        "plan" TEXT NOT NULL DEFAULT 'trial',
+        "maxUsers" INTEGER NOT NULL DEFAULT 5,
+        "settings" TEXT NOT NULL DEFAULT '{}',
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "Organization_slug_key" ON "Organization"("slug")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "OrgMembership" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "orgId" TEXT NOT NULL,
+        "userId" TEXT NOT NULL,
+        "role" TEXT NOT NULL DEFAULT 'member',
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "OrgMembership_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+        CONSTRAINT "OrgMembership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "OrgMembership_orgId_userId_key" ON "OrgMembership"("orgId", "userId")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "OrgMembership_orgId_idx" ON "OrgMembership"("orgId")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "OrgMembership_userId_idx" ON "OrgMembership"("userId")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "OrgFeature" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "orgId" TEXT NOT NULL,
+        "featureKey" TEXT NOT NULL,
+        "enabled" BOOLEAN NOT NULL DEFAULT true,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "OrgFeature_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "OrgFeature_orgId_featureKey_key" ON "OrgFeature"("orgId", "featureKey")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "OrgFeature_orgId_idx" ON "OrgFeature"("orgId")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "Invitation" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "orgId" TEXT NOT NULL,
+        "email" TEXT NOT NULL,
+        "role" TEXT NOT NULL DEFAULT 'member',
+        "token" TEXT NOT NULL,
+        "expiresAt" DATETIME NOT NULL,
+        "usedAt" DATETIME,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "Invitation_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "Invitation_token_key" ON "Invitation"("token")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "Invitation_email_idx" ON "Invitation"("email")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "Invitation_orgId_idx" ON "Invitation"("orgId")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "AuditLog" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "orgId" TEXT NOT NULL,
+        "userId" TEXT NOT NULL,
+        "action" TEXT NOT NULL,
+        "entityType" TEXT NOT NULL,
+        "entityId" TEXT NOT NULL DEFAULT '',
+        "changes" TEXT NOT NULL DEFAULT '{}',
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "AuditLog_orgId_fkey" FOREIGN KEY ("orgId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "AuditLog_orgId_createdAt_idx" ON "AuditLog"("orgId", "createdAt")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "AuditLog_userId_idx" ON "AuditLog"("userId")
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "AuditLog_entityType_entityId_idx" ON "AuditLog"("entityType", "entityId")
+    `);
+
     // ---- User / UserFeature tables ----
 
     await prisma.$executeRawUnsafe(`
@@ -92,6 +208,19 @@ export async function ensureTables(): Promise<void> {
     await prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS "AssessmentProject_assessmentTypeId_idx" ON "AssessmentProject"("assessmentTypeId")
     `);
+
+    // Add orgId column to AssessmentProject if missing (safe idempotent migration)
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "AssessmentProject" ADD COLUMN "orgId" TEXT`);
+    } catch {
+      // Column already exists — ignore
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "AssessmentProject_orgId_idx" ON "AssessmentProject"("orgId")`);
+    } catch {
+      // ignore
+    }
 
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "AssessmentSession" (

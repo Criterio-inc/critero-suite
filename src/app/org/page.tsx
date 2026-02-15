@@ -12,7 +12,7 @@ const PLAN_COLORS: Record<string, string> = {
   professional: "bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300",
   enterprise: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
 };
-const ROLE_LABELS: Record<string, string> = { admin: "Administrat\u00f6r", member: "Medlem", viewer: "L\u00e4sbeh\u00f6righet" };
+const ROLE_LABELS: Record<string, string> = { admin: "Administratör", member: "Medlem", viewer: "Läsbehörighet" };
 
 interface OrgMember {
   userId: string;
@@ -47,10 +47,19 @@ interface OrgData {
 export default function OrgPage() {
   const [org, setOrg] = useState<OrgData | null>(null);
   const [userRole, setUserRole] = useState("");
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
+  const [noOrg, setNoOrg] = useState(false);
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
   const [inviting, setInviting] = useState(false);
+
+  // Setup form state
+  const [setupName, setSetupName] = useState("");
+  const [setupSlug, setSetupSlug] = useState("");
+  const [setupPlan, setSetupPlan] = useState("enterprise");
+  const [creating, setCreating] = useState(false);
+  const [setupError, setSetupError] = useState("");
 
   const isAdmin = userRole === "admin";
 
@@ -58,14 +67,41 @@ export default function OrgPage() {
     fetch("/api/org")
       .then((r) => r.json())
       .then((data) => {
-        setOrg(data.organization);
-        setUserRole(data.userRole);
+        if (data.noOrg) {
+          setNoOrg(true);
+          setIsPlatformAdmin(data.isPlatformAdmin ?? false);
+        } else if (data.organization) {
+          setNoOrg(false);
+          setOrg(data.organization);
+          setUserRole(data.userRole ?? "");
+          setIsPlatformAdmin(data.isPlatformAdmin ?? false);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
   };
 
   useEffect(() => { fetchOrg(); }, []);
+
+  const createOrg = async () => {
+    if (!setupName.trim()) return;
+    setCreating(true);
+    setSetupError("");
+    const slug = setupSlug.trim() || setupName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const res = await fetch("/api/org", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: setupName.trim(), slug, plan: setupPlan }),
+    });
+    if (res.ok) {
+      setNoOrg(false);
+      fetchOrg();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setSetupError(data.error ?? "Kunde inte skapa organisation");
+    }
+    setCreating(false);
+  };
 
   const invite = async () => {
     if (!inviteEmail.trim()) return;
@@ -99,7 +135,99 @@ export default function OrgPage() {
   };
 
   if (loading) return <div className="flex h-screen items-center justify-center"><p className="text-sm text-muted-foreground">Laddar...</p></div>;
-  if (!org) return <div className="flex h-screen items-center justify-center"><p className="text-sm text-muted-foreground">Du tillh\u00f6r ingen organisation.</p></div>;
+
+  /* ---- No org: show setup for admin, or info for regular users ---- */
+  if (!org || noOrg) {
+    return (
+      <div className="min-h-screen">
+        <div className="border-b border-border/60 bg-card/60">
+          <div className="px-8 py-8">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+              <Link href="/" className="hover:text-foreground transition-colors">Hem</Link>
+              <span>/</span>
+              <span className="text-foreground">Organisation</span>
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Organisation</h1>
+          </div>
+        </div>
+        <div className="px-8 py-8 max-w-xl">
+          {isPlatformAdmin ? (
+            <section className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-8 space-y-6">
+              <div className="text-center space-y-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 mx-auto">
+                  <Icon name="building-2" size={24} className="text-primary" />
+                </div>
+                <h2 className="text-lg font-semibold text-foreground">Skapa din organisation</h2>
+                <p className="text-sm text-muted-foreground">
+                  Du är plattformsadmin men tillhör ingen organisation ännu. Skapa en för att komma igång.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Organisationsnamn</label>
+                  <input
+                    type="text"
+                    value={setupName}
+                    onChange={(e) => setSetupName(e.target.value)}
+                    placeholder="T.ex. Critero Consulting AB"
+                    className="mt-1 w-full rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Slug (URL-vänligt namn)</label>
+                  <input
+                    type="text"
+                    value={setupSlug}
+                    onChange={(e) => setSetupSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                    placeholder={setupName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "critero-consulting"}
+                    className="mt-1 w-full rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Plan</label>
+                  <select
+                    value={setupPlan}
+                    onChange={(e) => setSetupPlan(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="enterprise">Enterprise</option>
+                    <option value="professional">Professional</option>
+                    <option value="starter">Starter</option>
+                    <option value="trial">Trial</option>
+                  </select>
+                </div>
+                {setupError && (
+                  <p className="text-sm text-red-600 dark:text-red-400">{setupError}</p>
+                )}
+                <button
+                  onClick={createOrg}
+                  disabled={creating || !setupName.trim()}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+                >
+                  <Icon name="plus" size={16} />
+                  {creating ? "Skapar..." : "Skapa organisation"}
+                </button>
+              </div>
+            </section>
+          ) : (
+            <section className="rounded-2xl border border-border/60 bg-card p-8 text-center space-y-3">
+              <Icon name="building-2" size={24} className="text-muted-foreground/40 mx-auto" />
+              <h2 className="text-lg font-semibold text-foreground">Ingen organisation</h2>
+              <p className="text-sm text-muted-foreground">
+                Du tillhör ingen organisation ännu. Kontakta din administratör för att få en inbjudan.
+              </p>
+            </section>
+          )}
+          <div className="pt-6">
+            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5">
+              <Icon name="arrow-left" size={14} />
+              Tillbaka till startsidan
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -134,7 +262,7 @@ export default function OrgPage() {
           {[
             { label: "Medlemmar", value: `${org.memberCount} av ${org.maxUsers === -1 ? "\u221E" : org.maxUsers}`, icon: "users" },
             { label: "Upphandlingar", value: String(org.caseCount), icon: "clipboard-list" },
-            { label: "V\u00e4ntande inbjudningar", value: String(org.invitations.length), icon: "mail" },
+            { label: "Väntande inbjudningar", value: String(org.invitations.length), icon: "mail" },
           ].map((stat) => (
             <div key={stat.label} className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-1">
@@ -194,8 +322,8 @@ export default function OrgPage() {
                 className="rounded-xl border border-border/60 bg-card px-3 py-2 text-sm"
               >
                 <option value="member">Medlem</option>
-                <option value="viewer">L\u00e4sbeh\u00f6righet</option>
-                <option value="admin">Administrat\u00f6r</option>
+                <option value="viewer">Läsbehörighet</option>
+                <option value="admin">Administratör</option>
               </select>
               <button
                 onClick={invite}
@@ -209,14 +337,14 @@ export default function OrgPage() {
 
             {org.invitations.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">V\u00e4ntande inbjudningar</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">Väntande inbjudningar</p>
                 {org.invitations.map((inv) => (
                   <div key={inv.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-card/50 px-4 py-3">
                     <Icon name="mail" size={14} className="text-muted-foreground/50" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground truncate">{inv.email}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {ROLE_LABELS[inv.role] ?? inv.role} · Utg\u00e5r {new Date(inv.expiresAt).toLocaleDateString("sv-SE")}
+                        {ROLE_LABELS[inv.role] ?? inv.role} · Utgår {new Date(inv.expiresAt).toLocaleDateString("sv-SE")}
                       </p>
                     </div>
                     <button onClick={() => revokeInvite(inv.id)} className="text-xs text-red-500 hover:text-red-700 cursor-pointer">
