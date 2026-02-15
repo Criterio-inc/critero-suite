@@ -97,6 +97,70 @@ async function autoSyncClerkUser(userId: string): Promise<boolean> {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Auto-accept pending invitations by email match                     */
+/* ------------------------------------------------------------------ */
+
+type MembershipWithOrg = {
+  orgId: string;
+  userId: string;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  id: string;
+  org: { id: string; slug: string; plan: string };
+};
+
+async function autoAcceptInvitation(
+  userId: string,
+): Promise<MembershipWithOrg | undefined> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    if (!user?.email) return undefined;
+
+    // Find pending invitation for this email
+    const invitation = await prisma.invitation.findFirst({
+      where: {
+        email: user.email.toLowerCase(),
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+    if (!invitation) return undefined;
+
+    // Accept: create membership + mark used
+    await prisma.$transaction([
+      prisma.orgMembership.create({
+        data: {
+          orgId: invitation.orgId,
+          userId,
+          role: invitation.role,
+        },
+      }),
+      prisma.invitation.update({
+        where: { id: invitation.id },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+
+    // Fetch the newly created membership with org
+    const membership = await prisma.orgMembership.findFirst({
+      where: { userId, orgId: invitation.orgId },
+      include: {
+        org: { select: { id: true, slug: true, plan: true } },
+      },
+    });
+    return membership ?? undefined;
+  } catch (err) {
+    console.error("autoAcceptInvitation failed:", err);
+    return undefined;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Dev-mode default org (auto-created when Clerk is off)              */
 /* ------------------------------------------------------------------ */
 
@@ -158,13 +222,18 @@ export async function requireAuth(): Promise<AuthContext> {
   }
 
   // Find active membership (pick first org — future: support org switching)
-  const membership = await prisma.orgMembership.findFirst({
+  let membership = await prisma.orgMembership.findFirst({
     where: { userId },
     include: {
       org: { select: { id: true, slug: true, plan: true } },
     },
     orderBy: { createdAt: "asc" },
   });
+
+  // Auto-match: if no membership, check for pending invitation by email
+  if (!membership) {
+    membership = (await autoAcceptInvitation(userId)) ?? null;
+  }
 
   if (!membership) {
     // Platform admins can operate without an org (for admin routes)
