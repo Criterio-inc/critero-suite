@@ -118,7 +118,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/tools/evaluation-model", label: "Utvärderingsmodell", icon: "scale", featureKey: "verktyg.evaluation-model" },
       { href: "/tools/timeline-planner", label: "Tidslinjeplanerare", icon: "clock", featureKey: "verktyg.timeline-planner" },
       { href: "/tools/stakeholder-map", label: "Intressentanalys", icon: "users", featureKey: "verktyg.stakeholder-map" },
-      { href: "/tools/kunskapsbank", label: "Kunskapsbank", icon: "book-open", featureKey: "verktyg.kunskapsbank" },
+      { href: "/tools/kunskapsbank", label: "Reflektionsstöd", icon: "book-open", featureKey: "verktyg.kunskapsbank" },
       { href: "/tools/root-cause", label: "Orsaksanalys", icon: "search", featureKey: "verktyg.root-cause" },
       { href: "/tools/benefit-effort", label: "Nytto-insats", icon: "target", featureKey: "verktyg.benefit-effort" },
       { href: "/tools/process-flow", label: "Processflöde", icon: "git-branch", featureKey: "verktyg.process-flow" },

@@ -67,7 +67,7 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
   "verktyg.evaluation-model": "Utvärderingsmodell",
   "verktyg.timeline-planner": "Tidslinjeplanerare",
   "verktyg.stakeholder-map": "Intressentanalys",
-  "verktyg.kunskapsbank": "Kunskapsbank",
+  "verktyg.kunskapsbank": "Reflektionsstöd",
   "verktyg.root-cause": "Orsaksanalys",
   "verktyg.benefit-effort": "Nytto-insats",
   "verktyg.process-flow": "Processflöde",

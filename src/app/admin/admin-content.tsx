@@ -86,7 +86,7 @@ const APP_DEFS = [
   {
     key: "verktyg",
     label: "Verktyg",
-    description: "Analysverktyg och kunskapsbank",
+    description: "Analysverktyg och reflektionsstöd",
     icon: "wrench",
   },
   {
@@ -115,7 +115,7 @@ const FEATURE_DEFS: FeatureDef[] = [
   { key: "verktyg.evaluation-model", label: "Utvärderingsmodell", description: "Utvärdering och poängsättning av anbud", icon: "scale", appKey: "verktyg" },
   { key: "verktyg.timeline-planner", label: "Tidslinjeplanerare", description: "Planering och visualisering av upphandlingstidslinje", icon: "clock", appKey: "verktyg" },
   { key: "verktyg.stakeholder-map", label: "Intressentanalys", description: "Kartläggning av intressenter och deras påverkan", icon: "users", appKey: "verktyg" },
-  { key: "verktyg.kunskapsbank", label: "Kunskapsbank", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", appKey: "verktyg" },
+  { key: "verktyg.kunskapsbank", label: "Reflektionsstöd", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", appKey: "verktyg" },
   // Mognadsmätning
   { key: "mognadmatning.survey", label: "Ny mätning", description: "Starta en ny digital mognadsmätning", icon: "plus-circle", appKey: "mognadmatning" },
   { key: "mognadmatning.results", label: "Projekt & resultat", description: "Visa och jämför mätresultat", icon: "folder", appKey: "mognadmatning" },
@@ -264,7 +264,7 @@ const PLAN_INFO = [
     price: "Gratis",
     color: "border-zinc-300 dark:border-zinc-600",
     maxUsers: 3,
-    features: ["Upphandling (bas)", "1 upphandlingsarende", "Kunskapsbank (lasbeh.)"],
+    features: ["Upphandling (bas)", "1 upphandlingsarende", "Reflektionsstöd (läsbeh.)"],
     missing: ["Verktyg", "Mognadmatning", "AI-Mognadmatning", "Utbildning", "Export"],
   },
   {
@@ -273,7 +273,7 @@ const PLAN_INFO = [
     price: "990 kr/man",
     color: "border-blue-400 dark:border-blue-500",
     maxUsers: 10,
-    features: ["Upphandling (full)", "Verktyg (alla)", "Kunskapsbank", "Export (XLSX/CSV/JSON)", "5 upphandlingsarenden"],
+    features: ["Upphandling (full)", "Verktyg (alla)", "Reflektionsstöd", "Export (XLSX/CSV/JSON)", "5 upphandlingsarenden"],
     missing: ["Mognadmatning", "AI-Mognadmatning", "Utbildning"],
   },
   {

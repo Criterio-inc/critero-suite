@@ -498,9 +498,9 @@ export default function HelpPage() {
                   <Link href="/tools/kunskapsbank" className="border border-border rounded-lg p-3 hover:bg-accent transition-colors">
                     <div className="flex items-center gap-2 mb-1">
                       <Icon name="book-open" size={16} className="text-primary" />
-                      <div className="text-sm font-medium">Kunskapsbank</div>
+                      <div className="text-sm font-medium">Reflektionsstöd</div>
                     </div>
-                    <div className="text-xs text-muted-foreground">Lär dig om upphandlingsdomäner och bästa praxis.</div>
+                    <div className="text-xs text-muted-foreground">Reflektera kring upphandlingsdomäner och bästa praxis.</div>
                   </Link>
                 </div>
               </CardContent>

@@ -30,7 +30,7 @@ export default function KunskapsbankPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                  Kunskapsbank
+                  Reflektionsstöd
                 </h1>
                 <p className="text-sm text-muted-foreground">
                   Fördjupa dig i centrala frågeställningar kring IT-upphandling i offentlig sektor

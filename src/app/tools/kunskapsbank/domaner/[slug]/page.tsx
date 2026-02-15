@@ -37,7 +37,7 @@ export default function DomainDetailPage({
               href="/tools/kunskapsbank"
               className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
             >
-              <Icon name="arrow-left" size={14} /> Kunskapsbank
+              <Icon name="arrow-left" size={14} /> Reflektionsstöd
             </Link>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10">
