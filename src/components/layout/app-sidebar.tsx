@@ -295,6 +295,21 @@ export function AppSidebar() {
           );
         })}
 
+        {/* Org settings link */}
+        <div className="my-2 border-t border-border/30" />
+        <Link
+          href="/org"
+          className={cn(
+            "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150",
+            pathname.startsWith("/org")
+              ? "bg-primary/10 text-primary shadow-sm"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          )}
+        >
+          <Icon name="building-2" size={16} />
+          <span>Organisation</span>
+        </Link>
+
         {/* Admin link — only visible to admin */}
         {isClerkEnabled && <AdminNavLink pathname={pathname} />}
       </nav>
