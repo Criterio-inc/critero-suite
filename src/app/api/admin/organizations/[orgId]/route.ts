@@ -132,6 +132,53 @@ export async function PATCH(
 }
 
 /* ------------------------------------------------------------------ */
+/*  POST /api/admin/organizations/[orgId] — add member to org           */
+/* ------------------------------------------------------------------ */
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ orgId: string }> }
+) {
+  try {
+    const ctx = await requireAuth();
+    requirePlatformAdmin(ctx);
+    const { orgId } = await params;
+
+    const body = await req.json();
+    const userId = body.userId as string | undefined;
+    const role = (body.role as string) || "member";
+
+    if (!userId) {
+      return NextResponse.json({ error: "userId krävs" }, { status: 400 });
+    }
+
+    // Check org exists
+    const org = await prisma.organization.findUnique({ where: { id: orgId } });
+    if (!org) {
+      return NextResponse.json({ error: "Organisation hittades inte" }, { status: 404 });
+    }
+
+    // Upsert membership (idempotent)
+    await prisma.orgMembership.upsert({
+      where: { orgId_userId: { orgId, userId } },
+      update: { role },
+      create: { orgId, userId, role },
+    });
+
+    await logAudit(ctx, "create", "member", userId, { orgId, role });
+
+    return NextResponse.json({ ok: true }, { status: 201 });
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    console.error("POST /api/admin/organizations/[orgId] error:", e);
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Okänt fel" },
+      { status: 500 },
+    );
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  DELETE /api/admin/organizations/[orgId] — delete org                */
 /* ------------------------------------------------------------------ */
 

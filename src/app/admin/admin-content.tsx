@@ -254,6 +254,99 @@ function isAppPartiallyEnabled(
 }
 
 /* ------------------------------------------------------------------ */
+/*  Plan info — cheat sheet for admin                                  */
+/* ------------------------------------------------------------------ */
+
+const PLAN_INFO = [
+  {
+    key: "trial",
+    label: "Trial",
+    price: "Gratis",
+    color: "border-zinc-300 dark:border-zinc-600",
+    maxUsers: 3,
+    features: ["Upphandling (bas)", "1 upphandlingsarende", "Kunskapsbank (lasbeh.)"],
+    missing: ["Verktyg", "Mognadmatning", "AI-Mognadmatning", "Utbildning", "Export"],
+  },
+  {
+    key: "starter",
+    label: "Starter",
+    price: "990 kr/man",
+    color: "border-blue-400 dark:border-blue-500",
+    maxUsers: 10,
+    features: ["Upphandling (full)", "Verktyg (alla)", "Kunskapsbank", "Export (XLSX/CSV/JSON)", "5 upphandlingsarenden"],
+    missing: ["Mognadmatning", "AI-Mognadmatning", "Utbildning"],
+  },
+  {
+    key: "professional",
+    label: "Professional",
+    price: "1 990 kr/man",
+    color: "border-purple-400 dark:border-purple-500",
+    maxUsers: 50,
+    features: ["Allt i Starter", "Mognadmatning", "AI-Mognadmatning", "Utbildning", "Obegransat antal arenden"],
+    missing: ["White-label", "Dedicerad support"],
+  },
+  {
+    key: "enterprise",
+    label: "Enterprise",
+    price: "Offert",
+    color: "border-amber-400 dark:border-amber-500",
+    maxUsers: 999,
+    features: ["Allt i Professional", "Obegransat antal anvandare", "White-label (kommande)", "Prioriterad support", "SLA-garanti"],
+    missing: [],
+  },
+];
+
+function PlanInfoPopup({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-card border border-border/60 rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/40">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Plannivaer</h3>
+            <p className="text-xs text-muted-foreground">Jamforelse av funktioner och prisbild per plan</p>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted/30 transition-colors cursor-pointer">
+            <Icon name="x" size={18} className="text-muted-foreground" />
+          </button>
+        </div>
+        <div className="p-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PLAN_INFO.map((p) => (
+            <div key={p.key} className={`rounded-xl border-2 ${p.color} bg-card p-4 space-y-3`}>
+              <div>
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${PLAN_COLORS[p.key] ?? PLAN_COLORS.trial}`}>
+                  {p.label}
+                </span>
+                <p className="text-xl font-bold text-foreground mt-1">{p.price}</p>
+                <p className="text-[10px] text-muted-foreground">Max {p.maxUsers === 999 ? "obegransat" : p.maxUsers} anvandare</p>
+              </div>
+              <div className="space-y-1.5">
+                {p.features.map((f) => (
+                  <div key={f} className="flex items-start gap-1.5 text-xs">
+                    <Icon name="check" size={12} className="text-green-500 mt-0.5 shrink-0" />
+                    <span className="text-foreground">{f}</span>
+                  </div>
+                ))}
+                {p.missing.map((f) => (
+                  <div key={f} className="flex items-start gap-1.5 text-xs">
+                    <Icon name="x" size={12} className="text-muted-foreground/30 mt-0.5 shrink-0" />
+                    <span className="text-muted-foreground/50 line-through">{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="px-6 py-3 border-t border-border/40 text-center">
+          <p className="text-[10px] text-muted-foreground/50">
+            Priserna ar forslag och kan anpassas. Kontakta kontakt@criteroconsulting.se for offert.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  New organization form (inline)                                     */
 /* ------------------------------------------------------------------ */
 
@@ -269,6 +362,7 @@ function NewOrgForm({
   const [plan, setPlan] = useState("trial");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showPlanInfo, setShowPlanInfo] = useState(false);
 
   const autoSlug = (v: string) =>
     v
@@ -313,72 +407,83 @@ function NewOrgForm({
   };
 
   return (
-    <div className="rounded-2xl border border-primary/30 bg-card p-5 shadow-sm space-y-4">
-      <p className="text-sm font-semibold text-foreground">
-        Ny organisation
-      </p>
-      {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-50/50 dark:bg-red-950/20 px-3 py-2 text-sm text-red-700 dark:text-red-400">
-          {error}
+    <>
+      {showPlanInfo && <PlanInfoPopup onClose={() => setShowPlanInfo(false)} />}
+      <div className="rounded-2xl border border-primary/30 bg-card p-5 shadow-sm space-y-4">
+        <p className="text-sm font-semibold text-foreground">
+          Ny organisation
+        </p>
+        {error && (
+          <div className="rounded-xl border border-red-500/30 bg-red-50/50 dark:bg-red-950/20 px-3 py-2 text-sm text-red-700 dark:text-red-400">
+            {error}
+          </div>
+        )}
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Namn
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              placeholder="Acme AB"
+              className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Slug
+            </label>
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="acme-ab"
+              className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Plan
+              <button
+                type="button"
+                onClick={() => setShowPlanInfo(true)}
+                className="ml-1.5 inline-flex items-center gap-0.5 text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                title="Visa plandetaljer"
+              >
+                <Icon name="help-circle" size={12} />
+              </button>
+            </label>
+            <select
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+              className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="trial">Trial (gratis, max 3 anv.)</option>
+              <option value="starter">Starter (990 kr/man, max 10)</option>
+              <option value="professional">Professional (1 990 kr/man, max 50)</option>
+              <option value="enterprise">Enterprise (offert, obegransat)</option>
+            </select>
+          </div>
         </div>
-      )}
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Namn
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            placeholder="Acme AB"
-            className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Slug
-          </label>
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="acme-ab"
-            className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Plan
-          </label>
-          <select
-            value={plan}
-            onChange={(e) => setPlan(e.target.value)}
-            className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        <div className="flex items-center gap-2 justify-end">
+          <button
+            onClick={onCancel}
+            className="rounded-xl border border-border/60 px-4 py-2 text-sm text-muted-foreground hover:bg-muted/30 transition-colors cursor-pointer"
           >
-            <option value="trial">Trial</option>
-            <option value="starter">Starter</option>
-            <option value="professional">Professional</option>
-            <option value="enterprise">Enterprise</option>
-          </select>
+            Avbryt
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={saving}
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {saving ? "Skapar..." : "Skapa"}
+          </button>
         </div>
       </div>
-      <div className="flex items-center gap-2 justify-end">
-        <button
-          onClick={onCancel}
-          className="rounded-xl border border-border/60 px-4 py-2 text-sm text-muted-foreground hover:bg-muted/30 transition-colors cursor-pointer"
-        >
-          Avbryt
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={saving}
-          className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
-        >
-          {saving ? "Skapar..." : "Skapa"}
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -928,13 +1033,43 @@ export default function AdminContent() {
 
                             {/* Members list */}
                             <div className="space-y-2">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-                                Medlemmar ({detail.members.length})
-                              </p>
+                              <div className="flex items-center justify-between">
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                                  Medlemmar ({detail.members.length})
+                                </p>
+                                {user?.id && !detail.members.some((m) => m.userId === user.id) && (
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        const res = await fetch(`/api/admin/organizations/${org.id}`, {
+                                          method: "POST",
+                                          headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify({ userId: user.id, role: "admin" }),
+                                        });
+                                        if (res.ok) {
+                                          // Re-fetch org detail
+                                          setOrgDetails((prev) => {
+                                            const copy = { ...prev };
+                                            delete copy[org.id];
+                                            return copy;
+                                          });
+                                          fetchOrgDetail(org.id);
+                                          fetchOrgs();
+                                        }
+                                      } catch (e) {
+                                        console.error("Failed to add self:", e);
+                                      }
+                                    }}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                                  >
+                                    <Icon name="user-plus" size={12} />
+                                    Lagg till mig som admin
+                                  </button>
+                                )}
+                              </div>
                               {detail.members.length === 0 ? (
                                 <p className="text-xs text-muted-foreground/70 px-3 py-2">
-                                  Inga medlemmar ännu. Bjud in via Clerk
-                                  Dashboard.
+                                  Inga medlemmar annu.
                                 </p>
                               ) : (
                                 <div className="space-y-1">

@@ -84,6 +84,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Auto-add the creating admin as org admin member
+    await prisma.orgMembership.create({
+      data: { orgId: org.id, userId: ctx.userId, role: "admin" },
+    });
+
     await logAudit(ctx, "create", "organization", org.id);
 
     return NextResponse.json({ organization: org }, { status: 201 });

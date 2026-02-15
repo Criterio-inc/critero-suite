@@ -14,6 +14,13 @@ const PLAN_COLORS: Record<string, string> = {
 };
 const ROLE_LABELS: Record<string, string> = { admin: "Administratör", member: "Medlem", viewer: "Läsbehörighet" };
 
+const PLAN_INFO = [
+  { key: "trial", label: "Trial", price: "Gratis", maxUsers: 3, features: ["Upphandling (bas)", "1 arende", "Kunskapsbank (las)"], missing: ["Verktyg", "Mognadmatning", "AI-Mognadmatning", "Utbildning"] },
+  { key: "starter", label: "Starter", price: "990 kr/man", maxUsers: 10, features: ["Upphandling (full)", "Verktyg (alla)", "Kunskapsbank", "Export", "5 arenden"], missing: ["Mognadmatning", "AI-Mognadmatning", "Utbildning"] },
+  { key: "professional", label: "Professional", price: "1 990 kr/man", maxUsers: 50, features: ["Allt i Starter", "Mognadmatning", "AI-Mognadmatning", "Utbildning", "Obegransat arenden"], missing: ["White-label", "Dedicerad support"] },
+  { key: "enterprise", label: "Enterprise", price: "Offert", maxUsers: 999, features: ["Allt i Professional", "Obegransat anvandare", "White-label (kommande)", "Prioriterad support", "SLA"], missing: [] },
+];
+
 interface OrgMember {
   userId: string;
   email: string;
@@ -60,6 +67,7 @@ export default function OrgPage() {
   const [setupPlan, setSetupPlan] = useState("enterprise");
   const [creating, setCreating] = useState(false);
   const [setupError, setSetupError] = useState("");
+  const [showPlanInfo, setShowPlanInfo] = useState(false);
 
   const isAdmin = userRole === "admin";
 
@@ -151,6 +159,68 @@ export default function OrgPage() {
           </div>
         </div>
         <div className="px-8 py-8 max-w-xl">
+          {/* Plan info popup */}
+          {showPlanInfo && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowPlanInfo(false)}>
+              <div className="bg-card border border-border/60 rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border/40">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">Plannivaer</h3>
+                    <p className="text-xs text-muted-foreground">Jamforelse av funktioner och prisbild per plan</p>
+                  </div>
+                  <button onClick={() => setShowPlanInfo(false)} className="p-2 rounded-xl hover:bg-muted/30 transition-colors cursor-pointer">
+                    <Icon name="x" size={18} className="text-muted-foreground" />
+                  </button>
+                </div>
+                <div className="p-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {PLAN_INFO.map((p) => (
+                    <div key={p.key} className={`rounded-xl border-2 ${p.key === setupPlan ? "border-primary" : "border-border/40"} bg-card p-4 space-y-3`}>
+                      <div>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${PLAN_COLORS[p.key] ?? PLAN_COLORS.trial}`}>
+                          {p.label}
+                        </span>
+                        <p className="text-xl font-bold text-foreground mt-1">{p.price}</p>
+                        <p className="text-[10px] text-muted-foreground">Max {p.maxUsers === 999 ? "obegransat" : p.maxUsers} anvandare</p>
+                      </div>
+                      <div className="space-y-1.5">
+                        {p.features.map((f) => (
+                          <div key={f} className="flex items-start gap-1.5 text-xs">
+                            <Icon name="check" size={12} className="text-green-500 mt-0.5 shrink-0" />
+                            <span className="text-foreground">{f}</span>
+                          </div>
+                        ))}
+                        {p.missing.map((f) => (
+                          <div key={f} className="flex items-start gap-1.5 text-xs">
+                            <Icon name="x" size={12} className="text-muted-foreground/30 mt-0.5 shrink-0" />
+                            <span className="text-muted-foreground/50 line-through">{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {p.key !== setupPlan && (
+                        <button
+                          onClick={() => { setSetupPlan(p.key); setShowPlanInfo(false); }}
+                          className="w-full rounded-lg border border-border/60 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/30 transition-colors cursor-pointer"
+                        >
+                          Valj
+                        </button>
+                      )}
+                      {p.key === setupPlan && (
+                        <div className="w-full rounded-lg bg-primary/10 px-3 py-1.5 text-xs text-primary font-medium text-center">
+                          Vald
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="px-6 py-3 border-t border-border/40 text-center">
+                  <p className="text-[10px] text-muted-foreground/50">
+                    Priserna ar forslag. Kontakta kontakt@criteroconsulting.se for offert.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {isPlatformAdmin ? (
             <section className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-8 space-y-6">
               <div className="text-center space-y-2">
@@ -184,16 +254,26 @@ export default function OrgPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Plan</label>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Plan
+                    <button
+                      type="button"
+                      onClick={() => setShowPlanInfo(true)}
+                      className="ml-1.5 inline-flex items-center gap-0.5 text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                      title="Visa plandetaljer"
+                    >
+                      <Icon name="help-circle" size={12} />
+                    </button>
+                  </label>
                   <select
                     value={setupPlan}
                     onChange={(e) => setSetupPlan(e.target.value)}
                     className="mt-1 w-full rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm"
                   >
-                    <option value="enterprise">Enterprise</option>
-                    <option value="professional">Professional</option>
-                    <option value="starter">Starter</option>
-                    <option value="trial">Trial</option>
+                    <option value="enterprise">Enterprise (offert, obegransat)</option>
+                    <option value="professional">Professional (1 990 kr/man)</option>
+                    <option value="starter">Starter (990 kr/man)</option>
+                    <option value="trial">Trial (gratis, max 3 anv.)</option>
                   </select>
                 </div>
                 {setupError && (
