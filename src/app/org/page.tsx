@@ -35,6 +35,7 @@ interface OrgInvitation {
   id: string;
   email: string;
   role: string;
+  token: string;
   expiresAt: string;
   createdAt: string;
 }
@@ -60,6 +61,7 @@ export default function OrgPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
   const [inviting, setInviting] = useState(false);
+  const [copiedToken, setCopiedToken] = useState("");
 
   // Setup form state
   const [setupName, setSetupName] = useState("");
@@ -111,17 +113,33 @@ export default function OrgPage() {
     setCreating(false);
   };
 
+  const [inviteError, setInviteError] = useState("");
+  const [lastInviteLink, setLastInviteLink] = useState("");
+
   const invite = async () => {
     if (!inviteEmail.trim()) return;
     setInviting(true);
-    await fetch("/api/org/invitations", {
+    setInviteError("");
+    setLastInviteLink("");
+    const res = await fetch("/api/org/invitations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
     });
-    setInviteEmail("");
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setInviteEmail("");
+      if (data.inviteLink) {
+        const fullLink = data.inviteLink.startsWith("http")
+          ? data.inviteLink
+          : `${window.location.origin}${data.inviteLink}`;
+        setLastInviteLink(fullLink);
+      }
+      fetchOrg();
+    } else {
+      setInviteError(data.error ?? "Kunde inte skapa inbjudan");
+    }
     setInviting(false);
-    fetchOrg();
   };
 
   const revokeInvite = async (invitationId: string) => {
@@ -415,21 +433,65 @@ export default function OrgPage() {
               </button>
             </div>
 
+            {inviteError && (
+              <p className="text-sm text-red-600 dark:text-red-400">{inviteError}</p>
+            )}
+
+            {lastInviteLink && (
+              <div className="rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 p-4 space-y-2">
+                <p className="text-sm font-medium text-green-800 dark:text-green-200">Inbjudan skapad! Skicka denna länk till användaren:</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 text-xs bg-white dark:bg-black/20 rounded-lg px-3 py-2 truncate border border-green-200 dark:border-green-800">
+                    {lastInviteLink}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(lastInviteLink);
+                      setCopiedToken("last");
+                      setTimeout(() => setCopiedToken(""), 2000);
+                    }}
+                    className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white hover:bg-green-700 cursor-pointer"
+                  >
+                    <Icon name={copiedToken === "last" ? "check" : "copy"} size={12} />
+                    {copiedToken === "last" ? "Kopierad!" : "Kopiera"}
+                  </button>
+                </div>
+                <p className="text-[10px] text-green-700 dark:text-green-400">
+                  Alternativt: Om du skapar användaren i Clerk med samma e-post, kopplas hen automatiskt till organisationen vid inloggning.
+                </p>
+              </div>
+            )}
+
             {org.invitations.length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">Väntande inbjudningar</p>
                 {org.invitations.map((inv) => (
-                  <div key={inv.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-card/50 px-4 py-3">
-                    <Icon name="mail" size={14} className="text-muted-foreground/50" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">{inv.email}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {ROLE_LABELS[inv.role] ?? inv.role} · Utgår {new Date(inv.expiresAt).toLocaleDateString("sv-SE")}
-                      </p>
+                  <div key={inv.id} className="rounded-xl border border-border/40 bg-card/50 px-4 py-3 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <Icon name="mail" size={14} className="text-muted-foreground/50" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground truncate">{inv.email}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {ROLE_LABELS[inv.role] ?? inv.role} · Utgår {new Date(inv.expiresAt).toLocaleDateString("sv-SE")}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const link = `${window.location.origin}/invite/${inv.token}`;
+                          navigator.clipboard.writeText(link);
+                          setCopiedToken(inv.token);
+                          setTimeout(() => setCopiedToken(""), 2000);
+                        }}
+                        className="text-xs text-primary hover:text-primary/80 cursor-pointer inline-flex items-center gap-1"
+                        title="Kopiera inbjudningslänk"
+                      >
+                        <Icon name={copiedToken === inv.token ? "check" : "copy"} size={12} />
+                        {copiedToken === inv.token ? "Kopierad!" : "Kopiera länk"}
+                      </button>
+                      <button onClick={() => revokeInvite(inv.id)} className="text-xs text-red-500 hover:text-red-700 cursor-pointer">
+                        Avbryt
+                      </button>
                     </div>
-                    <button onClick={() => revokeInvite(inv.id)} className="text-xs text-red-500 hover:text-red-700 cursor-pointer">
-                      Avbryt
-                    </button>
                   </div>
                 ))}
               </div>

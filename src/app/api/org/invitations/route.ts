@@ -14,6 +14,20 @@ export async function POST(req: NextRequest) {
     if (!validated.success) return validated.response;
     const { email, role } = validated.data;
 
+    // Check if user already is a member
+    const existingMember = await prisma.orgMembership.findFirst({
+      where: {
+        orgId: ctx.orgId,
+        user: { email: email.toLowerCase().trim() },
+      },
+    });
+    if (existingMember) {
+      return NextResponse.json(
+        { error: "Användaren är redan medlem i organisationen" },
+        { status: 409 },
+      );
+    }
+
     const invitation = await prisma.invitation.create({
       data: {
         orgId: ctx.orgId,
@@ -25,7 +39,15 @@ export async function POST(req: NextRequest) {
 
     await logAudit(ctx, "create", "invitation", invitation.id);
 
-    return NextResponse.json({ invitation }, { status: 201 });
+    // Build invite link
+    const baseUrl = req.headers.get("x-forwarded-host")
+      ? `https://${req.headers.get("x-forwarded-host")}`
+      : req.headers.get("host")
+        ? `${req.headers.get("x-forwarded-proto") ?? "https"}://${req.headers.get("host")}`
+        : "";
+    const inviteLink = baseUrl ? `${baseUrl}/invite/${invitation.token}` : `/invite/${invitation.token}`;
+
+    return NextResponse.json({ invitation, inviteLink }, { status: 201 });
   } catch (e) {
     if (e instanceof ApiError) return e.toResponse();
     throw e;

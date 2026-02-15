@@ -114,6 +114,36 @@ export async function POST(req: Request) {
           await createDefaultFeatures(id);
         }
 
+        // Auto-accept pending invitations matching this email
+        if (primaryEmail) {
+          try {
+            const pendingInvitations = await prisma.invitation.findMany({
+              where: {
+                email: primaryEmail.toLowerCase(),
+                usedAt: null,
+                expiresAt: { gt: new Date() },
+              },
+            });
+            for (const inv of pendingInvitations) {
+              const exists = await prisma.orgMembership.findUnique({
+                where: { orgId_userId: { orgId: inv.orgId, userId: id } },
+              });
+              if (!exists) {
+                await prisma.orgMembership.create({
+                  data: { orgId: inv.orgId, userId: id, role: inv.role },
+                });
+              }
+              await prisma.invitation.update({
+                where: { id: inv.id },
+                data: { usedAt: new Date() },
+              });
+              console.log(`Clerk webhook: auto-accepted invitation ${inv.id} for ${primaryEmail} → org ${inv.orgId}`);
+            }
+          } catch (err) {
+            console.error("Auto-accept invitations failed:", err);
+          }
+        }
+
         console.log(`Clerk webhook: ${event.type} → user ${id} (${primaryEmail})`);
         break;
       }
