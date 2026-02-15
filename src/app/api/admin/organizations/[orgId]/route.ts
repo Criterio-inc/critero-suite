@@ -88,12 +88,36 @@ export async function PATCH(
         : JSON.stringify(body.settings);
     }
 
-    const updated = await prisma.organization.update({
+    // Update org fields (name, plan, maxUsers, settings) if any provided
+    if (Object.keys(data).length > 0) {
+      await prisma.organization.update({
+        where: { id: orgId },
+        data,
+      });
+    }
+
+    // Handle feature overrides via setOrgFeatures
+    if (body.features && typeof body.features === "object") {
+      const { setOrgFeatures } = await import("@/lib/org-features");
+      await setOrgFeatures(orgId, body.features);
+    }
+
+    // Re-fetch the updated org to return
+    const updated = await prisma.organization.findUnique({
       where: { id: orgId },
-      data,
+      include: {
+        features: true,
+      },
     });
 
-    return NextResponse.json({ organization: updated });
+    return NextResponse.json({
+      organization: {
+        ...updated,
+        features: Object.fromEntries(
+          (updated?.features ?? []).map((f) => [f.featureKey, f.enabled]),
+        ),
+      },
+    });
   } catch (e) {
     if (e instanceof ApiError) return e.toResponse();
     throw e;
