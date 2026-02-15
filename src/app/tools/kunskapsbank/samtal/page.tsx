@@ -247,7 +247,7 @@ export default function SamtalPage() {
                 className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Icon name="arrow-left" size={12} />
-                Tillbaka till kunskapsbanken
+                Tillbaka till reflektionsstödet
               </Link>
             </div>
           </div>

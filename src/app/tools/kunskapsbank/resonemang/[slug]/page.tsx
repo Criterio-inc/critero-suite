@@ -44,7 +44,7 @@ export default function ResonemangDetailPage({
               href="/tools/kunskapsbank"
               className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
             >
-              <Icon name="arrow-left" size={14} /> Kunskapsbank
+              <Icon name="arrow-left" size={14} /> Reflektionsstöd
             </Link>
 
             {domain && (

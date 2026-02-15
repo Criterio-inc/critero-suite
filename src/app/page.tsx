@@ -44,7 +44,7 @@ const APP_CARDS: AppCard[] = [
   {
     appKey: "verktyg",
     title: "Verktyg",
-    description: "Analysverktyg — nyttokalkyl, riskmatris, utvärdering, tidslinjer, intressentanalys och kunskapsbank.",
+    description: "Analysverktyg — nyttokalkyl, riskmatris, utvärdering, tidslinjer, intressentanalys och reflektionsstöd.",
     icon: "wrench",
     href: "/tools/benefit-calculator",
     color: "text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/30",

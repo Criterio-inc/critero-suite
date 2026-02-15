@@ -159,7 +159,7 @@ const QUADRANTS: Record<string, QuadrantDef> = {
     action: "Hog nytta, lag insats",
     bgClass: "bg-green-50/50 dark:bg-green-950/20",
     borderClass: "border-green-200/60 dark:border-green-800/40",
-    textClass: "text-green-700 dark:text-green-400",
+    textClass: "text-green-900 dark:text-green-400",
     iconName: "zap",
   },
   "strategic": {
@@ -169,7 +169,7 @@ const QUADRANTS: Record<string, QuadrantDef> = {
     action: "Hog nytta, hog insats",
     bgClass: "bg-blue-50/50 dark:bg-blue-950/20",
     borderClass: "border-blue-200/60 dark:border-blue-800/40",
-    textClass: "text-blue-700 dark:text-blue-400",
+    textClass: "text-blue-900 dark:text-blue-400",
     iconName: "rocket",
   },
   "fill-in": {
@@ -179,7 +179,7 @@ const QUADRANTS: Record<string, QuadrantDef> = {
     action: "Lag nytta, lag insats",
     bgClass: "bg-yellow-50/50 dark:bg-yellow-950/20",
     borderClass: "border-yellow-200/60 dark:border-yellow-800/40",
-    textClass: "text-yellow-700 dark:text-yellow-400",
+    textClass: "text-yellow-900 dark:text-yellow-400",
     iconName: "clock",
   },
   "avoid": {
@@ -189,7 +189,7 @@ const QUADRANTS: Record<string, QuadrantDef> = {
     action: "Lag nytta, hog insats",
     bgClass: "bg-red-50/50 dark:bg-red-950/20",
     borderClass: "border-red-200/60 dark:border-red-800/40",
-    textClass: "text-red-700 dark:text-red-400",
+    textClass: "text-red-900 dark:text-red-400",
     iconName: "alert-triangle",
   },
 };

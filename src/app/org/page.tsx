@@ -15,8 +15,8 @@ const PLAN_COLORS: Record<string, string> = {
 const ROLE_LABELS: Record<string, string> = { admin: "Administratör", member: "Medlem", viewer: "Läsbehörighet" };
 
 const PLAN_INFO = [
-  { key: "trial", label: "Trial", price: "Gratis", maxUsers: 3, features: ["Upphandling (bas)", "1 arende", "Kunskapsbank (las)"], missing: ["Verktyg", "Mognadmatning", "AI-Mognadmatning", "Utbildning"] },
-  { key: "starter", label: "Starter", price: "990 kr/man", maxUsers: 10, features: ["Upphandling (full)", "Verktyg (alla)", "Kunskapsbank", "Export", "5 arenden"], missing: ["Mognadmatning", "AI-Mognadmatning", "Utbildning"] },
+  { key: "trial", label: "Trial", price: "Gratis", maxUsers: 3, features: ["Upphandling (bas)", "1 arende", "Reflektionsstöd (läs)"], missing: ["Verktyg", "Mognadmatning", "AI-Mognadmatning", "Utbildning"] },
+  { key: "starter", label: "Starter", price: "990 kr/man", maxUsers: 10, features: ["Upphandling (full)", "Verktyg (alla)", "Reflektionsstöd", "Export", "5 arenden"], missing: ["Mognadmatning", "AI-Mognadmatning", "Utbildning"] },
   { key: "professional", label: "Professional", price: "1 990 kr/man", maxUsers: 50, features: ["Allt i Starter", "Mognadmatning", "AI-Mognadmatning", "Utbildning", "Obegransat arenden"], missing: ["White-label", "Dedicerad support"] },
   { key: "enterprise", label: "Enterprise", price: "Offert", maxUsers: 999, features: ["Allt i Professional", "Obegransat anvandare", "White-label (kommande)", "Prioriterad support", "SLA"], missing: [] },
 ];
