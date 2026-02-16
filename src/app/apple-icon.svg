@@ -1,15 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-  <!-- Hexagonal shield shape -->
-  <path d="M90 8L165 48V132L90 172L15 132V48L90 8Z" fill="url(#hex-gradient)" />
-  <!-- Inner border glow -->
-  <path d="M90 18L157 54V126L90 162L23 126V54L90 18Z" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none"/>
-  <!-- Stylized C letter -->
-  <path d="M113 58C107 52 100 49 92 49C72 49 56 65 56 90C56 115 72 131 92 131C100 131 107 128 113 122" stroke="white" stroke-width="16" stroke-linecap="round" fill="none"/>
-  <defs>
-    <linearGradient id="hex-gradient" x1="10" y1="10" x2="170" y2="170" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#F59E0B"/>
-      <stop offset="50%" stop-color="#EA580C"/>
-      <stop offset="100%" stop-color="#C2410C"/>
-    </linearGradient>
-  </defs>
+  <!-- White background with rounded corners -->
+  <rect width="180" height="180" rx="32" fill="#ffffff"/>
+  <!-- Orange border -->
+  <rect x="4" y="4" width="172" height="172" rx="28" stroke="#f97316" stroke-width="6" fill="none"/>
+  <!-- Trendline -->
+  <polyline points="35,105 65,82 92,90 130,50" fill="none" stroke="#f97316" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Data points -->
+  <circle cx="35" cy="105" r="7" fill="#f97316"/>
+  <circle cx="65" cy="82" r="7" fill="#f97316"/>
+  <circle cx="92" cy="90" r="7" fill="#f97316"/>
+  <circle cx="130" cy="50" r="7" fill="#f97316"/>
+  <!-- Text: Critero -->
+  <text x="90" y="138" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" fill="#1a1a2e">Critero</text>
+  <!-- Text: Suite -->
+  <text x="90" y="158" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="500" fill="#6b7280">Suite</text>
 </svg>
