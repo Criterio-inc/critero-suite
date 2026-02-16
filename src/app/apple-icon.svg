@@ -1,9 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-  <rect width="180" height="180" rx="40" fill="#1a1a2e"/>
-  <rect x="6" y="6" width="168" height="168" rx="34" stroke="#f97316" stroke-width="8" fill="none"/>
-  <polyline points="40,125 73,95 100,107 140,55" fill="none" stroke="#f97316" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="40" cy="125" r="10" fill="#f97316"/>
-  <circle cx="73" cy="95" r="10" fill="#f97316"/>
-  <circle cx="100" cy="107" r="10" fill="#f97316"/>
-  <circle cx="140" cy="55" r="10" fill="#f97316"/>
+  <!-- Hexagonal shield shape -->
+  <path d="M90 8L165 48V132L90 172L15 132V48L90 8Z" fill="url(#hex-gradient)" />
+  <!-- Inner border glow -->
+  <path d="M90 18L157 54V126L90 162L23 126V54L90 18Z" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none"/>
+  <!-- Stylized C letter -->
+  <path d="M113 58C107 52 100 49 92 49C72 49 56 65 56 90C56 115 72 131 92 131C100 131 107 128 113 122" stroke="white" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <defs>
+    <linearGradient id="hex-gradient" x1="10" y1="10" x2="170" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#EA580C"/>
+      <stop offset="100%" stop-color="#C2410C"/>
+    </linearGradient>
+  </defs>
 </svg>
