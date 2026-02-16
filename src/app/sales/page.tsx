@@ -265,7 +265,7 @@ export default function SalesPage() {
         <div className="relative px-8 py-16 max-w-4xl">
           <div className="flex items-center gap-3 mb-6">
             <img
-              src="/criteo-logo.svg"
+              src="/critero-logo.png"
               alt="Critero Suite"
               className="h-12 w-12"
             />
