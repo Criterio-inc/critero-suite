@@ -1,17 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <!-- White background with rounded corners -->
+  <defs>
+    <radialGradient id="dg" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </radialGradient>
+  </defs>
+  <!-- Vit bakgrund -->
   <rect width="32" height="32" rx="7" fill="#ffffff"/>
-  <!-- Orange border -->
+  <!-- Tjock orange ram -->
   <rect x="1" y="1" width="30" height="30" rx="6" stroke="#f97316" stroke-width="1.5" fill="none"/>
-  <!-- Trendline -->
-  <polyline points="5,19 10,15 15,16.5 23,9" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- Data points -->
-  <circle cx="5" cy="19" r="1.5" fill="#f97316"/>
-  <circle cx="10" cy="15" r="1.5" fill="#f97316"/>
-  <circle cx="15" cy="16.5" r="1.5" fill="#f97316"/>
-  <circle cx="23" cy="9" r="1.5" fill="#f97316"/>
-  <!-- Text: Critero -->
-  <text x="16" y="25.5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="4.2" font-weight="700" fill="#1a1a2e">Critero</text>
-  <!-- Text: Suite -->
-  <text x="16" y="29.5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="2.8" font-weight="500" fill="#6b7280">Suite</text>
+  <!-- Trendlinje -->
+  <polyline points="5,19 11,14.5 17,12 26,5.5" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Pil -->
+  <polyline points="23.5,4.5 26,5.5 25.3,8.3" fill="none" stroke="#f97316" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Datapunkter -->
+  <circle cx="5" cy="19" r="2.2" fill="url(#dg)"/>
+  <circle cx="11" cy="14.5" r="2.2" fill="url(#dg)"/>
+  <circle cx="17" cy="12" r="2.2" fill="url(#dg)"/>
+  <circle cx="26" cy="5.5" r="2.2" fill="url(#dg)"/>
+  <!-- Text -->
+  <text x="16" y="26" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="4" font-weight="700" fill="#2d2d2d">Critero Suite</text>
 </svg>
