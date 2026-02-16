@@ -11,31 +11,67 @@ export default function AppleIcon() {
           width: "100%",
           height: "100%",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "transparent",
+          background: "#ffffff",
+          borderRadius: "32px",
+          border: "6px solid #f97316",
           position: "relative",
         }}
       >
-        {/* Hexagonal shield with gradient */}
+        {/* Trend line chart */}
         <svg
-          width="180"
-          height="180"
-          viewBox="0 0 180 180"
+          width="120"
+          height="80"
+          viewBox="0 0 120 80"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          style={{ marginTop: -10 }}
         >
-          <defs>
-            <linearGradient id="hex-gradient" x1="10" y1="10" x2="170" y2="170" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#F59E0B" />
-              <stop offset="50%" stopColor="#EA580C" />
-              <stop offset="100%" stopColor="#C2410C" />
-            </linearGradient>
-          </defs>
-          <path d="M90 8L165 48V132L90 172L15 132V48L90 8Z" fill="url(#hex-gradient)" />
-          <path d="M90 18L157 54V126L90 162L23 126V54L90 18Z" stroke="rgba(255,255,255,0.2)" strokeWidth="2" fill="none" />
-          <path d="M113 58C107 52 100 49 92 49C72 49 56 65 56 90C56 115 72 131 92 131C100 131 107 128 113 122" stroke="white" strokeWidth="16" strokeLinecap="round" fill="none" />
+          <polyline
+            points="10,65 35,45 60,52 100,18"
+            stroke="#f97316"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+          <circle cx="10" cy="65" r="7" fill="#f97316" />
+          <circle cx="35" cy="45" r="7" fill="#f97316" />
+          <circle cx="60" cy="52" r="7" fill="#f97316" />
+          <circle cx="100" cy="18" r="7" fill="#f97316" />
         </svg>
+        {/* Text: Critero */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginTop: 4,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 24,
+              fontWeight: 700,
+              color: "#1a1a2e",
+              lineHeight: 1.1,
+            }}
+          >
+            Critero
+          </span>
+          <span
+            style={{
+              fontSize: 16,
+              fontWeight: 500,
+              color: "#6b7280",
+              lineHeight: 1.1,
+            }}
+          >
+            Suite
+          </span>
+        </div>
       </div>
     ),
     { ...size }

@@ -1,15 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <!-- Hexagonal shield shape -->
-  <path d="M16 1L29 8V24L16 31L3 24V8L16 1Z" fill="url(#hex-gradient)" />
-  <!-- Inner border glow -->
-  <path d="M16 3.5L27 9.5V22.5L16 28.5L5 22.5V9.5L16 3.5Z" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" fill="none"/>
-  <!-- Stylized C letter -->
-  <path d="M20 10C18.8 8.8 17.5 8.2 16 8.2C12.5 8.2 9.5 11 9.5 16C9.5 21 12.5 23.8 16 23.8C17.5 23.8 18.8 23.2 20 22" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
-  <defs>
-    <linearGradient id="hex-gradient" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#F59E0B"/>
-      <stop offset="50%" stop-color="#EA580C"/>
-      <stop offset="100%" stop-color="#C2410C"/>
-    </linearGradient>
-  </defs>
+  <!-- White background with rounded corners -->
+  <rect width="32" height="32" rx="7" fill="#ffffff"/>
+  <!-- Orange border -->
+  <rect x="1" y="1" width="30" height="30" rx="6" stroke="#f97316" stroke-width="1.5" fill="none"/>
+  <!-- Trendline -->
+  <polyline points="5,19 10,15 15,16.5 23,9" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Data points -->
+  <circle cx="5" cy="19" r="1.5" fill="#f97316"/>
+  <circle cx="10" cy="15" r="1.5" fill="#f97316"/>
+  <circle cx="15" cy="16.5" r="1.5" fill="#f97316"/>
+  <circle cx="23" cy="9" r="1.5" fill="#f97316"/>
+  <!-- Text: Critero -->
+  <text x="16" y="25.5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="4.2" font-weight="700" fill="#1a1a2e">Critero</text>
+  <!-- Text: Suite -->
+  <text x="16" y="29.5" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="2.8" font-weight="500" fill="#6b7280">Suite</text>
 </svg>
