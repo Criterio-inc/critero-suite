@@ -347,6 +347,109 @@ function PlanInfoPopup({ onClose }: { onClose: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Add member to org (inline)                                         */
+/* ------------------------------------------------------------------ */
+
+function AddMemberForm({
+  orgId,
+  existingMemberIds,
+  allUsers,
+  onAdded,
+}: {
+  orgId: string;
+  existingMemberIds: string[];
+  allUsers: AdminUser[];
+  onAdded: () => void;
+}) {
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [role, setRole] = useState("member");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const availableUsers = allUsers.filter(
+    (u) => !existingMemberIds.includes(u.id),
+  );
+
+  const handleAdd = async () => {
+    if (!selectedUserId) {
+      setError("Välj en användare");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/organizations/${orgId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: selectedUserId, role }),
+      });
+      if (res.ok) {
+        setSelectedUserId("");
+        setRole("member");
+        onAdded();
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Kunde inte lägga till medlem");
+      }
+    } catch {
+      setError("Nätverksfel");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (availableUsers.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground/60 px-3 py-2">
+        Alla synkade användare är redan medlemmar. Synka från Clerk om du saknar någon.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {error && (
+        <p className="text-xs text-red-600 dark:text-red-400 px-3">{error}</p>
+      )}
+      <div className="flex items-center gap-2 px-3">
+        <select
+          value={selectedUserId}
+          onChange={(e) => setSelectedUserId(e.target.value)}
+          className="flex-1 rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        >
+          <option value="">Välj användare...</option>
+          {availableUsers.map((u) => {
+            const name = [u.firstName, u.lastName].filter(Boolean).join(" ");
+            return (
+              <option key={u.id} value={u.id}>
+                {name ? `${name} (${u.email})` : u.email}
+              </option>
+            );
+          })}
+        </select>
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        >
+          <option value="member">Medlem</option>
+          <option value="admin">Admin</option>
+          <option value="viewer">Läsare</option>
+        </select>
+        <button
+          onClick={handleAdd}
+          disabled={saving || !selectedUserId}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
+        >
+          <Icon name="user-plus" size={14} />
+          {saving ? "Lägger till..." : "Lägg till"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  New organization form (inline)                                     */
 /* ------------------------------------------------------------------ */
 
@@ -1052,43 +1155,12 @@ export default function AdminContent() {
 
                             {/* Members list */}
                             <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-                                  Medlemmar ({detail.members.length})
-                                </p>
-                                {user?.id && !detail.members.some((m) => m.userId === user.id) && (
-                                  <button
-                                    onClick={async () => {
-                                      try {
-                                        const res = await fetch(`/api/admin/organizations/${org.id}`, {
-                                          method: "POST",
-                                          headers: { "Content-Type": "application/json" },
-                                          body: JSON.stringify({ userId: user.id, role: "admin" }),
-                                        });
-                                        if (res.ok) {
-                                          // Re-fetch org detail
-                                          setOrgDetails((prev) => {
-                                            const copy = { ...prev };
-                                            delete copy[org.id];
-                                            return copy;
-                                          });
-                                          fetchOrgDetail(org.id);
-                                          fetchOrgs();
-                                        }
-                                      } catch (e) {
-                                        console.error("Failed to add self:", e);
-                                      }
-                                    }}
-                                    className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer"
-                                  >
-                                    <Icon name="user-plus" size={12} />
-                                    Lagg till mig som admin
-                                  </button>
-                                )}
-                              </div>
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                                Medlemmar ({detail.members.length})
+                              </p>
                               {detail.members.length === 0 ? (
                                 <p className="text-xs text-muted-foreground/70 px-3 py-2">
-                                  Inga medlemmar annu.
+                                  Inga medlemmar ännu.
                                 </p>
                               ) : (
                                 <div className="space-y-1">
@@ -1130,6 +1202,28 @@ export default function AdminContent() {
                                   })}
                                 </div>
                               )}
+
+                              {/* Add member form */}
+                              <div className="pt-2 border-t border-border/30">
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-2">
+                                  Lägg till medlem
+                                </p>
+                                <AddMemberForm
+                                  orgId={org.id}
+                                  existingMemberIds={detail.members.map((m) => m.userId)}
+                                  allUsers={users}
+                                  onAdded={() => {
+                                    setOrgDetails((prev) => {
+                                      const copy = { ...prev };
+                                      delete copy[org.id];
+                                      return copy;
+                                    });
+                                    fetchOrgDetail(org.id);
+                                    fetchOrgs();
+                                    fetchUsers();
+                                  }}
+                                />
+                              </div>
                             </div>
                           </>
                         ) : (

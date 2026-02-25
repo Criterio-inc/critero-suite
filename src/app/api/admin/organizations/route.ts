@@ -29,15 +29,15 @@ export async function GET() {
 
     // Count cases per org separately — defensive against missing Case.orgId
     const caseCounts: Record<string, number> = {};
-    for (const org of organizations) {
+    for (const o of organizations) {
       try {
-        caseCounts[org.id] = await prisma.case.count({ where: { orgId: org.id } });
+        caseCounts[o.id] = await prisma.case.count({ where: { orgId: o.id } });
       } catch {
-        caseCounts[org.id] = 0;
+        caseCounts[o.id] = 0;
       }
     }
 
-    const result = organizations.map((org) => ({
+    const result = organizations.map((org: typeof organizations[number]) => ({
       id: org.id,
       name: org.name,
       slug: org.slug,

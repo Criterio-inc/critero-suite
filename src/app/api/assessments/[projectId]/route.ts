@@ -80,7 +80,7 @@ export async function GET(
           name: project.assessmentType.name,
           description: project.assessmentType.description,
         },
-        sessions: project.sessions.map((s) => ({
+        sessions: project.sessions.map((s: typeof project.sessions[number]) => ({
           id: s.id,
           shareToken: s.shareToken,
           status: s.status,

@@ -22,6 +22,30 @@ async function getClerkUserId(): Promise<string | null> {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Extract users array from Clerk API response                         */
+/*  Clerk v4 SDK returns bare array; some versions wrap in {data:[]}    */
+/* ------------------------------------------------------------------ */
+
+interface ClerkUser {
+  id: string;
+  email_addresses: Array<{ id: string; email_address: string }>;
+  primary_email_address_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  image_url: string;
+}
+
+function extractUsersArray(json: unknown): ClerkUser[] {
+  if (Array.isArray(json)) return json;
+  if (json && typeof json === "object") {
+    const obj = json as Record<string, unknown>;
+    if (Array.isArray(obj.data)) return obj.data;
+    if (Array.isArray(obj.users)) return obj.users;
+  }
+  return [];
+}
+
+/* ------------------------------------------------------------------ */
 /*  POST /api/admin/sync-users — pull all users from Clerk into DB      */
 /* ------------------------------------------------------------------ */
 
@@ -43,14 +67,7 @@ export async function POST() {
     }
 
     // Fetch all users from Clerk Backend API (paginated)
-    const allClerkUsers: Array<{
-      id: string;
-      email_addresses: Array<{ id: string; email_address: string }>;
-      primary_email_address_id: string;
-      first_name: string | null;
-      last_name: string | null;
-      image_url: string;
-    }> = [];
+    const allClerkUsers: ClerkUser[] = [];
 
     let offset = 0;
     const limit = 100;
@@ -75,8 +92,17 @@ export async function POST() {
         );
       }
 
-      const users = await res.json();
-      if (!Array.isArray(users) || users.length === 0) break;
+      const json: unknown = await res.json();
+      const users = extractUsersArray(json);
+
+      console.log(
+        `[sync-users] Clerk offset=${offset}: fick ${users.length} användare` +
+          (users.length > 0
+            ? ` (${users.map((u) => u.email_addresses?.[0]?.email_address ?? u.id).join(", ")})`
+            : ""),
+      );
+
+      if (users.length === 0) break;
       allClerkUsers.push(...users);
       if (users.length < limit) break;
       offset += limit;
@@ -85,6 +111,7 @@ export async function POST() {
     // Upsert each user into our DB
     let created = 0;
     let updated = 0;
+    let invitationsAccepted = 0;
 
     for (const cu of allClerkUsers) {
       const primaryEmail =
@@ -123,13 +150,51 @@ export async function POST() {
       } else {
         updated++;
       }
+
+      // Auto-accept pending invitations matching this email
+      if (primaryEmail) {
+        try {
+          const pendingInvitations = await prisma.invitation.findMany({
+            where: {
+              email: primaryEmail.toLowerCase(),
+              usedAt: null,
+              expiresAt: { gt: new Date() },
+            },
+          });
+          for (const inv of pendingInvitations) {
+            const exists = await prisma.orgMembership.findUnique({
+              where: { orgId_userId: { orgId: inv.orgId, userId: cu.id } },
+            });
+            if (!exists) {
+              await prisma.orgMembership.create({
+                data: { orgId: inv.orgId, userId: cu.id, role: inv.role },
+              });
+              invitationsAccepted++;
+            }
+            await prisma.invitation.update({
+              where: { id: inv.id },
+              data: { usedAt: new Date() },
+            });
+          }
+        } catch (err) {
+          console.error(`Auto-accept invitations failed for ${primaryEmail}:`, err);
+        }
+      }
+    }
+
+    const parts = [
+      `Synkade ${allClerkUsers.length} användare (${created} nya, ${updated} uppdaterade)`,
+    ];
+    if (invitationsAccepted > 0) {
+      parts.push(`${invitationsAccepted} inbjudan(ar) automatiskt accepterade`);
     }
 
     return NextResponse.json({
-      message: `Synkade ${allClerkUsers.length} användare (${created} nya, ${updated} uppdaterade)`,
+      message: parts.join(". "),
       total: allClerkUsers.length,
       created,
       updated,
+      invitationsAccepted,
     });
   } catch (e) {
     console.error("POST /api/admin/sync-users error:", e);

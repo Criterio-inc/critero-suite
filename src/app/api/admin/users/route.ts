@@ -29,7 +29,7 @@ export async function GET() {
     });
 
     // Transform to a cleaner shape
-    const result = users.map((u) => ({
+    const result = users.map((u: typeof users[number]) => ({
       id: u.id,
       email: u.email,
       firstName: u.firstName,
@@ -38,9 +38,9 @@ export async function GET() {
       isAdmin: u.isAdmin,
       createdAt: u.createdAt.toISOString(),
       features: Object.fromEntries(
-        u.features.map((f) => [f.featureKey, f.enabled]),
+        u.features.map((f: { featureKey: string; enabled: boolean }) => [f.featureKey, f.enabled]),
       ),
-      memberships: u.memberships.map((m) => ({
+      memberships: u.memberships.map((m: { org: { id: string; name: string; slug: string; plan: string }; role: string }) => ({
         orgId: m.org.id,
         orgName: m.org.name,
         orgSlug: m.org.slug,
