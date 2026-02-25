@@ -50,7 +50,7 @@ export async function GET(
         settings: org.settings,
         caseCount,
         createdAt: org.createdAt.toISOString(),
-        members: org.memberships.map((m) => ({
+        members: org.memberships.map((m: { user: { id: string; email: string; firstName: string; lastName: string; imageUrl: string }; role: string; createdAt: Date }) => ({
           userId: m.user.id,
           email: m.user.email,
           firstName: m.user.firstName,
@@ -60,7 +60,7 @@ export async function GET(
           joinedAt: m.createdAt.toISOString(),
         })),
         features: Object.fromEntries(
-          org.features.map((f) => [f.featureKey, f.enabled]),
+          org.features.map((f: { featureKey: string; enabled: boolean }) => [f.featureKey, f.enabled]),
         ),
       },
     });
@@ -126,7 +126,7 @@ export async function PATCH(
       organization: {
         ...updated,
         features: Object.fromEntries(
-          (updated?.features ?? []).map((f) => [f.featureKey, f.enabled]),
+          (updated?.features ?? []).map((f: { featureKey: string; enabled: boolean }) => [f.featureKey, f.enabled]),
         ),
       },
     });

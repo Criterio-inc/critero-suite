@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    const result = projects.map((p) => ({
+    const result = projects.map((p: typeof projects[number]) => ({
       id: p.id,
       name: p.name,
       description: p.description,
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         name: p.assessmentType.name,
       },
       sessionCount: p.sessions.length,
-      completedSessionCount: p.sessions.filter((s) => s.status === "completed").length,
+      completedSessionCount: p.sessions.filter((s: { status: string }) => s.status === "completed").length,
       createdAt: p.createdAt.toISOString(),
       updatedAt: p.updatedAt.toISOString(),
     }));

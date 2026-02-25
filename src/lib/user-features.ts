@@ -14,7 +14,7 @@ export async function getUserFeatures(
   const rows = await prisma.userFeature.findMany({ where: { userId } });
   const result = {} as Record<FeatureKey, boolean>;
   for (const key of ALL_FEATURE_KEYS) {
-    const row = rows.find((r) => r.featureKey === key);
+    const row = rows.find((r: { featureKey: string; enabled: boolean }) => r.featureKey === key);
     result[key] = row ? row.enabled : true; // default true if no row
   }
   return result;
@@ -53,7 +53,7 @@ export async function createDefaultFeatures(
     where: { userId },
     select: { featureKey: true },
   });
-  const existingKeys = new Set(existing.map((r) => r.featureKey));
+  const existingKeys = new Set(existing.map((r: { featureKey: string }) => r.featureKey));
   const creates = ALL_FEATURE_KEYS.filter((k) => !existingKeys.has(k)).map(
     (key) => ({
       userId,

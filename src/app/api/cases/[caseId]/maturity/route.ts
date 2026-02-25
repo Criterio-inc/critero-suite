@@ -23,7 +23,7 @@ export async function GET(
     });
 
     // Calculate completion percentage for each session
-    const sessionsWithStats = sessions.map((session) => {
+    const sessionsWithStats = sessions.map((session: typeof sessions[number]) => {
       const totalResponses = session.responses.length;
       const hasResponses = totalResponses > 0;
 

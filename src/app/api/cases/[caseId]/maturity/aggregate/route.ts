@@ -45,7 +45,7 @@ export async function GET(
       });
 
       const sessionsWithResponses = activeSessions.filter(
-        (s) => s.responses.length > 0
+        (s: typeof activeSessions[number]) => s.responses.length > 0
       );
       sessions.push(...sessionsWithResponses);
     }
@@ -66,8 +66,8 @@ export async function GET(
       [key: string]: { scores: number[]; avgScore: number };
     } = {};
 
-    sessions.forEach((session) => {
-      session.responses.forEach((response) => {
+    sessions.forEach((session: { responses: Array<{ dimensionKey: string; score: number }>; status: string }) => {
+      session.responses.forEach((response: { dimensionKey: string; score: number }) => {
         if (!dimensionScores[response.dimensionKey]) {
           dimensionScores[response.dimensionKey] = { scores: [], avgScore: 0 };
         }
@@ -98,7 +98,7 @@ export async function GET(
 
     return NextResponse.json({
       sessionCount: sessions.length,
-      completedCount: sessions.filter((s) => s.status === "completed").length,
+      completedCount: sessions.filter((s: { status: string }) => s.status === "completed").length,
       overallScore: Math.round(overallScore * 10) / 10,
       dimensions: aggregatedDimensions,
       sessionType,

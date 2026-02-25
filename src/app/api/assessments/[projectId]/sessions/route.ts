@@ -56,7 +56,7 @@ export async function GET(
       orderBy: { createdAt: "desc" },
     });
 
-    const result = sessions.map((s) => ({
+    const result = sessions.map((s: typeof sessions[number]) => ({
       id: s.id,
       shareToken: s.shareToken,
       status: s.status,

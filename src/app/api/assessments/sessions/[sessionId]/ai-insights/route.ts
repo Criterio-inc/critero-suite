@@ -122,7 +122,7 @@ export async function POST(
 
       // Get individual question scores
       const questionDetails = dimQuestions.map((q) => {
-        const response = session.responses.find((r) => r.questionId === q.id);
+        const response = session.responses.find((r: { questionId: string; value: number }) => r.questionId === q.id);
         return `  - "${q.text}": ${response ? response.value : "Ej besvarad"}/5`;
       });
 

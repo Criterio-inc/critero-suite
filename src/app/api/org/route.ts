@@ -60,7 +60,7 @@ export async function GET() {
         maxUsers: org.maxUsers,
         memberCount: org._count.memberships,
         caseCount,
-        members: org.memberships.map((m) => ({
+        members: org.memberships.map((m: { user: { id: string; email: string; firstName: string; lastName: string; imageUrl: string }; role: string; createdAt: Date }) => ({
           userId: m.user.id,
           email: m.user.email,
           firstName: m.user.firstName,
@@ -69,7 +69,7 @@ export async function GET() {
           role: m.role,
           joinedAt: m.createdAt.toISOString(),
         })),
-        invitations: org.invitations.map((inv) => ({
+        invitations: org.invitations.map((inv: { id: string; email: string; role: string; token: string; expiresAt: Date; createdAt: Date }) => ({
           id: inv.id,
           email: inv.email,
           role: inv.role,
