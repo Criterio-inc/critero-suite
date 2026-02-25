@@ -22,31 +22,8 @@ async function getClerkUserId(): Promise<string | null> {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Extract users array from Clerk API response                         */
-/*  Clerk v4 SDK returns bare array; some versions wrap in {data:[]}    */
-/* ------------------------------------------------------------------ */
-
-interface ClerkUser {
-  id: string;
-  email_addresses: Array<{ id: string; email_address: string }>;
-  primary_email_address_id: string;
-  first_name: string | null;
-  last_name: string | null;
-  image_url: string;
-}
-
-function extractUsersArray(json: unknown): ClerkUser[] {
-  if (Array.isArray(json)) return json;
-  if (json && typeof json === "object") {
-    const obj = json as Record<string, unknown>;
-    if (Array.isArray(obj.data)) return obj.data;
-    if (Array.isArray(obj.users)) return obj.users;
-  }
-  return [];
-}
-
-/* ------------------------------------------------------------------ */
 /*  POST /api/admin/sync-users — pull all users from Clerk into DB      */
+/*  Uses the official Clerk SDK (clerkClient) instead of raw fetch      */
 /* ------------------------------------------------------------------ */
 
 export async function POST() {
@@ -58,61 +35,42 @@ export async function POST() {
 
     await ensureTables();
 
-    const secretKey = process.env.CLERK_SECRET_KEY;
-    if (!secretKey || secretKey === "sk_test_REPLACE_ME") {
-      return NextResponse.json(
-        { error: "CLERK_SECRET_KEY inte konfigurerad" },
-        { status: 500 },
-      );
+    // Use the official Clerk SDK — handles auth, API versioning, pagination
+    const { clerkClient } = await import("@clerk/nextjs/server");
+    const client = await clerkClient();
+
+    // Fetch ALL users from Clerk via SDK (paginated)
+    interface ClerkSDKUser {
+      id: string;
+      emailAddresses: Array<{ id: string; emailAddress: string }>;
+      primaryEmailAddressId: string | null;
+      firstName: string | null;
+      lastName: string | null;
+      imageUrl: string;
     }
 
-    // Fetch all users from Clerk Backend API (paginated)
-    const allClerkUsers: ClerkUser[] = [];
-
+    const allClerkUsers: ClerkSDKUser[] = [];
     let offset = 0;
     const limit = 100;
 
     while (true) {
-      const res = await fetch(
-        `https://api.clerk.com/v1/users?limit=${limit}&offset=${offset}&order_by=-created_at`,
-        {
-          cache: "no-store",
-          headers: {
-            Authorization: `Bearer ${secretKey}`,
-          },
-        },
-      );
+      const { data: users, totalCount } = await client.users.getUserList({
+        limit,
+        offset,
+        orderBy: "-created_at",
+      });
 
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Clerk API error:", res.status, text);
-        return NextResponse.json(
-          { error: `Clerk API svarade med ${res.status}` },
-          { status: 502 },
-        );
-      }
-
-      const totalCount = res.headers.get("x-total-count");
-      const json: unknown = await res.json();
-      const users = extractUsersArray(json);
-
-      // Diagnostic logging: what did Clerk actually return?
-      const isArray = Array.isArray(json);
-      const topKeys = !isArray && json && typeof json === "object" ? Object.keys(json) : [];
       console.log(
-        `[sync-users] Clerk offset=${offset}: ` +
-          `total_count=${totalCount ?? "?"}, ` +
-          `response_type=${isArray ? "array" : "object"}, ` +
-          `top_keys=${topKeys.join(",") || "N/A"}, ` +
-          `extracted=${users.length} användare` +
+        `[sync-users] Clerk SDK offset=${offset}: ` +
+          `totalCount=${totalCount}, batch=${users.length}` +
           (users.length > 0
-            ? ` (${users.map((u) => u.email_addresses?.[0]?.email_address ?? u.id).join(", ")})`
+            ? ` (${users.map((u) => u.emailAddresses?.[0]?.emailAddress ?? u.id).join(", ")})`
             : ""),
       );
 
       if (users.length === 0) break;
       allClerkUsers.push(...users);
-      if (users.length < limit) break;
+      if (allClerkUsers.length >= totalCount || users.length < limit) break;
       offset += limit;
     }
 
@@ -123,9 +81,9 @@ export async function POST() {
 
     for (const cu of allClerkUsers) {
       const primaryEmail =
-        cu.email_addresses.find((e) => e.id === cu.primary_email_address_id)
-          ?.email_address ??
-        cu.email_addresses[0]?.email_address ??
+        cu.emailAddresses.find((e) => e.id === cu.primaryEmailAddressId)
+          ?.emailAddress ??
+        cu.emailAddresses[0]?.emailAddress ??
         "";
 
       const isAdmin = primaryEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -136,22 +94,21 @@ export async function POST() {
         where: { id: cu.id },
         update: {
           email: primaryEmail,
-          firstName: cu.first_name ?? "",
-          lastName: cu.last_name ?? "",
-          imageUrl: cu.image_url ?? "",
+          firstName: cu.firstName ?? "",
+          lastName: cu.lastName ?? "",
+          imageUrl: cu.imageUrl ?? "",
           isAdmin,
         },
         create: {
           id: cu.id,
           email: primaryEmail,
-          firstName: cu.first_name ?? "",
-          lastName: cu.last_name ?? "",
-          imageUrl: cu.image_url ?? "",
+          firstName: cu.firstName ?? "",
+          lastName: cu.lastName ?? "",
+          imageUrl: cu.imageUrl ?? "",
           isAdmin,
         },
       });
 
-      // Create default features for new users
       if (!existing) {
         await createDefaultFeatures(cu.id);
         created++;
@@ -170,10 +127,10 @@ export async function POST() {
             },
           });
           for (const inv of pendingInvitations) {
-            const exists = await prisma.orgMembership.findUnique({
+            const memberExists = await prisma.orgMembership.findUnique({
               where: { orgId_userId: { orgId: inv.orgId, userId: cu.id } },
             });
-            if (!exists) {
+            if (!memberExists) {
               await prisma.orgMembership.create({
                 data: { orgId: inv.orgId, userId: cu.id, role: inv.role },
               });
@@ -191,8 +148,8 @@ export async function POST() {
     }
 
     const emails = allClerkUsers.map((cu) =>
-      cu.email_addresses.find((e) => e.id === cu.primary_email_address_id)
-        ?.email_address ?? cu.email_addresses[0]?.email_address ?? cu.id,
+      cu.emailAddresses.find((e) => e.id === cu.primaryEmailAddressId)
+        ?.emailAddress ?? cu.emailAddresses[0]?.emailAddress ?? cu.id,
     );
 
     const parts = [
