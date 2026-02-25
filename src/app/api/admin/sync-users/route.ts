@@ -76,9 +76,9 @@ export async function POST() {
       const res = await fetch(
         `https://api.clerk.com/v1/users?limit=${limit}&offset=${offset}&order_by=-created_at`,
         {
+          cache: "no-store",
           headers: {
             Authorization: `Bearer ${secretKey}`,
-            "Content-Type": "application/json",
           },
         },
       );
@@ -92,11 +92,19 @@ export async function POST() {
         );
       }
 
+      const totalCount = res.headers.get("x-total-count");
       const json: unknown = await res.json();
       const users = extractUsersArray(json);
 
+      // Diagnostic logging: what did Clerk actually return?
+      const isArray = Array.isArray(json);
+      const topKeys = !isArray && json && typeof json === "object" ? Object.keys(json) : [];
       console.log(
-        `[sync-users] Clerk offset=${offset}: fick ${users.length} användare` +
+        `[sync-users] Clerk offset=${offset}: ` +
+          `total_count=${totalCount ?? "?"}, ` +
+          `response_type=${isArray ? "array" : "object"}, ` +
+          `top_keys=${topKeys.join(",") || "N/A"}, ` +
+          `extracted=${users.length} användare` +
           (users.length > 0
             ? ` (${users.map((u) => u.email_addresses?.[0]?.email_address ?? u.id).join(", ")})`
             : ""),
@@ -182,12 +190,18 @@ export async function POST() {
       }
     }
 
+    const emails = allClerkUsers.map((cu) =>
+      cu.email_addresses.find((e) => e.id === cu.primary_email_address_id)
+        ?.email_address ?? cu.email_addresses[0]?.email_address ?? cu.id,
+    );
+
     const parts = [
       `Synkade ${allClerkUsers.length} användare (${created} nya, ${updated} uppdaterade)`,
     ];
     if (invitationsAccepted > 0) {
       parts.push(`${invitationsAccepted} inbjudan(ar) automatiskt accepterade`);
     }
+    parts.push(`Hämtade: ${emails.join(", ")}`);
 
     return NextResponse.json({
       message: parts.join(". "),
@@ -195,6 +209,7 @@ export async function POST() {
       created,
       updated,
       invitationsAccepted,
+      emails,
     });
   } catch (e) {
     console.error("POST /api/admin/sync-users error:", e);
