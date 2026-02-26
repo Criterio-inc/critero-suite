@@ -13,7 +13,7 @@ export default function SignInPage() {
   useEffect(() => {
     // After a short delay, check if the Clerk widget rendered
     const timer = setTimeout(() => {
-      const widget = document.querySelector("[data-clerk-sign-in]");
+      const widget = document.querySelector("[data-clerk-sign-in]") as HTMLElement | null;
       const hasContent = widget && widget.children.length > 0 && widget.offsetHeight > 50;
       setWidgetLoaded(!!hasContent);
       setCheckDone(true);
