@@ -147,21 +147,30 @@ function StatCard({
 
 function CaseCard({ caseData: c }: { caseData: any }) {
   const phaseLabel = PHASE_LABELS[c.currentPhase] ?? c.currentPhase;
+  const isDemo = (c.name as string).startsWith("[DEMO]");
+  const displayName = isDemo ? (c.name as string).replace("[DEMO] ", "") : c.name;
 
   return (
     <Link href={`/cases/${c.id}`} className="group block">
       <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5">
         {/* Top row: profile + status */}
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-            {PROFILE_LABELS[c.domainProfile] ?? c.domainProfile}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+              {PROFILE_LABELS[c.domainProfile] ?? c.domainProfile}
+            </span>
+            {isDemo && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                DEMO
+              </span>
+            )}
+          </div>
           <StatusBadge status={c.status} />
         </div>
 
         {/* Title */}
         <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-          {c.name}
+          {displayName}
         </h3>
 
         {/* Phase indicator */}

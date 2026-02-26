@@ -74,6 +74,10 @@ import {
   ArrowDown,
   ArrowUp,
   Download,
+  Scroll,
+  CheckSquare,
+  ClipboardEdit,
+  Building,
   type LucideProps,
 } from "lucide-react";
 
@@ -151,6 +155,10 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   "arrow-down": ArrowDown,
   "arrow-up": ArrowUp,
   download: Download,
+  scroll: Scroll,
+  "check-square": CheckSquare,
+  "clipboard-edit": ClipboardEdit,
+  building: Building,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {
