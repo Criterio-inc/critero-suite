@@ -39,10 +39,21 @@ const QUICK_LINKS = [
 
 const ADMIN_TIPS = [
   {
-    title: "Skapa ny organisation",
+    title: "Ny kund — steg för steg",
     description:
-      "Klicka \"+ Ny organisation\" i organisationssektionen. Ange namn, slug och välj plan. Bjud sedan in medlemmar via Clerk.",
+      "1) Skapa organisationen här i admin-panelen (namn, slug, plan). " +
+      "2) Skapa den första användaren manuellt i Clerk med kundens e-post. " +
+      "3) Användaren loggar in \u2192 kopplas automatiskt till organisationen som admin. " +
+      "Därefter bjuder kunden själv in sina kollegor via Organisation-sidan.",
     icon: "building",
+  },
+  {
+    title: "Så fungerar inbjudningar",
+    description:
+      "Org-admin bjuder in via Organisation-sidan \u2192 kopierar invite-länken \u2192 skickar till kollegan. " +
+      "Kollegan klickar länken och skapar sitt eget Clerk-konto direkt (sign-up öppnas enbart med giltig invite-token). " +
+      "Utan inbjudan visas \"Stängd tjänst\" — ingen kan registrera sig på egen hand.",
+    icon: "mail",
   },
   {
     title: "Hantera funktioner per org",
@@ -61,6 +72,15 @@ const ADMIN_TIPS = [
     description:
       "Clerk Dashboard \u2192 Users \u2192 klicka på en användare \u2192 Sessions. Se var och när de senast var inloggade.",
     icon: "activity",
+  },
+  {
+    title: "Roller i organisationen",
+    description:
+      "Admin: full åtkomst + kan bjuda in/ta bort medlemmar. " +
+      "Medlem: kan skapa och redigera upphandlingar. " +
+      "Läsbehörighet: kan se men inte ändra. " +
+      "Rollbyte görs av plattformsadmin i admin-panelen.",
+    icon: "shield",
   },
 ];
 
