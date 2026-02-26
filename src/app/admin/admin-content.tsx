@@ -652,9 +652,9 @@ export default function AdminContent() {
     if (isAdminVerified) fetchOrgs();
   }, [isAdminVerified, fetchOrgs]);
 
-  // Fetch org detail when expanding
-  const fetchOrgDetail = useCallback(async (orgId: string) => {
-    if (orgDetails[orgId]) return; // already cached
+  // Fetch org detail when expanding (force=true skips cache)
+  const fetchOrgDetail = useCallback(async (orgId: string, force = false) => {
+    if (!force && orgDetails[orgId]) return; // already cached
     setOrgDetailLoading(orgId);
     try {
       const res = await fetch(`/api/admin/organizations/${orgId}`);
@@ -848,7 +848,7 @@ export default function AdminContent() {
       });
       if (res.ok) {
         // Re-fetch org detail to get clean state
-        fetchOrgDetail(orgId);
+        fetchOrgDetail(orgId, true);
         // Re-fetch org list to update override count
         fetchOrgs();
       }
@@ -1257,7 +1257,7 @@ export default function AdminContent() {
                                                 body: JSON.stringify({ userId: m.userId, role: newRole }),
                                               });
                                               if (res.ok) {
-                                                fetchOrgDetail(org.id);
+                                                fetchOrgDetail(org.id, true);
                                                 fetchUsers();
                                               }
                                             } catch (err) {
@@ -1286,12 +1286,7 @@ export default function AdminContent() {
                                   existingMemberIds={detail.members.map((m) => m.userId)}
                                   allUsers={users}
                                   onAdded={() => {
-                                    setOrgDetails((prev) => {
-                                      const copy = { ...prev };
-                                      delete copy[org.id];
-                                      return copy;
-                                    });
-                                    fetchOrgDetail(org.id);
+                                    fetchOrgDetail(org.id, true);
                                     fetchOrgs();
                                     fetchUsers();
                                   }}
