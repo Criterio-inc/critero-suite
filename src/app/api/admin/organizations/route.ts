@@ -94,10 +94,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Auto-add the creating admin as org admin member
-    await prisma.orgMembership.create({
-      data: { orgId: org.id, userId: ctx.userId, role: "admin" },
-    });
+    // Platform admin is NOT auto-added as member — they manage orgs
+    // without being a member. The first real user is added separately.
 
     await logAudit(ctx, "create", "organization", org.id);
 

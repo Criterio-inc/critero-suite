@@ -51,6 +51,15 @@ export async function GET() {
       try { caseCount = await prisma.case.count(); } catch { /* ignore */ }
     }
 
+    // Find the user's actual role in THIS specific org (not from auth context
+    // which may resolve a different org if user has multiple memberships)
+    const userMembership = org.memberships.find(
+      (m: { user: { id: string } }) => m.user.id === ctx.userId,
+    );
+    const actualRole = userMembership
+      ? (userMembership as { role: string }).role
+      : ctx.role;
+
     return NextResponse.json({
       organization: {
         id: org.id,
@@ -78,7 +87,8 @@ export async function GET() {
           createdAt: inv.createdAt.toISOString(),
         })),
       },
-      userRole: ctx.role,
+      userId: ctx.userId,
+      userRole: actualRole,
       isPlatformAdmin: ctx.isPlatformAdmin,
     });
   } catch (e) {

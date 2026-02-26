@@ -156,6 +156,8 @@ export async function POST(
     const body = await req.json();
     const userId = body.userId as string | undefined;
     const role = (body.role as string) || "member";
+    const remove = body.remove === true;
+    const deleteFromClerk = body.deleteFromClerk === true;
 
     if (!userId) {
       return NextResponse.json({ error: "userId krävs" }, { status: 400 });
@@ -167,7 +169,34 @@ export async function POST(
       return NextResponse.json({ error: "Organisation hittades inte" }, { status: 404 });
     }
 
-    // Upsert membership (idempotent)
+    // --- Remove member ---
+    if (remove) {
+      await prisma.orgMembership.deleteMany({
+        where: { orgId, userId },
+      });
+      await logAudit(ctx, "delete", "member", userId, { orgId });
+
+      // Also delete user from Clerk if requested
+      if (deleteFromClerk) {
+        try {
+          const { clerkClient } = await import("@clerk/nextjs/server");
+          const client = await clerkClient();
+          await client.users.deleteUser(userId);
+          // Also remove local user record since Clerk user is gone
+          await prisma.user.delete({ where: { id: userId } }).catch(() => {});
+        } catch (e) {
+          console.error("Failed to delete user from Clerk:", e);
+          return NextResponse.json({
+            ok: true,
+            warning: "Medlemskap borttaget, men kunde inte radera användaren från Clerk. Gör det manuellt i Clerk Dashboard.",
+          });
+        }
+      }
+
+      return NextResponse.json({ ok: true });
+    }
+
+    // --- Add/update member ---
     await prisma.orgMembership.upsert({
       where: { orgId_userId: { orgId, userId } },
       update: { role },
