@@ -4,9 +4,13 @@ import { generateId } from "@/lib/id-generator";
 import { requireAuth, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
 import { validateBody, createCaseSchema } from "@/lib/api-validation";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const ctx = await requireAuth();
+
+    const { searchParams } = new URL(req.url);
+    const take = Math.min(Number(searchParams.get("limit") ?? 50), 200);
+    const skip = Math.max(Number(searchParams.get("offset") ?? 0), 0);
 
     const where: Record<string, unknown> = {};
     if (ctx.orgId) {
@@ -14,11 +18,16 @@ export async function GET() {
       where.OR = [{ orgId: ctx.orgId }, { orgId: null }];
     }
 
-    const cases = await prisma.case.findMany({
-      where,
-      orderBy: { updatedAt: "desc" },
-    });
-    return NextResponse.json(cases);
+    const [cases, total] = await Promise.all([
+      prisma.case.findMany({
+        where,
+        orderBy: { updatedAt: "desc" },
+        take,
+        skip,
+      }),
+      prisma.case.count({ where }),
+    ]);
+    return NextResponse.json({ data: cases, total, limit: take, offset: skip });
   } catch (e) {
     if (e instanceof ApiError) return e.toResponse();
     throw e;

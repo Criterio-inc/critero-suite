@@ -39,6 +39,15 @@ export async function GET(
       );
     }
 
+    // Reject tokens older than 90 days (security: limit token lifetime)
+    const TOKEN_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+    if (Date.now() - session.createdAt.getTime() > TOKEN_MAX_AGE_MS) {
+      return NextResponse.json(
+        { error: "Länken har upphört att gälla" },
+        { status: 410 },
+      );
+    }
+
     // Get the assessment config for questions/dimensions
     const config = getAssessmentConfig(session.project.assessmentType.slug);
 
@@ -122,6 +131,15 @@ export async function PATCH(
       return NextResponse.json(
         { error: "Sessionen hittades inte" },
         { status: 404 },
+      );
+    }
+
+    // Reject tokens older than 90 days
+    const TOKEN_MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+    if (Date.now() - session.createdAt.getTime() > TOKEN_MAX_AGE_MS) {
+      return NextResponse.json(
+        { error: "Länken har upphört att gälla" },
+        { status: 410 },
       );
     }
 

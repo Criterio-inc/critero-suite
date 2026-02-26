@@ -27,11 +27,11 @@ export class ApiError {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Platform admin emails (env-driven with default fallback)           */
+/*  Platform admin emails (env-driven, no hardcoded fallback)          */
 /* ------------------------------------------------------------------ */
 
 const PLATFORM_ADMIN_EMAILS = (
-  process.env.PLATFORM_ADMIN_EMAILS ?? "par.levander@criteroconsulting.se"
+  process.env.PLATFORM_ADMIN_EMAILS ?? ""
 ).split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 /* ------------------------------------------------------------------ */

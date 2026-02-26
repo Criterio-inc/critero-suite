@@ -5,7 +5,9 @@ import { ensureTables } from "@/lib/ensure-tables";
 
 export const dynamic = "force-dynamic";
 
-const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
+const PLATFORM_ADMIN_EMAILS = (
+  process.env.PLATFORM_ADMIN_EMAILS ?? ""
+).split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 /* ------------------------------------------------------------------ */
 /*  Clerk auth helper                                                   */
@@ -86,7 +88,7 @@ export async function POST() {
         cu.emailAddresses[0]?.emailAddress ??
         "";
 
-      const isAdmin = primaryEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      const isAdmin = !!primaryEmail && PLATFORM_ADMIN_EMAILS.includes(primaryEmail.toLowerCase());
 
       const existing = await prisma.user.findUnique({ where: { id: cu.id } });
 

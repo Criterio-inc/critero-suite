@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description:
     "Upphandling, verktyg och mognadsmätning — samlad plattform för verksamhetsstöd från Critero Consulting.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://critero.vercel.app",
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://suite.criteroconsulting.se",
   ),
   openGraph: {
     title: "Critero Suite",
