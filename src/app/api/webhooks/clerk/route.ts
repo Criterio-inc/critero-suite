@@ -92,10 +92,13 @@ export async function POST(req: Request) {
 
         const isAdmin = !!primaryEmail && PLATFORM_ADMIN_EMAILS.includes(primaryEmail.toLowerCase());
 
+        // Store email as lowercase for consistent matching with invitations
+        const normalizedEmail = primaryEmail.toLowerCase();
+
         await prisma.user.upsert({
           where: { id },
           update: {
-            email: primaryEmail,
+            email: normalizedEmail,
             firstName: first_name ?? "",
             lastName: last_name ?? "",
             imageUrl: image_url ?? "",
@@ -103,7 +106,7 @@ export async function POST(req: Request) {
           },
           create: {
             id,
-            email: primaryEmail,
+            email: normalizedEmail,
             firstName: first_name ?? "",
             lastName: last_name ?? "",
             imageUrl: image_url ?? "",
