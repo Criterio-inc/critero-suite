@@ -168,16 +168,56 @@ Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features st�
 
 ## 6. Planerna
 
-| | **trial** | **starter** | **professional** | **enterprise** |
+### Översikt
+
+| | **Trial** | **Starter** | **Professional** | **Enterprise** |
 |---|-----------|-------------|------------------|----------------|
-| Användare | 1 | 5 | 20 | Obegränsat |
-| Case | 0 | 0 | Obegränsat | Obegränsat |
-| Assessments | 3 | Obegränsat | Obegränsat | Obegränsat |
-| Features | mognadmätning | + AI-mognadmätning | Alla 24 | Alla 24 |
-| Profiler | Nej | Nej | Nej | Ja |
-| API-åtkomst | Nej | Nej | Nej | Ja |
-| SSO | Nej | Nej | Nej | Ja |
-| Prövotid | 30 dagar | – | – | – |
+| **Användare** | 3 | 10 | 25 | Obegränsat |
+| **Upphandling** | – | – | Case, bibliotek, utbildning, hjälpcenter | Allt |
+| **Verktyg** | – | 4 st (bas) | Alla 11 | Alla 11 |
+| **Mognadsmätning** | Max 3 sessioner | Obegränsat | Obegränsat | Obegränsat |
+| **AI-Mognadsmätning** | – | Ja | Ja | Ja |
+| **Domänprofiler** | – | – | – | Ja |
+| **API-åtkomst** | – | – | – | Ja |
+| **SSO** | – | – | – | Ja |
+| **Varaktighet** | 30 dagar | Tillsvidare | Tillsvidare | Tillsvidare |
+
+### Verktyg per plan
+
+**Starter** inkluderar 4 strategiska analysverktyg som kompletterar mognadsmätningsarbete:
+
+| Verktyg | Starter | Professional+ |
+|---------|:-------:|:-------------:|
+| Riskmatris | Ja | Ja |
+| Intressentanalys | Ja | Ja |
+| Nyttokalkyl | Ja | Ja |
+| Reflektionsstöd (Kunskapsbank) | Ja | Ja |
+| Utvärderingsmodell | – | Ja |
+| Tidslinjeplanerare | – | Ja |
+| Orsaksanalys | – | Ja |
+| Nytto-insats | – | Ja |
+| Processflöde | – | Ja |
+| ADKAR Förändring | – | Ja |
+| Kraftfältsanalys | – | Ja |
+
+### Uppgraderingslogik
+
+```
+Trial → Starter:    + AI-Mognadsmätning, + 4 basverktyg, fler användare
+Starter → Professional:  + Upphandling, + 7 verktyg, + utbildning, obegränsade case
+Professional → Enterprise:  + obegränsade användare, domänprofiler, API, SSO
+```
+
+### Varför just dessa 4 Starter-verktyg?
+
+De fyra verktygen i Starter kompletterar mognadsmätningsarbetet:
+
+1. **Riskmatris** — Bedöm och prioritera risker identifierade i mognadsmätningen
+2. **Intressentanalys** — Kartlägg stakeholders för förbättringsinitiativ
+3. **Nyttokalkyl** — Beräkna ROI på föreslagna åtgärder
+4. **Reflektionsstöd** — AI-stödd kunskapsbank för lärande och reflektion
+
+De övriga 7 verktygen är mer upphandlings- och processspecifika och ingår från Professional.
 
 ---
 

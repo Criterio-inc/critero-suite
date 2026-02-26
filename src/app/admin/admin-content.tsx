@@ -281,37 +281,68 @@ const PLAN_INFO = [
   {
     key: "trial",
     label: "Trial",
-    price: "Gratis",
+    price: "Gratis / 30 dagar",
     color: "border-zinc-300 dark:border-zinc-600",
     maxUsers: 3,
-    features: ["Upphandling (bas)", "1 upphandlingsarende", "Reflektionsstöd (läsbeh.)"],
-    missing: ["Verktyg", "Mognadmatning", "AI-Mognadmatning", "Utbildning", "Export"],
+    features: [
+      "Mognadsmätning (max 3 sessioner)",
+    ],
+    missing: [
+      "AI-Mognadsmätning",
+      "Verktyg",
+      "Upphandling",
+      "Utbildning",
+    ],
   },
   {
     key: "starter",
     label: "Starter",
-    price: "990 kr/man",
+    price: "Kontakta oss",
     color: "border-blue-400 dark:border-blue-500",
     maxUsers: 10,
-    features: ["Upphandling (full)", "Verktyg (alla)", "Reflektionsstöd", "Export (XLSX/CSV/JSON)", "5 upphandlingsarenden"],
-    missing: ["Mognadmatning", "AI-Mognadmatning", "Utbildning"],
+    features: [
+      "Mognadsmätning (obegränsat)",
+      "AI-Mognadsmätning",
+      "4 verktyg: Riskmatris, Intressentanalys, Nyttokalkyl, Reflektionsstöd",
+    ],
+    missing: [
+      "Upphandling (case, bibliotek)",
+      "7 verktyg (utvärdering, tidslinje, m.fl.)",
+      "Utbildning",
+    ],
   },
   {
     key: "professional",
     label: "Professional",
-    price: "1 990 kr/man",
+    price: "Kontakta oss",
     color: "border-purple-400 dark:border-purple-500",
-    maxUsers: 50,
-    features: ["Allt i Starter", "Mognadmatning", "AI-Mognadmatning", "Utbildning", "Obegransat antal arenden"],
-    missing: ["White-label", "Dedicerad support"],
+    maxUsers: 25,
+    features: [
+      "Allt i Starter",
+      "Upphandling (case, bibliotek, hjälpcenter)",
+      "Alla 11 verktyg",
+      "Utbildning",
+      "Obegränsade case och sessioner",
+    ],
+    missing: [
+      "Domänprofiler",
+      "API-åtkomst",
+      "SSO",
+    ],
   },
   {
     key: "enterprise",
     label: "Enterprise",
     price: "Offert",
     color: "border-amber-400 dark:border-amber-500",
-    maxUsers: 999,
-    features: ["Allt i Professional", "Obegransat antal anvandare", "White-label (kommande)", "Prioriterad support", "SLA-garanti"],
+    maxUsers: -1,
+    features: [
+      "Allt i Professional",
+      "Obegränsat antal användare",
+      "Domänprofiler",
+      "API-åtkomst",
+      "SSO",
+    ],
     missing: [],
   },
 ];
@@ -322,8 +353,8 @@ function PlanInfoPopup({ onClose }: { onClose: () => void }) {
       <div className="bg-card border border-border/60 rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border/40">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Plannivaer</h3>
-            <p className="text-xs text-muted-foreground">Jamforelse av funktioner och prisbild per plan</p>
+            <h3 className="text-lg font-semibold text-foreground">Plannivåer</h3>
+            <p className="text-xs text-muted-foreground">Jämförelse av funktioner per plan</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted/30 transition-colors cursor-pointer">
             <Icon name="x" size={18} className="text-muted-foreground" />
@@ -337,7 +368,7 @@ function PlanInfoPopup({ onClose }: { onClose: () => void }) {
                   {p.label}
                 </span>
                 <p className="text-xl font-bold text-foreground mt-1">{p.price}</p>
-                <p className="text-[10px] text-muted-foreground">Max {p.maxUsers === 999 ? "obegransat" : p.maxUsers} anvandare</p>
+                <p className="text-[10px] text-muted-foreground">Max {p.maxUsers === -1 ? "obegränsat" : p.maxUsers} användare</p>
               </div>
               <div className="space-y-1.5">
                 {p.features.map((f) => (
@@ -358,7 +389,7 @@ function PlanInfoPopup({ onClose }: { onClose: () => void }) {
         </div>
         <div className="px-6 py-3 border-t border-border/40 text-center">
           <p className="text-[10px] text-muted-foreground/50">
-            Priserna ar forslag och kan anpassas. Kontakta kontakt@criteroconsulting.se for offert.
+            Priserna kan anpassas. Kontakta kontakt@criteroconsulting.se för offert.
           </p>
         </div>
       </div>
@@ -583,10 +614,10 @@ function NewOrgForm({
               onChange={(e) => setPlan(e.target.value)}
               className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
-              <option value="trial">Trial (gratis, max 3 anv.)</option>
-              <option value="starter">Starter (990 kr/man, max 10)</option>
-              <option value="professional">Professional (1 990 kr/man, max 50)</option>
-              <option value="enterprise">Enterprise (offert, obegransat)</option>
+              <option value="trial">Trial (gratis, 30 dagar, max 3)</option>
+              <option value="starter">Starter (max 10 användare)</option>
+              <option value="professional">Professional (max 25 användare)</option>
+              <option value="enterprise">Enterprise (obegränsat)</option>
             </select>
           </div>
         </div>
@@ -1134,6 +1165,69 @@ export default function AdminContent() {
       </div>
 
       <div className="px-8 py-8 max-w-4xl space-y-8">
+        {/* ============================================================ */}
+        {/*  PLAN REFERENCE CARD                                          */}
+        {/* ============================================================ */}
+        <div className="rounded-2xl border border-border/60 bg-card/80 overflow-hidden">
+          <div className="px-5 py-3 border-b border-border/40 flex items-center gap-2">
+            <Icon name="layers" size={16} className="text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Plannivåer — snabbreferens</h3>
+          </div>
+          <div className="p-4 overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border/40">
+                  <th className="text-left pb-2 pr-4 font-semibold text-muted-foreground whitespace-nowrap">Plan</th>
+                  <th className="text-left pb-2 pr-4 font-semibold text-muted-foreground whitespace-nowrap">Användare</th>
+                  <th className="text-left pb-2 pr-4 font-semibold text-muted-foreground whitespace-nowrap">Mognadsmätning</th>
+                  <th className="text-left pb-2 pr-4 font-semibold text-muted-foreground whitespace-nowrap">AI-Mätning</th>
+                  <th className="text-left pb-2 pr-4 font-semibold text-muted-foreground whitespace-nowrap">Verktyg</th>
+                  <th className="text-left pb-2 pr-4 font-semibold text-muted-foreground whitespace-nowrap">Upphandling</th>
+                  <th className="text-left pb-2 font-semibold text-muted-foreground whitespace-nowrap">Övrigt</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/30">
+                <tr>
+                  <td className="py-2 pr-4"><span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${PLAN_COLORS.trial}`}>Trial</span></td>
+                  <td className="py-2 pr-4 text-muted-foreground">3</td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /> <span className="text-muted-foreground">max 3</span></td>
+                  <td className="py-2 pr-4"><Icon name="x" size={12} className="text-muted-foreground/30" /></td>
+                  <td className="py-2 pr-4"><Icon name="x" size={12} className="text-muted-foreground/30" /></td>
+                  <td className="py-2 pr-4"><Icon name="x" size={12} className="text-muted-foreground/30" /></td>
+                  <td className="py-2 text-muted-foreground">30 dagar</td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4"><span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${PLAN_COLORS.starter}`}>Starter</span></td>
+                  <td className="py-2 pr-4 text-muted-foreground">10</td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /></td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /></td>
+                  <td className="py-2 pr-4"><span className="text-blue-500 font-medium">4 st</span> <span className="text-muted-foreground">(risk, intressent, nytta, kunskapsbank)</span></td>
+                  <td className="py-2 pr-4"><Icon name="x" size={12} className="text-muted-foreground/30" /></td>
+                  <td className="py-2 text-muted-foreground">—</td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4"><span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${PLAN_COLORS.professional}`}>Professional</span></td>
+                  <td className="py-2 pr-4 text-muted-foreground">25</td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /></td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /></td>
+                  <td className="py-2 pr-4"><span className="text-green-500 font-medium">Alla 11</span></td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /> <span className="text-muted-foreground">case, bibliotek, utbildning</span></td>
+                  <td className="py-2 text-muted-foreground">—</td>
+                </tr>
+                <tr>
+                  <td className="py-2 pr-4"><span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${PLAN_COLORS.enterprise}`}>Enterprise</span></td>
+                  <td className="py-2 pr-4 text-muted-foreground">Obegr.</td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /></td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /></td>
+                  <td className="py-2 pr-4"><span className="text-green-500 font-medium">Alla 11</span></td>
+                  <td className="py-2 pr-4"><Icon name="check" size={12} className="text-green-500" /> <span className="text-muted-foreground">case, bibliotek, utbildning</span></td>
+                  <td className="py-2 text-muted-foreground">Profiler, API, SSO</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* ============================================================ */}
         {/*  ORGANISATIONER                                               */}
         {/* ============================================================ */}
