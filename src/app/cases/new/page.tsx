@@ -11,63 +11,11 @@ import { TagListEditor } from "@/components/ui/tag-list-editor";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Icon } from "@/components/ui/icon";
 
-const PROFILE_OPTIONS = [
-  { value: "generisk_lou", label: "Generisk LOU" },
-  { value: "avfall_nyanskaffning", label: "Avfall – nyanskaffning" },
-  { value: "socialtjanst_byte", label: "Socialtjänst – byte" },
-];
-
 const PROCUREMENT_TYPE_OPTIONS = [
   { value: "nyanskaffning", label: "Nyanskaffning" },
   { value: "byte", label: "Byte" },
   { value: "utokning", label: "Utökning" },
 ];
-
-const PROFILE_DESCRIPTIONS: Record<string, string> = {
-  generisk_lou: "Ren LOU-upphandling utan branschspecifika tillägg. Passar för alla typer av offentliga upphandlingar.",
-  avfall_nyanskaffning: "Specialiserad för avfallshantering med kluster för ruttplanering, ÅVC, kundregister m.m. Extra gates för branschspecifika risker.",
-  socialtjanst_byte: "Anpassad för socialtjänstens behov med IBIC, genomförandeplan och sekretesshantering. Extra fokus på övergångsperiod.",
-};
-
-interface ProfilePreview {
-  phases: { id: string; label: string; gateCount: number }[];
-  clusters: string[];
-  extras: string[];
-}
-
-const PROFILE_PREVIEWS: Record<string, ProfilePreview> = {
-  generisk_lou: {
-    phases: [
-      { id: "A", label: "A. Start & styrning", gateCount: 6 },
-      { id: "B", label: "B. Förbered upphandlingen", gateCount: 11 },
-      { id: "C", label: "C. Genomför upphandlingen", gateCount: 7 },
-      { id: "D", label: "D. Kontrakt → förvaltning", gateCount: 3 },
-    ],
-    clusters: [],
-    extras: ["Generisk LOU-ryggrad utan profilspecifika tillägg"],
-  },
-  avfall_nyanskaffning: {
-    phases: [
-      { id: "A", label: "A. Start & styrning", gateCount: 6 },
-      { id: "B", label: "B. Förbered upphandlingen", gateCount: 12 },
-      { id: "C", label: "C. Genomför upphandlingen", gateCount: 7 },
-      { id: "D", label: "D. Kontrakt → förvaltning", gateCount: 3 },
-    ],
-    clusters: ["Kund & abonnemang", "Taxa & fakturering", "Logistik/insamling", "ÅVC", "Digitala tjänster", "Integrationer", "Data & rapportering", "Data & exit"],
-    extras: ["+1 extra gate: Behov i minst 4 kluster", "6 branschspecifika kravblock", "6 workshopmallar"],
-  },
-  socialtjanst_byte: {
-    phases: [
-      { id: "A", label: "A. Start & styrning", gateCount: 6 },
-      { id: "B0", label: "B0. Exit & migrering – förstudie", gateCount: 2 },
-      { id: "B", label: "B. Förbered upphandlingen", gateCount: 13 },
-      { id: "C", label: "C. Genomför upphandlingen", gateCount: 7 },
-      { id: "D", label: "D. Kontrakt → förvaltning", gateCount: 3 },
-    ],
-    clusters: ["Ärende/process", "Dokumentation & spårbarhet", "Behörighet & loggning", "Planering/insatser/utförande", "Integrationer", "Migrering/exit", "Rapportering", "Data & exit"],
-    extras: ["Extra fas: B0 Exit & migrering – förstudie", "+2 extra gates i fas B", "Obligatorisk riskkategori: data_exit", "6 branschspecifika kravblock"],
-  },
-};
 
 const STEPS = [
   { id: 1, label: "Grunduppgifter" },
@@ -83,7 +31,6 @@ export default function NewCasePage() {
 
   // Step 1: Basic info
   const [name, setName] = useState("");
-  const [domainProfile, setDomainProfile] = useState("generisk_lou");
   const [orgName, setOrgName] = useState("");
   const [procurementType, setProcurementType] = useState("nyanskaffning");
   const [estimatedValueSek, setEstimatedValueSek] = useState("");
@@ -114,7 +61,7 @@ export default function NewCasePage() {
 
     const body = {
       name,
-      domainProfile,
+      domainProfile: "generisk_lou",
       orgName,
       procurementType,
       estimatedValueSek: Number(estimatedValueSek) || 0,
@@ -202,66 +149,6 @@ export default function NewCasePage() {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
-                <div className="relative">
-                  <div className="absolute right-0 top-0">
-                    <Tooltip content={PROFILE_DESCRIPTIONS[domainProfile] ?? ""} side="left" />
-                  </div>
-                  <Select
-                    id="domainProfile"
-                    label="Domänprofil"
-                    options={PROFILE_OPTIONS}
-                    value={domainProfile}
-                    onChange={(e) => setDomainProfile(e.target.value)}
-                  />
-                </div>
-                {domainProfile && (
-                  <p className="text-xs text-muted-foreground -mt-2 px-1">{PROFILE_DESCRIPTIONS[domainProfile]}</p>
-                )}
-
-                {/* Profile preview */}
-                {domainProfile && PROFILE_PREVIEWS[domainProfile] && (
-                  <div className="border border-border rounded-lg p-3 bg-muted/30 space-y-3">
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Profilförhandsvisning</div>
-
-                    {/* Phases */}
-                    <div>
-                      <div className="text-xs font-medium mb-1.5">Faser ({PROFILE_PREVIEWS[domainProfile].phases.length} st)</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {PROFILE_PREVIEWS[domainProfile].phases.map((phase) => (
-                          <div key={phase.id} className="flex items-center gap-1 bg-background border border-border rounded px-2 py-1 text-xs">
-                            <span className="font-medium">{phase.label}</span>
-                            <span className="text-muted-foreground">({phase.gateCount} gates)</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Clusters */}
-                    {PROFILE_PREVIEWS[domainProfile].clusters.length > 0 && (
-                      <div>
-                        <div className="text-xs font-medium mb-1.5">Behovskluster ({PROFILE_PREVIEWS[domainProfile].clusters.length} st)</div>
-                        <div className="flex flex-wrap gap-1">
-                          {PROFILE_PREVIEWS[domainProfile].clusters.map((c) => (
-                            <span key={c} className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-[11px]">{c}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Profile extras */}
-                    <div>
-                      <div className="text-xs font-medium mb-1">Profilspecifikt</div>
-                      <ul className="text-xs text-muted-foreground space-y-0.5">
-                        {PROFILE_PREVIEWS[domainProfile].extras.map((e, i) => (
-                          <li key={i} className="flex items-center gap-1">
-                            <span className="text-primary">•</span> {e}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-
                 <div className="relative">
                   <div className="absolute right-0 top-0">
                     <Tooltip content="Den upphandlande myndighetens namn. Används för dokumentgenerering och spårbarhet." side="left" />
