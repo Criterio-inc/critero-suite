@@ -203,15 +203,24 @@ export async function requireAuth(): Promise<AuthContext> {
     return ensureDevOrg();
   }
 
-  // Check platform admin status — first from DB, then auto-sync from Clerk
+  // Check platform admin status — auto-sync from Clerk every time
+  // This ensures PLATFORM_ADMIN_EMAILS changes take effect immediately
   let isPlatformAdmin = false;
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { isAdmin: true },
+      select: { isAdmin: true, email: true },
     });
     if (user) {
-      isPlatformAdmin = user.isAdmin;
+      // Re-check against env var (in case PLATFORM_ADMIN_EMAILS changed)
+      const shouldBeAdmin = !!user.email && PLATFORM_ADMIN_EMAILS.includes(user.email.toLowerCase());
+      if (shouldBeAdmin !== user.isAdmin) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { isAdmin: shouldBeAdmin },
+        });
+      }
+      isPlatformAdmin = shouldBeAdmin;
     } else {
       // User not in DB yet (webhook hasn't fired) — auto-sync from Clerk session
       isPlatformAdmin = await autoSyncClerkUser(userId);

@@ -1246,9 +1246,30 @@ export default function AdminContent() {
                                             {m.email}
                                           </p>
                                         </div>
-                                        <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5">
-                                          {m.role}
-                                        </span>
+                                        <select
+                                          value={m.role}
+                                          onChange={async (e) => {
+                                            const newRole = e.target.value;
+                                            try {
+                                              const res = await fetch(`/api/admin/organizations/${org.id}`, {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ userId: m.userId, role: newRole }),
+                                              });
+                                              if (res.ok) {
+                                                fetchOrgDetail(org.id);
+                                                fetchUsers();
+                                              }
+                                            } catch (err) {
+                                              console.error("Kunde inte ändra roll:", err);
+                                            }
+                                          }}
+                                          className="text-[11px] font-medium text-muted-foreground bg-muted/50 rounded-full px-2 py-0.5 border-none focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer"
+                                        >
+                                          <option value="admin">Admin</option>
+                                          <option value="member">Medlem</option>
+                                          <option value="viewer">Läsare</option>
+                                        </select>
                                       </div>
                                     );
                                   })}
