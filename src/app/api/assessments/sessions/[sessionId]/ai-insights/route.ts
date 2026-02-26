@@ -136,13 +136,9 @@ ${questionDetails.join("\n")}`;
 ## Bedömningstyp
 ${config.name}: ${config.description}
 
-## Organisation
-${session.project.organizationName || "Ej angiven"}
-
 ## Övergripande resultat
 - Totalpoäng: ${session.result.overall}/5
 - Mognadsnivå: ${session.result.level} — ${maturityLevel?.name ?? "Okänd"} (${maturityLevel?.description ?? ""})
-- Respondent: ${session.respondentName || "Anonym"}${session.respondentRole ? ` (${session.respondentRole})` : ""}
 
 ## Dimensionsresultat
 ${dimensionDetails.join("\n\n")}
