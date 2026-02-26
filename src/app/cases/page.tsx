@@ -26,7 +26,31 @@ const PHASE_LABELS: Record<string, string> = {
   "D. Implementera & följ upp": "Fas D",
 };
 
+/** Known seed/demo case IDs — auto-prefix with [DEMO] if not already */
+const DEMO_CASE_IDS = ["CASE-000001", "CASE-000002"];
+
+async function ensureDemoPrefix() {
+  try {
+    const demoCases = await prisma.case.findMany({
+      where: { id: { in: DEMO_CASE_IDS } },
+      select: { id: true, name: true },
+    });
+    for (const c of demoCases) {
+      if (!c.name.startsWith("[DEMO]")) {
+        await prisma.case.update({
+          where: { id: c.id },
+          data: { name: `[DEMO] ${c.name}` },
+        });
+      }
+    }
+  } catch {
+    // Silently ignore — non-critical
+  }
+}
+
 export default async function CasesPage() {
+  await ensureDemoPrefix();
+
   const cases: any[] = await prisma.case.findMany({
     orderBy: { updatedAt: "desc" },
   });
