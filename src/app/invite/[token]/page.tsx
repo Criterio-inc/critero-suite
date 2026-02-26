@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
@@ -28,8 +28,12 @@ export default function InviteAcceptPage() {
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
   const [error, setError] = useState("");
+  const [errorCode, setErrorCode] = useState("");
   const [success, setSuccess] = useState("");
+  const [needsLogin, setNeedsLogin] = useState(false);
+  const autoAcceptAttempted = useRef(false);
 
+  // 1. Fetch invite details
   useEffect(() => {
     fetch(`/api/invite/${token}`)
       .then((r) => r.json())
@@ -47,24 +51,32 @@ export default function InviteAcceptPage() {
       });
   }, [token]);
 
-  const [needsLogin, setNeedsLogin] = useState(false);
+  // 2. Auto-accept: try immediately when invite data is loaded.
+  //    If user is logged in → accept succeeds → done.
+  //    If not logged in → 401 → show "Logga in" UI.
+  useEffect(() => {
+    if (!invite || autoAcceptAttempted.current) return;
+    autoAcceptAttempted.current = true;
+    tryAccept();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invite]);
 
-  const [emailMismatch, setEmailMismatch] = useState(false);
-
-  const accept = async () => {
+  const tryAccept = async () => {
     setAccepting(true);
     setError("");
-    setEmailMismatch(false);
+    setErrorCode("");
     try {
       const res = await fetch(`/api/invite/${token}`, { method: "POST" });
       const data = await res.json();
+
       if (res.ok && data.ok) {
         setSuccess(data.message ?? "Klart!");
         setTimeout(() => router.push("/"), 1500);
       } else if (res.status === 401 || data.code === "NOT_AUTHENTICATED") {
+        // Not logged in — show sign-in UI (no error message, this is expected)
         setNeedsLogin(true);
       } else if (data.code === "EMAIL_MISMATCH") {
-        setEmailMismatch(true);
+        setErrorCode("EMAIL_MISMATCH");
         setError(data.error ?? "E-postadressen matchar inte inbjudan");
       } else {
         setError(data.error ?? "Kunde inte acceptera inbjudan");
@@ -75,10 +87,17 @@ export default function InviteAcceptPage() {
     setAccepting(false);
   };
 
-  if (loading) {
+  if (loading || (accepting && !needsLogin && !error && !success)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">Validerar inbjudan...</p>
+        <div className="text-center space-y-3">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center">
+            <Icon name="loader" size={24} className="text-primary animate-spin" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {accepting ? "Accepterar inbjudan..." : "Validerar inbjudan..."}
+          </p>
+        </div>
       </div>
     );
   }
@@ -104,11 +123,11 @@ export default function InviteAcceptPage() {
               <Icon name="check" size={24} className="text-green-600" />
             </div>
             <h2 className="text-lg font-semibold text-foreground">{success}</h2>
-            <p className="text-sm text-muted-foreground">Du omdirigeras till organisationssidan...</p>
+            <p className="text-sm text-muted-foreground">Du omdirigeras...</p>
           </div>
         )}
 
-        {/* Error state (no invite data) */}
+        {/* Error state (no invite data — invalid/expired token) */}
         {error && !invite && (
           <div className="rounded-2xl border border-border/60 bg-card p-8 text-center space-y-4">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-900">
@@ -125,7 +144,7 @@ export default function InviteAcceptPage() {
           </div>
         )}
 
-        {/* Valid invite — show accept UI */}
+        {/* Valid invite — show appropriate UI based on state */}
         {invite && !success && (
           <div className="rounded-2xl border border-border/60 bg-card p-8 space-y-6">
             <div className="text-center space-y-2">
@@ -164,11 +183,8 @@ export default function InviteAcceptPage() {
               </div>
             </div>
 
-            {error && !emailMismatch && (
-              <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
-            )}
-
-            {emailMismatch ? (
+            {/* Email mismatch — logged in with wrong account */}
+            {errorCode === "EMAIL_MISMATCH" && (
               <div className="space-y-3">
                 <div className="rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-3">
                   <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
@@ -176,35 +192,34 @@ export default function InviteAcceptPage() {
                   </p>
                 </div>
                 <Link
-                  href={`/sign-in?redirect_url=/invite/${token}`}
+                  href={`/sign-in?redirect_url=${encodeURIComponent(`/invite/${token}`)}`}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
                   <Icon name="log-in" size={16} />
                   Logga in med rätt konto
                 </Link>
               </div>
-            ) : needsLogin ? (
+            )}
+
+            {/* Other errors */}
+            {error && errorCode !== "EMAIL_MISMATCH" && (
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
+            )}
+
+            {/* Not logged in — show sign-in button directly (no confusing error first) */}
+            {needsLogin && !error && (
               <div className="space-y-3">
-                <p className="text-sm text-amber-700 dark:text-amber-300 text-center">
-                  Du måste logga in eller skapa ett konto först.
-                </p>
                 <Link
-                  href={`/sign-in?redirect_url=/invite/${token}`}
+                  href={`/sign-in?redirect_url=${encodeURIComponent(`/invite/${token}`)}`}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
                   <Icon name="log-in" size={16} />
-                  Logga in för att acceptera
+                  Logga in och gå med
                 </Link>
+                <p className="text-[11px] text-muted-foreground text-center">
+                  Du loggas in och kopplas automatiskt till {invite.org.name}.
+                </p>
               </div>
-            ) : (
-              <button
-                onClick={accept}
-                disabled={accepting}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors cursor-pointer"
-              >
-                <Icon name="check" size={16} />
-                {accepting ? "Accepterar..." : "Acceptera inbjudan"}
-              </button>
             )}
           </div>
         )}

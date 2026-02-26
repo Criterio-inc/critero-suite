@@ -3,9 +3,14 @@
 import { SignInButton, SignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 
 export default function SignInPage() {
+  const searchParams = useSearchParams();
+  // Respect redirect_url from query params (e.g., from invite flow)
+  const redirectUrl = searchParams.get("redirect_url") || "/";
+
   // Track whether the embedded Clerk widget rendered any visible content
   const [widgetLoaded, setWidgetLoaded] = useState(false);
   const [checkDone, setCheckDone] = useState(false);
@@ -61,7 +66,7 @@ export default function SignInPage() {
 
           {/* Primary: SignInButton with modal (most reliable) */}
           <div className="space-y-4">
-            <SignInButton mode="modal" forceRedirectUrl="/">
+            <SignInButton mode="modal" forceRedirectUrl={redirectUrl}>
               <button className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90 transition-colors cursor-pointer">
                 <Icon name="arrow-right" size={16} />
                 Logga in på Critero Suite
@@ -90,7 +95,7 @@ export default function SignInPage() {
               <SignIn
                 routing="path"
                 path="/sign-in"
-                forceRedirectUrl="/"
+                forceRedirectUrl={redirectUrl}
                 appearance={{
                   elements: {
                     rootBox: "w-full",
