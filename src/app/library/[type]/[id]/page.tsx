@@ -5,16 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SparkboardSuggestion } from "@/components/library/sparkboard-suggestion";
+import { Icon } from "@/components/ui/icon";
 
 export const dynamic = "force-dynamic";
 
 const TYPE_INFO: Record<string, { label: string; singular: string; icon: string }> = {
-  requirement_block: { label: "Kravbibliotek", singular: "kravblock", icon: "📐" },
-  risk_template: { label: "Riskbibliotek", singular: "riskmall", icon: "⚠️" },
-  workshop_template: { label: "Workshopmallar", singular: "workshopmall", icon: "🏛️" },
-  criteria_block: { label: "Kriterieblock", singular: "kriterieblock", icon: "🎯" },
-  contract_clause: { label: "Kontraktsklausuler", singular: "kontraktsklausul", icon: "📜" },
-  phase_checklist: { label: "Faschecklistor", singular: "faschecklista", icon: "✅" },
+  requirement_block: { label: "Kravbibliotek", singular: "kravblock", icon: "ruler" },
+  risk_template: { label: "Riskbibliotek", singular: "riskmall", icon: "shield-alert" },
+  workshop_template: { label: "Workshopmallar", singular: "workshopmall", icon: "presentation" },
+  criteria_block: { label: "Kriterieblock", singular: "kriterieblock", icon: "target" },
+  contract_clause: { label: "Kontraktsklausuler", singular: "kontraktsklausul", icon: "scroll" },
+  phase_checklist: { label: "Faschecklistor", singular: "faschecklista", icon: "check-square" },
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -177,7 +178,7 @@ function RiskTemplateContent({ risk }: { risk: any }) {
             <ul className="space-y-1">
               {indicators.map((ind: string, i: number) => (
                 <li key={i} className="text-sm flex items-start gap-2">
-                  <span className="text-amber-500 mt-0.5 shrink-0">⚡</span>
+                  <Icon name="zap" size={14} className="text-amber-500 mt-0.5 shrink-0" />
                   <span>{ind}</span>
                 </li>
               ))}
@@ -190,7 +191,7 @@ function RiskTemplateContent({ risk }: { risk: any }) {
       {risk.escalationCriteria && (
         <div className="rounded-2xl border border-warning/20 bg-warning/5 p-4">
           <div className="flex items-start gap-2.5">
-            <span className="shrink-0 mt-0.5">🔺</span>
+            <Icon name="alert-triangle" size={16} className="text-amber-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Eskaleringskriterier</p>
               <p className="text-sm mt-1 leading-relaxed">{risk.escalationCriteria}</p>
@@ -225,7 +226,7 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
       {workshop.preparation && (
         <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
           <div className="flex items-start gap-2.5">
-            <span className="shrink-0">📝</span>
+            <Icon name="clipboard-edit" size={16} className="text-primary shrink-0" />
             <div>
               <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Förberedelser</p>
               <p className="text-sm mt-1 leading-relaxed">{workshop.preparation}</p>
@@ -288,7 +289,7 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
                 {item.tips && (
                   <div className="rounded-xl bg-secondary/60 p-2.5 mt-1">
                     <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-                      <span className="shrink-0">💡</span>
+                      <Icon name="lightbulb" size={14} className="text-primary/60 shrink-0" />
                       <span>{item.tips}</span>
                     </p>
                   </div>
@@ -330,7 +331,7 @@ function WorkshopTemplateContent({ workshop }: { workshop: any }) {
             <ul className="space-y-1">
               {outputs.map((o: string, i: number) => (
                 <li key={i} className="text-sm flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
+                  <Icon name="check" size={14} className="text-green-500" />
                   <span>{o}</span>
                 </li>
               ))}

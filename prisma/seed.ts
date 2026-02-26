@@ -2089,7 +2089,7 @@ async function main() {
     data: {
       id: case1Id,
       orgId: defaultOrg.id,
-      name: "Nytt avfallssystem 2026",
+      name: "[DEMO] Nytt avfallssystem 2026",
       domainProfile: "avfall_nyanskaffning",
       orgName: "Sundsvalls kommun",
       procurementType: "nyanskaffning",
@@ -2260,7 +2260,7 @@ async function main() {
     data: {
       id: case2Id,
       orgId: defaultOrg.id,
-      name: "Byte av socialtjänstsystem",
+      name: "[DEMO] Byte av socialtjänstsystem",
       domainProfile: "socialtjanst_byte",
       orgName: "Helsingborgs stad",
       procurementType: "byte",

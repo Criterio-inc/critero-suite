@@ -13,6 +13,7 @@ import { ImportRestore } from "@/components/workflow/import-restore";
 import { ImportToCaseDialog } from "@/components/library/import-to-case-dialog";
 import { GlobalSearch } from "@/components/search/global-search";
 import { MaturityDashboard } from "@/components/maturity/maturity-dashboard";
+import { Icon } from "@/components/ui/icon";
 
 /** Phase-specific guidance for verksamhetsföreträdare */
 const PHASE_GUIDE: Record<string, { verksamhetRole: string; nextActions: { label: string; href: string }[]; tip: string }> = {
@@ -99,16 +100,16 @@ export default async function CaseDashboard({
   ]);
 
   const counts = [
-    { label: "Intressenter", count: stakeholderCount, icon: "👥" },
-    { label: "Workshops", count: workshopCount, icon: "🏛️" },
-    { label: "Evidens", count: evidenceCount, icon: "📎" },
-    { label: "Behov", count: needCount, icon: "💡" },
-    { label: "Risker", count: riskCount, icon: "⚠️" },
-    { label: "Krav", count: requirementCount, icon: "📐" },
-    { label: "Kriterier", count: criterionCount, icon: "⚖️" },
-    { label: "Anbud", count: bidCount, icon: "📨" },
-    { label: "Beslut", count: decisionCount, icon: "🔨" },
-    { label: "Dokument", count: documentCount, icon: "📄" },
+    { label: "Intressenter", count: stakeholderCount, icon: "users" },
+    { label: "Workshops", count: workshopCount, icon: "presentation" },
+    { label: "Evidens", count: evidenceCount, icon: "paperclip" },
+    { label: "Behov", count: needCount, icon: "lightbulb" },
+    { label: "Risker", count: riskCount, icon: "shield-alert" },
+    { label: "Krav", count: requirementCount, icon: "ruler" },
+    { label: "Kriterier", count: criterionCount, icon: "scale" },
+    { label: "Anbud", count: bidCount, icon: "inbox" },
+    { label: "Beslut", count: decisionCount, icon: "gavel" },
+    { label: "Dokument", count: documentCount, icon: "file-text" },
   ];
 
   const profileLabels: Record<string, string> = {
@@ -121,18 +122,31 @@ export default async function CaseDashboard({
   const currentPhaseIndex = phases.findIndex((p) => p.id === c.currentPhase);
   const progressPercent = phases.length > 0 ? Math.round(((currentPhaseIndex + 1) / phases.length) * 100) : 0;
 
+  const isDemo = (c.name as string).startsWith("[DEMO]");
+  const displayName = isDemo ? (c.name as string).replace("[DEMO] ", "") : c.name;
+
   return (
     <div>
       <Header
-        title={c.name}
-        description={`${profileLabels[c.domainProfile] ?? c.domainProfile} · ${c.orgName || "Ingen organisation"}`}
+        title={isDemo ? `${displayName}` : c.name}
+        description={`${isDemo ? "DEMOUPPHANDLING · " : ""}${profileLabels[c.domainProfile] ?? c.domainProfile} · ${c.orgName || "Ingen organisation"}`}
         breadcrumbs={[
           { label: "Upphandlingar", href: "/cases" },
-          { label: c.name },
+          { label: isDemo ? `[DEMO] ${displayName}` : c.name },
         ]}
         actions={<GlobalSearch caseId={caseId} />}
       />
       <div className="p-6 space-y-6">
+        {/* Demo notice */}
+        {isDemo && (
+          <div className="flex items-center gap-2.5 rounded-xl border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 px-4 py-3">
+            <Icon name="info" size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
+            <p className="text-sm text-amber-700 dark:text-amber-300">
+              Detta är en <strong>demoupphandling</strong> med exempeldata — enbart för att visa systemets funktionalitet.
+            </p>
+          </div>
+        )}
+
         {/* Status overview */}
         <div className="flex flex-wrap items-center gap-4">
           <StatusBadge status={c.status} />
@@ -152,7 +166,9 @@ export default async function CaseDashboard({
             <Card className="border-blue-200 bg-blue-50/30">
               <CardContent>
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl mt-0.5">👤</span>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100">
+                    <Icon name="user" size={18} className="text-blue-700" />
+                  </div>
                   <div className="flex-1 space-y-2">
                     <div>
                       <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
@@ -172,7 +188,7 @@ export default async function CaseDashboard({
                       ))}
                     </div>
                     <div className="flex items-start gap-1.5 bg-blue-100/50 rounded p-2">
-                      <span className="text-xs">💡</span>
+                      <Icon name="lightbulb" size={14} className="text-blue-600 shrink-0 mt-0.5" />
                       <span className="text-xs text-blue-800">{guide.tip}</span>
                     </div>
                   </div>
@@ -196,7 +212,9 @@ export default async function CaseDashboard({
           {counts.map((item) => (
             <Card key={item.label} className="p-4">
               <CardContent className="flex items-center gap-3 p-0">
-                <span className="text-2xl">{item.icon}</span>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                  <Icon name={item.icon} size={20} className="text-primary" />
+                </div>
                 <div>
                   <div className="text-2xl font-bold">{item.count}</div>
                   <div className="text-xs text-muted-foreground">{item.label}</div>
