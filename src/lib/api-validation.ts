@@ -97,6 +97,7 @@ export const updateOrgSchema = z.object({
   maxUsers: z.number().int().min(-1).max(10000).optional(),
   settings: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
   features: z.record(z.string(), z.boolean()).optional(),
+  clearOverrides: z.boolean().optional(),
 });
 
 /* ------------------------------------------------------------------ */
