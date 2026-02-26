@@ -71,7 +71,7 @@ export default function OrgPage() {
   const [setupError, setSetupError] = useState("");
   const [showPlanInfo, setShowPlanInfo] = useState(false);
 
-  const isAdmin = userRole === "admin";
+  const isAdmin = userRole === "admin" || isPlatformAdmin;
 
   const fetchOrg = () => {
     fetch("/api/org")

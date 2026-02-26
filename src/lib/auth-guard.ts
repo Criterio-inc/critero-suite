@@ -232,13 +232,14 @@ export async function requireAuth(): Promise<AuthContext> {
     isPlatformAdmin = await autoSyncClerkUser(userId);
   }
 
-  // Find active membership (pick first org — future: support org switching)
+  // Find active membership — prefer admin role if user has multiple orgs
+  // (future: support org switching via header/cookie)
   let membership = await prisma.orgMembership.findFirst({
     where: { userId },
     include: {
       org: { select: { id: true, slug: true, plan: true } },
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ role: "asc" }, { createdAt: "asc" }], // "admin" < "member" < "viewer" alphabetically
   });
 
   // Auto-match: if no membership, check for pending invitation by email

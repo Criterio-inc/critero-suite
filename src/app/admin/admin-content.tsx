@@ -1013,6 +1013,45 @@ export default function AdminContent() {
     }
   }, [fetchOrgDetail, fetchOrgs]);
 
+  // Remove a member from an org (with option to delete from Clerk)
+  const removeMember = useCallback(async (orgId: string, userId: string, memberName: string) => {
+    const alsoDeleteClerk = confirm(
+      `Ta bort "${memberName}" från organisationen.\n\nVill du OCKSÅ radera användaren permanent från Clerk (hela kontot)?\n\n• OK = Ta bort från org OCH radera Clerk-kontot\n• Avbryt = Avbryt helt`
+    );
+
+    // If they cancelled, ask if they want to just remove from org
+    let deleteFromClerk = false;
+    if (!alsoDeleteClerk) {
+      const justRemove = confirm(
+        `Vill du ENBART ta bort "${memberName}" från organisationen?\n(Clerk-kontot behålls)`
+      );
+      if (!justRemove) return;
+    } else {
+      deleteFromClerk = true;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/organizations/${orgId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, remove: true, deleteFromClerk }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        fetchOrgDetail(orgId, true);
+        fetchOrgs();
+        fetchUsers();
+        if (data.warning) {
+          alert(data.warning);
+        }
+      } else {
+        alert(`Fel: ${data.error ?? "Kunde inte ta bort medlem"}`);
+      }
+    } catch {
+      alert("Nätverksfel vid borttagning.");
+    }
+  }, [fetchOrgDetail, fetchOrgs, fetchUsers]);
+
   // Delete an organization
   const deleteOrg = useCallback(async (orgId: string, orgName: string) => {
     if (!confirm(`Vill du PERMANENT radera organisationen "${orgName}"?\n\nDetta tar bort organisationen, alla medlemskap och feature-overrides. Åtgärden kan INTE ångras.`)) return;
@@ -1451,6 +1490,13 @@ export default function AdminContent() {
                                           <option value="member">Medlem</option>
                                           <option value="viewer">Läsare</option>
                                         </select>
+                                        <button
+                                          onClick={() => removeMember(org.id, m.userId, memberName)}
+                                          className="p-1 rounded-md text-muted-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                                          title="Ta bort medlem"
+                                        >
+                                          <Icon name="x" size={14} />
+                                        </button>
                                       </div>
                                     );
                                   })}
