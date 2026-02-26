@@ -14,50 +14,9 @@ const isClerkEnabled =
   !!clerkKey &&
   /^pk_(test|live)_[A-Za-z0-9]{20,}/.test(clerkKey);
 
-/* ------------------------------------------------------------------ */
-/*  Auth-aware wrapper (only loaded when Clerk is active)              */
-/* ------------------------------------------------------------------ */
-
-const ClerkAwarePage = dynamic(
-  () =>
-    import("@clerk/nextjs").then((mod) => {
-      function AuthSwitch() {
-        const { isSignedIn, isLoaded } = mod.useAuth();
-
-        if (!isLoaded) {
-          return (
-            <div className="flex min-h-screen items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            </div>
-          );
-        }
-
-        if (!isSignedIn) return <LandingPage />;
-        return <PlatformDashboard />;
-      }
-      return AuthSwitch;
-    }),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    ),
-  }
-);
-
-/* ------------------------------------------------------------------ */
-/*  Root page export                                                   */
-/* ------------------------------------------------------------------ */
-
-export default function HomePage() {
-  if (!isClerkEnabled) return <PlatformDashboard />;
-  return <ClerkAwarePage />;
-}
-
 /* ================================================================== */
 /*  Landing page (unauthenticated visitors)                            */
+/*  Defined BEFORE dynamic() so it can be used as loading fallback     */
 /* ================================================================== */
 
 const FEATURE_HIGHLIGHTS = [
@@ -131,11 +90,11 @@ function LandingPage() {
         <div className="relative mx-auto max-w-3xl px-6 pt-20 pb-16 text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
             <Icon name="zap" size={12} className="text-primary" />
-            Verksamhetsstöd for offentlig sektor
+            Verksamhetsstöd för offentlig sektor
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Samlad plattform for{" "}
+            Samlad plattform för{" "}
             <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
               upphandling och mognad
             </span>
@@ -143,7 +102,7 @@ function LandingPage() {
 
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Critero Suite ger er stöd genom hela upphandlingsprocessen enligt
-            LOU — från behovsanalys till tilldelning — samt verktyg for att mäta
+            LOU — från behovsanalys till tilldelning — samt verktyg för att mäta
             och utveckla er digitala och AI-relaterade mognad.
           </p>
 
@@ -212,6 +171,40 @@ function LandingPage() {
       </footer>
     </div>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Auth-aware wrapper (only loaded when Clerk is active)              */
+/*  Shows LandingPage while loading — no spinner, no sidebar flash     */
+/* ------------------------------------------------------------------ */
+
+const ClerkAwarePage = dynamic(
+  () =>
+    import("@clerk/nextjs").then((mod) => {
+      function AuthSwitch() {
+        const { isSignedIn, isLoaded } = mod.useAuth();
+
+        // While Clerk checks auth, show landing page (covers sidebar via fixed overlay)
+        if (!isLoaded) return <LandingPage />;
+        if (!isSignedIn) return <LandingPage />;
+        return <PlatformDashboard />;
+      }
+      return AuthSwitch;
+    }),
+  {
+    ssr: false,
+    // While JS bundle loads, show landing page immediately
+    loading: () => <LandingPage />,
+  }
+);
+
+/* ------------------------------------------------------------------ */
+/*  Root page export                                                   */
+/* ------------------------------------------------------------------ */
+
+export default function HomePage() {
+  if (!isClerkEnabled) return <PlatformDashboard />;
+  return <ClerkAwarePage />;
 }
 
 /* ================================================================== */
