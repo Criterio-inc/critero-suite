@@ -19,148 +19,57 @@ const isClerkEnabled =
 /*  Defined BEFORE dynamic() so it can be used as loading fallback     */
 /* ================================================================== */
 
-const FEATURE_HIGHLIGHTS = [
-  {
-    title: "Upphandling",
-    description:
-      "Stöd för offentlig upphandling enligt LOU — ärendehantering, kravarbete, utvärdering och spårbarhet i alla faser.",
-    icon: "clipboard-list",
-    color: "from-blue-500 to-blue-600",
-    bgLight: "bg-blue-50 dark:bg-blue-950/40",
-  },
-  {
-    title: "Verktyg",
-    description:
-      "Analysverktyg för nyttokalkyl, riskmatris, intressentanalys, tidslinjer och reflektionsstöd med AI.",
-    icon: "wrench",
-    color: "from-amber-500 to-orange-500",
-    bgLight: "bg-amber-50 dark:bg-amber-950/40",
-  },
-  {
-    title: "Digital Mognadsmätning",
-    description:
-      "Mät organisationens digitala mognad med 22 frågor inom 4 dimensioner. Få AI-stödda insikter och handlingsplan.",
-    icon: "bar-chart-3",
-    color: "from-emerald-500 to-teal-500",
-    bgLight: "bg-emerald-50 dark:bg-emerald-950/40",
-  },
-  {
-    title: "AI-Mognadsmätning",
-    description:
-      "Bedöm AI-mognad med 32 frågor inom 8 dimensioner — inklusive EU AI Act, datastrategi och organisatorisk beredskap.",
-    icon: "brain",
-    color: "from-violet-500 to-purple-500",
-    bgLight: "bg-violet-50 dark:bg-violet-950/40",
-  },
-];
-
 function LandingPage() {
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background">
-      {/* ---- Top bar ---- */}
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-base font-bold text-white">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      {/* ---- Content (centered) ---- */}
+      <div className="flex flex-1 items-center justify-center px-6">
+        <div className="w-full max-w-md text-center space-y-8">
+          {/* Logo + name */}
+          <div className="space-y-4">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-2xl font-bold text-white shadow-lg">
               C
             </div>
             <div>
-              <span className="text-lg font-semibold tracking-tight text-foreground">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Critero{" "}
                 <span className="font-light text-muted-foreground">Suite</span>
-              </span>
+              </h1>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Professionellt verksamhetsstöd för upphandling, analys
+                och mognadsmätning i offentlig sektor.
+              </p>
             </div>
           </div>
 
+          {/* Invite-only notice */}
+          <div className="rounded-xl border border-border/60 bg-card/50 px-5 py-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Plattformen är tillgänglig för inbjudna användare.
+              Kontakta{" "}
+              <span className="font-medium text-foreground">
+                kontakt@criteroconsulting.se
+              </span>{" "}
+              för mer information.
+            </p>
+          </div>
+
+          {/* CTA */}
           <Link
             href="/sign-in"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90 transition-colors w-full sm:w-auto"
           >
             Logga in
-            <Icon name="arrow-right" size={14} />
+            <Icon name="arrow-right" size={16} />
           </Link>
         </div>
-      </header>
-
-      {/* ---- Hero ---- */}
-      <section className="relative overflow-hidden">
-        {/* Decorative gradient blobs */}
-        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-transparent blur-3xl" />
-
-        <div className="relative mx-auto max-w-3xl px-6 pt-20 pb-16 text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
-            <Icon name="zap" size={12} className="text-primary" />
-            Verksamhetsstöd för offentlig sektor
-          </div>
-
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Samlad plattform för{" "}
-            <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
-              upphandling och mognad
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Critero Suite ger er stöd genom hela upphandlingsprocessen enligt
-            LOU — från behovsanalys till tilldelning — samt verktyg för att mäta
-            och utveckla er digitala och AI-relaterade mognad.
-          </p>
-
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href="/sign-in"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90 transition-colors"
-            >
-              Logga in
-              <Icon name="arrow-right" size={16} />
-            </Link>
-            <Link
-              href="/terms"
-              className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card px-6 py-3 text-sm font-medium text-foreground shadow-sm hover:bg-accent/50 transition-colors"
-            >
-              Villkor och integritet
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ---- Features ---- */}
-      <section className="mx-auto max-w-5xl px-6 pb-20">
-        <p className="mb-8 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
-          Vad ingår i plattformen
-        </p>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          {FEATURE_HIGHLIGHTS.map((f) => (
-            <div
-              key={f.title}
-              className={`rounded-2xl border border-border/60 ${f.bgLight} p-6 transition-all hover:shadow-md`}
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${f.color} text-white`}
-                >
-                  <Icon name={f.icon} size={22} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-foreground">
-                    {f.title}
-                  </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                    {f.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      </div>
 
       {/* ---- Footer ---- */}
-      <footer className="border-t border-border/40 bg-card/50">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-6 py-8 text-xs text-muted-foreground sm:flex-row sm:justify-between">
+      <footer className="border-t border-border/40 bg-card/30">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-6 py-5 text-[10px] text-muted-foreground/60 sm:flex-row sm:justify-between">
           <p>&copy; {new Date().getFullYear()} Critero Consulting AB</p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link href="/terms" className="hover:text-foreground transition-colors">
               Villkor
             </Link>
