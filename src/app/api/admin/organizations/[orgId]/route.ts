@@ -106,6 +106,12 @@ export async function PATCH(
       });
     }
 
+    // Clear all overrides (revert to plan defaults)
+    if (body.clearOverrides === true) {
+      const { clearOrgOverrides } = await import("@/lib/org-features");
+      await clearOrgOverrides(orgId);
+    }
+
     // Handle feature overrides via setOrgFeatures
     if (body.features && typeof body.features === "object") {
       const { setOrgFeatures } = await import("@/lib/org-features");

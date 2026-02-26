@@ -819,6 +819,46 @@ export default function AdminContent() {
     }
   }, [fetchUsers]);
 
+  // Delete a user from the local DB (not from Clerk)
+  const deleteUser = useCallback(async (userId: string, email: string) => {
+    if (!confirm(`Vill du ta bort användaren ${email} från databasen?\n\nDetta tar INTE bort användaren från Clerk — bara den lokala posten. Användaren återskapas vid nästa synk om den fortfarande finns i Clerk.`)) return;
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchUsers();
+        setSyncMessage(`Användare ${email} borttagen.`);
+      } else {
+        const data = await res.json();
+        setSyncMessage(`Fel: ${data.error ?? "Kunde inte ta bort"}`);
+      }
+    } catch {
+      setSyncMessage("Nätverksfel vid borttagning.");
+    }
+  }, [fetchUsers]);
+
+  // Clear all feature overrides for an org (revert to plan defaults)
+  const clearOrgOverrides = useCallback(async (orgId: string) => {
+    if (!confirm("Rensa alla feature-overrides? Organisationen återgår till planens standardfunktioner.")) return;
+    setOrgFeatureSaving(orgId);
+    try {
+      const res = await fetch(`/api/admin/organizations/${orgId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clearOverrides: true }),
+      });
+      if (res.ok) {
+        // Re-fetch org detail to get clean state
+        fetchOrgDetail(orgId);
+        // Re-fetch org list to update override count
+        fetchOrgs();
+      }
+    } catch (e) {
+      console.error("Failed to clear overrides:", e);
+    } finally {
+      setOrgFeatureSaving(null);
+    }
+  }, [fetchOrgDetail, fetchOrgs]);
+
   // Loading states
   if (!isLoaded) {
     return (
@@ -990,9 +1030,9 @@ export default function AdminContent() {
                           {org.caseCount}
                         </span>
                         {org.featureOverrideCount > 0 && (
-                          <span className="inline-flex items-center gap-1">
+                          <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
                             <Icon name="settings" size={12} />
-                            {org.featureOverrideCount} overrides
+                            {org.featureOverrideCount} anpassningar
                           </span>
                         )}
                       </div>
@@ -1015,9 +1055,21 @@ export default function AdminContent() {
                           <>
                             {/* Feature toggles */}
                             <div className="space-y-3">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-                                Funktioner
-                              </p>
+                              <div className="flex items-center justify-between">
+                                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                                  Funktioner
+                                </p>
+                                {detail && Object.keys(detail.features).length > 0 && (
+                                  <button
+                                    onClick={() => clearOrgOverrides(org.id)}
+                                    disabled={saving}
+                                    className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer disabled:opacity-50"
+                                  >
+                                    <Icon name="refresh-cw" size={10} />
+                                    Rensa overrides
+                                  </button>
+                                )}
+                              </div>
                               {APP_DEFS.map((app) => {
                                 const appFeatures = FEATURE_DEFS.filter(
                                   (f) => f.appKey === app.key,
@@ -1456,6 +1508,17 @@ export default function AdminContent() {
                               </span>
                             </div>
                           </div>
+                        </div>
+
+                        {/* Delete user */}
+                        <div className="pt-2 border-t border-border/30">
+                          <button
+                            onClick={() => deleteUser(u.id, u.email)}
+                            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                          >
+                            <Icon name="trash-2" size={12} />
+                            Ta bort användare
+                          </button>
                         </div>
                       </div>
                     )}
