@@ -611,6 +611,116 @@ function NewOrgForm({
 }
 
 /* ------------------------------------------------------------------ */
+/*  Edit organization form (inline)                                    */
+/* ------------------------------------------------------------------ */
+
+function EditOrgForm({
+  org,
+  onSaved,
+  onCancel,
+}: {
+  org: OrgDetail;
+  onSaved: () => void;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState(org.name);
+  const [plan, setPlan] = useState(org.plan);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [showPlanInfo, setShowPlanInfo] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      setError("Namn krävs");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/organizations/${org.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), plan }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Kunde inte uppdatera organisation");
+        return;
+      }
+      onSaved();
+    } catch {
+      setError("Nätverksfel. Försök igen.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <>
+      {showPlanInfo && <PlanInfoPopup onClose={() => setShowPlanInfo(false)} />}
+      <div className="space-y-3">
+        {error && (
+          <div className="rounded-xl border border-red-500/30 bg-red-50/50 dark:bg-red-950/20 px-3 py-2 text-sm text-red-700 dark:text-red-400">
+            {error}
+          </div>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Namn
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Plan
+              <button
+                type="button"
+                onClick={() => setShowPlanInfo(true)}
+                className="ml-1.5 inline-flex items-center gap-0.5 text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                title="Visa plandetaljer"
+              >
+                <Icon name="help-circle" size={12} />
+              </button>
+            </label>
+            <select
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+              className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="trial">Trial</option>
+              <option value="starter">Starter</option>
+              <option value="professional">Professional</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 justify-end">
+          <button
+            onClick={onCancel}
+            className="rounded-xl border border-border/60 px-4 py-2 text-sm text-muted-foreground hover:bg-muted/30 transition-colors cursor-pointer"
+          >
+            Avbryt
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={saving}
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {saving ? "Sparar..." : "Spara"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main admin component                                               */
 /* ------------------------------------------------------------------ */
 
@@ -628,6 +738,8 @@ export default function AdminContent() {
   const [orgDetailLoading, setOrgDetailLoading] = useState<string | null>(null);
   const [orgFeatureSaving, setOrgFeatureSaving] = useState<string | null>(null);
   const [showNewOrgForm, setShowNewOrgForm] = useState(false);
+  const [editingOrgId, setEditingOrgId] = useState<string | null>(null);
+  const [deletingOrgId, setDeletingOrgId] = useState<string | null>(null);
 
   // Users
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -722,11 +834,22 @@ export default function AdminContent() {
       setOrgFeatureSaving(orgId);
 
       try {
-        await fetch(`/api/admin/organizations/${orgId}`, {
+        const res = await fetch(`/api/admin/organizations/${orgId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ features: { [featureKey]: newVal } }),
         });
+        const data = await res.json();
+        // Apply server-resolved features to ensure UI matches DB
+        if (data.organization?.features) {
+          setOrgDetails((prev) => ({
+            ...prev,
+            [orgId]: {
+              ...prev[orgId],
+              features: data.organization.features,
+            },
+          }));
+        }
       } catch (e) {
         // Revert on error
         setOrgDetails((prev) => ({
@@ -771,11 +894,22 @@ export default function AdminContent() {
       setOrgFeatureSaving(orgId);
 
       try {
-        await fetch(`/api/admin/organizations/${orgId}`, {
+        const res = await fetch(`/api/admin/organizations/${orgId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ features: updates }),
         });
+        const data = await res.json();
+        // Apply server-resolved features to ensure UI matches DB
+        if (data.organization?.features) {
+          setOrgDetails((prev) => ({
+            ...prev,
+            [orgId]: {
+              ...prev[orgId],
+              features: data.organization.features,
+            },
+          }));
+        }
       } catch (e) {
         // Revert: re-fetch the org detail
         setOrgDetails((prev) => {
@@ -878,6 +1012,33 @@ export default function AdminContent() {
       setOrgFeatureSaving(null);
     }
   }, [fetchOrgDetail, fetchOrgs]);
+
+  // Delete an organization
+  const deleteOrg = useCallback(async (orgId: string, orgName: string) => {
+    if (!confirm(`Vill du PERMANENT radera organisationen "${orgName}"?\n\nDetta tar bort organisationen, alla medlemskap och feature-overrides. Åtgärden kan INTE ångras.`)) return;
+    setDeletingOrgId(orgId);
+    try {
+      const res = await fetch(`/api/admin/organizations/${orgId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setExpandedOrgId(null);
+        setOrgDetails((prev) => {
+          const copy = { ...prev };
+          delete copy[orgId];
+          return copy;
+        });
+        fetchOrgs();
+      } else {
+        const data = await res.json();
+        alert(`Kunde inte radera: ${data.error ?? "Okänt fel"}`);
+      }
+    } catch {
+      alert("Nätverksfel vid radering.");
+    } finally {
+      setDeletingOrgId(null);
+    }
+  }, [fetchOrgs]);
 
   // Loading states
   if (!isLoaded) {
@@ -1312,6 +1473,42 @@ export default function AdminContent() {
                                   }}
                                 />
                               </div>
+                            </div>
+
+                            {/* Edit / Delete org */}
+                            <div className="space-y-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
+                                Organisation
+                              </p>
+                              {editingOrgId === org.id ? (
+                                <EditOrgForm
+                                  org={detail}
+                                  onSaved={() => {
+                                    setEditingOrgId(null);
+                                    fetchOrgs();
+                                    fetchOrgDetail(org.id, true);
+                                  }}
+                                  onCancel={() => setEditingOrgId(null)}
+                                />
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => setEditingOrgId(org.id)}
+                                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer border border-border/60"
+                                  >
+                                    <Icon name="pencil" size={12} />
+                                    Redigera organisation
+                                  </button>
+                                  <button
+                                    onClick={() => deleteOrg(org.id, org.name)}
+                                    disabled={deletingOrgId === org.id}
+                                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer disabled:opacity-50"
+                                  >
+                                    <Icon name="trash-2" size={12} />
+                                    {deletingOrgId === org.id ? "Raderar..." : "Radera organisation"}
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </>
                         ) : (

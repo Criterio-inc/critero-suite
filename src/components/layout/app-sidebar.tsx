@@ -207,15 +207,6 @@ export function AppSidebar() {
     return true;
   }
 
-  /** Filter items based on feature flags */
-  function filterItems(items: NavItem[]): NavItem[] {
-    if (!features) return items;
-    return items.filter((item) => {
-      if (!item.featureKey) return true;
-      return isFeatureEnabled(item.featureKey);
-    });
-  }
-
   /** Check if any item in a section matches the current pathname */
   function isSectionActive(section: NavSection): boolean {
     return section.items.some((item) => {
@@ -233,15 +224,11 @@ export function AppSidebar() {
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
         {NAV_SECTIONS.map((section, idx) => {
-          // Hide entire section if app is disabled
-          if (section.appKey && isAppDisabled(section.appKey)) return null;
-
-          const visibleItems = filterItems(section.items);
-          if (visibleItems.length === 0) return null;
+          const sectionDisabled = !!(section.appKey && isAppDisabled(section.appKey));
 
           const sectionLabel = section.label ?? "";
           const isCollapsed = section.collapsible && collapsed[sectionLabel];
-          const isActive = isSectionActive(section);
+          const isActive = !sectionDisabled && isSectionActive(section);
 
           return (
             <div key={idx}>
@@ -252,9 +239,11 @@ export function AppSidebar() {
                   onClick={() => section.collapsible && toggleSection(sectionLabel)}
                   className={cn(
                     "flex w-full items-center justify-between px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider transition-colors",
-                    isActive
-                      ? "text-primary/70"
-                      : "text-muted-foreground/50",
+                    sectionDisabled
+                      ? "text-muted-foreground/30"
+                      : isActive
+                        ? "text-primary/70"
+                        : "text-muted-foreground/50",
                     section.collapsible && "cursor-pointer hover:text-muted-foreground/80",
                   )}
                 >
@@ -270,10 +259,25 @@ export function AppSidebar() {
               )}
               {!isCollapsed && (
                 <div className="space-y-0.5">
-                  {visibleItems.map((item) => {
-                    const isItemActive = item.href === "/"
+                  {section.items.map((item) => {
+                    const itemDisabled = sectionDisabled || (!!item.featureKey && !isFeatureEnabled(item.featureKey));
+                    const isItemActive = !itemDisabled && (item.href === "/"
                       ? pathname === "/"
-                      : pathname.startsWith(item.href);
+                      : pathname.startsWith(item.href));
+
+                    if (itemDisabled) {
+                      return (
+                        <span
+                          key={item.href}
+                          className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium opacity-30 cursor-not-allowed select-none text-muted-foreground"
+                          title="Funktionen är inaktiverad"
+                        >
+                          <Icon name={item.icon} size={16} />
+                          <span>{item.label}</span>
+                        </span>
+                      );
+                    }
+
                     return (
                       <Link
                         key={item.href}

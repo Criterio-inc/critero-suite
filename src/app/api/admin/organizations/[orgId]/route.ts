@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAuth, requirePlatformAdmin, ApiError, logAudit } from "@/lib/auth-guard";
 import { validateBody, updateOrgSchema } from "@/lib/api-validation";
+import { resolveOrgFeatures } from "@/lib/org-features";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,9 @@ export async function GET(
       caseCount = await prisma.case.count({ where: { orgId } });
     } catch { /* ignore */ }
 
+    // Resolve effective features (plan defaults + org overrides)
+    const { features: resolvedFeatures } = await resolveOrgFeatures(orgId);
+
     return NextResponse.json({
       organization: {
         id: org.id,
@@ -59,9 +63,7 @@ export async function GET(
           role: m.role,
           joinedAt: m.createdAt.toISOString(),
         })),
-        features: Object.fromEntries(
-          org.features.map((f: { featureKey: string; enabled: boolean }) => [f.featureKey, f.enabled]),
-        ),
+        features: resolvedFeatures,
       },
     });
   } catch (e) {
@@ -120,20 +122,16 @@ export async function PATCH(
 
     await logAudit(ctx, "update", "organization", orgId);
 
-    // Re-fetch the updated org to return
+    // Re-fetch the updated org with resolved features
     const updated = await prisma.organization.findUnique({
       where: { id: orgId },
-      include: {
-        features: true,
-      },
     });
+    const { features: resolvedFeatures } = await resolveOrgFeatures(orgId);
 
     return NextResponse.json({
       organization: {
         ...updated,
-        features: Object.fromEntries(
-          (updated?.features ?? []).map((f: { featureKey: string; enabled: boolean }) => [f.featureKey, f.enabled]),
-        ),
+        features: resolvedFeatures,
       },
     });
   } catch (e) {
