@@ -22,13 +22,29 @@ export interface PlanDef {
   sso: boolean;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Starter tools — strategic analysis tools that complement           */
+/*  maturity assessment work (risk, stakeholders, ROI, learning)       */
+/* ------------------------------------------------------------------ */
+const STARTER_TOOLS: FeatureKey[] = [
+  "verktyg",
+  "verktyg.risk-matrix",
+  "verktyg.stakeholder-map",
+  "verktyg.benefit-calculator",
+  "verktyg.kunskapsbank",
+];
+
 export const PLANS: Record<PlanId, PlanDef> = {
   trial: {
     id: "trial",
     label: "Trial",
     description: "Prova mognadsmätning gratis i 30 dagar",
-    features: ["mognadmatning"],
-    maxUsers: 1,
+    features: [
+      "mognadmatning",
+      "mognadmatning.survey",
+      "mognadmatning.results",
+    ],
+    maxUsers: 3,
     maxCases: 0,
     maxAssessments: 3,
     durationDays: 30,
@@ -39,9 +55,17 @@ export const PLANS: Record<PlanId, PlanDef> = {
   starter: {
     id: "starter",
     label: "Starter",
-    description: "Mognadsmätning med AI-stöd för mindre organisationer",
-    features: ["mognadmatning", "ai-mognadmatning"],
-    maxUsers: 5,
+    description: "Mognadsmätning med AI-stöd och strategiska analysverktyg",
+    features: [
+      "mognadmatning",
+      "mognadmatning.survey",
+      "mognadmatning.results",
+      "ai-mognadmatning",
+      "ai-mognadmatning.survey",
+      "ai-mognadmatning.results",
+      ...STARTER_TOOLS,
+    ],
+    maxUsers: 10,
     maxCases: 0,
     maxAssessments: -1,
     durationDays: -1,
@@ -52,9 +76,9 @@ export const PLANS: Record<PlanId, PlanDef> = {
   professional: {
     id: "professional",
     label: "Professional",
-    description: "Komplett plattform med upphandlingsstöd och analysverktyg",
+    description: "Komplett plattform med upphandlingsstöd och alla verktyg",
     features: [...ALL_FEATURE_KEYS],
-    maxUsers: 20,
+    maxUsers: 25,
     maxCases: -1,
     maxAssessments: -1,
     durationDays: -1,
