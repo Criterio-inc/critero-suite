@@ -1,4 +1,4 @@
-# Admin-handbok – Critero Suite
+# Admin-handbok — Critero Suite
 
 ## Innehåll
 
@@ -24,21 +24,22 @@ Systemet har två nivåer av behörighet:
 
 | Roll | Beskrivning |
 |------|-------------|
-| **Plattformsadmin** | Critero-personal. Kan skapa/ta bort organisationer, hantera alla features, synka användare från Clerk. Identifieras via `isAdmin`-flaggan i databasen. |
+| **Plattformsadmin** | Critero-personal. Kan skapa/redigera/radera organisationer, hantera features, synka användare, ta bort medlemmar. Identifieras via `PLATFORM_ADMIN_EMAILS` i miljövariabler. |
 
 ### Organisationsnivå
 
-| Roll | Läsa | Skriva | Hantera medlemmar | Hantera features |
-|------|------|--------|-------------------|------------------|
-| **admin** | Ja | Ja | Ja | Ja |
-| **member** | Ja | Ja | Nej | Nej |
-| **viewer** | Ja | Nej | Nej | Nej |
+| Roll | Läsa | Skriva | Hantera medlemmar | Bjuda in | Hantera features |
+|------|------|--------|-------------------|----------|------------------|
+| **admin** | Ja | Ja | Ja | Ja | Nej (bara plattformsadmin) |
+| **member** | Ja | Ja | Nej | Nej | Nej |
+| **viewer** | Ja | Nej | Nej | Nej | Nej |
 
 Regler:
 
 - En användare kan tillhöra **flera organisationer** (den första används som aktiv).
-- Org-admins kan **inte ta bort sig själva** eller andra admins.
+- Org-admins kan bjuda in nya medlemmar och ta bort befintliga.
 - Plattformsadmins har alltid full åtkomst oavsett roll i organisationen.
+- Plattformsadmin läggs **inte** automatiskt till som medlem i organisationer de skapar.
 
 ---
 
@@ -49,28 +50,48 @@ Om Clerk inte är konfigurerat (inga `CLERK_*`-miljövariabler) körs systemet i
 - En `Utvecklingsorganisation` (id: `dev-org`) skapas automatiskt.
 - Alla användare blir plattformsadmins med enterprise-plan.
 - Alla features är aktiverade.
-- Perfekt för lokal utveckling – ingen extern auth behövs.
+- Perfekt för lokal utveckling — ingen extern auth behövs.
 
 ---
 
 ## 3. Plattformsadmin – /admin
 
-Nås via `/admin`. Kräver `isAdmin = true` i databasen.
+Nås via `/admin`. Kräver att användarens email finns i `PLATFORM_ADMIN_EMAILS`.
 
 ### 3.1 Organisationshantering
 
 - **Lista** alla organisationer med: namn, slug, plan, antal medlemmar, antal case, antal feature-overrides.
-- **Skapa** ny organisation: namn, slug (auto-genererat, valideras som `[a-z0-9-]`), plan.
+- **Skapa** ny organisation: namn, slug (auto-genererat, valideras som `[a-z0-9-]`), plan. Plattformsadmin läggs **inte** till som medlem automatiskt.
+- **Redigera** organisation: ändra namn och plan via redigeringsformuläret.
+- **Radera** organisation: permanent borttagning med bekräftelsedialog. Alla relaterade data (medlemmar, features, case, inbjudningar) raderas kaskadvis.
 - **Expandera** organisationskort för att se:
   - Feature-toggles (master-appar + enskilda features)
-  - Medlemslista med roller
+  - Medlemslista med roller och borttagningsknappar
 
-### 3.2 Användarhantering
+### 3.2 Medlemshantering (i org-kortet)
 
-- **Synka från Clerk** – hämtar alla användare via Clerk Backend API och upsertar i databasen.
+- Varje medlem visas med namn, email och roll.
+- **Ta bort medlem** via X-knappen — tvåstegsbekräftelse:
+  1. *Ta bort från organisationen* — medlemmen förlorar åtkomst men Clerk-kontot behålls.
+  2. *Ta bort från organisationen OCH radera från Clerk* — medlemmen förlorar åtkomst och hela Clerk-kontot + lokal DB-post raderas.
+- Bekräftelsedialog visas med tydlig information om konsekvenserna.
+
+### 3.3 Användarhantering
+
+- **Synka från Clerk** — hämtar alla användare via Clerk Backend API och upsertar i databasen.
 - **Lista** alla användare med: namn, email, admin-status, organisationstillhörigheter.
 
-### 3.3 Snabblänkar
+### 3.4 Administrationstips
+
+Adminpanelen visar kontextuella tips om:
+- Ny kund — steg för steg (skapa org → bjud in → koppla Clerk)
+- Inbjudningsflöde (tre vägar att acceptera)
+- Roller i organisationen (admin, member, viewer)
+- Feature-toggles (master-appar + kaskadlogik)
+- Export & rapporter
+- Sessionshantering
+
+### 3.5 Snabblänkar
 
 Direktlänkar till: Clerk Dashboard, Vercel Dashboard, Turso Dashboard, GitHub-repo.
 
@@ -78,7 +99,7 @@ Direktlänkar till: Clerk Dashboard, Vercel Dashboard, Turso Dashboard, GitHub-r
 
 ## 4. Organisationsadmin – /org
 
-Nås via `/org`. Alla organisationsmedlemmar kan se sidan, men bara admins kan utföra ändringar.
+Nås via `/org`. Alla organisationsmedlemmar kan se sidan, men bara admins (org-admin eller plattformsadmin) kan utföra ändringar.
 
 ### Vad visas
 
@@ -123,18 +144,25 @@ Kaskadlogik (avstängd master-app → alla sub-features av)
 Effektiva features
 ```
 
-### Tillgängliga features (18 st)
+Feature-toggles löses via `resolveOrgFeatures()` som mergear planens defaults med organisationens overrides. Endast genuina avvikelser från planen sparas som overrides (smart diff).
+
+### Tillgängliga features (24 st)
 
 | Master-app | Sub-features |
 |------------|-------------|
 | `upphandling` | `cases`, `library`, `training`, `help` |
-| `verktyg` | `nyttokalkyl`, `riskmatris`, `utvardering`, `checklista`, `tidsplan`, `mallbank` |
-| `mognadmatning` | `digital`, `sessions` |
-| `ai-mognadmatning` | `ai`, `ai-sessions` |
+| `verktyg` | `benefit-calculator`, `risk-matrix`, `evaluation-model`, `timeline-planner`, `stakeholder-map`, `kunskapsbank`, `root-cause`, `benefit-effort`, `process-flow`, `adkar`, `force-field` |
+| `mognadmatning` | `survey`, `results` |
+| `ai-mognadmatning` | `survey`, `results` |
 
 ### Kaskadlogik
 
-Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features (`upphandling.cases`, `upphandling.library`, etc.) stängs också av automatiskt, oavsett individuella inställningar.
+Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features stängs också av automatiskt, oavsett individuella inställningar.
+
+### Sidebar-beteende
+
+- **Aktiverade features**: Visas normalt med klickbara länkar.
+- **Avaktiverade features**: Visas med nedsatt opacitet (grå/transparent) och är inte klickbara. Användaren ser vad som finns men kan inte navigera dit.
 
 ---
 
@@ -145,7 +173,7 @@ Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features (`u
 | Användare | 1 | 5 | 20 | Obegränsat |
 | Case | 0 | 0 | Obegränsat | Obegränsat |
 | Assessments | 3 | Obegränsat | Obegränsat | Obegränsat |
-| Features | mognadmätning | + AI-mognadmätning | Alla 18 | Alla 18 |
+| Features | mognadmätning | + AI-mognadmätning | Alla 24 | Alla 24 |
 | Profiler | Nej | Nej | Nej | Ja |
 | API-åtkomst | Nej | Nej | Nej | Ja |
 | SSO | Nej | Nej | Nej | Ja |
@@ -157,37 +185,36 @@ Om en master-app (t.ex. `upphandling`) stängs av → alla dess sub-features (`u
 
 ### 7.1 Onboarding av ny kund (komplett flöde)
 
-Detta är det vanligaste flödet som plattformsadmin:
-
 1. **Skapa organisationen**
    - Gå till `/admin` → Klicka **"+ Ny organisation"**
    - Fyll i namn (t.ex. "Kundens AB"), välj plan (t.ex. Starter)
-   - Klicka **Skapa** — du läggs automatiskt till som admin-medlem
+   - Klicka **Skapa**
+   - OBS: Du läggs **inte** till som medlem automatiskt
 
 2. **Konfigurera features**
    - Expandera organisationskortet i `/admin`
    - Aktivera/avaktivera features efter kundens plan och avtal
+   - Avaktiverade features visas gråtonade i kundens sidebar
 
-3. **Bjud in kundansvarig**
-   - Gå till `/org` (eller byt till kundens org om du tillhör flera)
-   - Fyll i kundansvarigs e-post + välj roll **Administratör**
-   - Klicka **Bjud in** — en inbjudningslänk visas
+3. **Skapa inbjudan för kundansvarig**
+   - I organisationskortet, notera org-id/namn
+   - Gå till `/org` (eller be kundansvarig göra detta efter steg 4)
+   - Alternativt: Skapa inbjudan direkt via API
 
 4. **Skapa kundkonto i Clerk**
    - Gå till Clerk Dashboard → Users → Create user
-   - Ange **samma e-post** som inbjudan
+   - Ange kundens e-post
    - Sätt tillfälligt lösenord
-   - **Automatik:** Clerk-webhooken matchar e-post → kunden kopplas direkt till organisationen
+   - **Automatik:** Om en inbjudan med samma e-post finns → kunden kopplas direkt till organisationen vid inloggning
 
 5. **Meddela kunden**
    - Skicka: inloggningslänk + e-post + tillfälligt lösenord
    - Kunden loggar in → ser sin organisations dashboard direkt
-   - Clerk uppmanar om lösenordsbyte vid behov
 
 6. **Kunden tar över**
-   - Kunden (org-admin) kan själv bjuda in teammedlemmar via `/org`
-   - Kunden ser kopierbara inbjudningslänkar att skicka vidare
-   - Teammedlemmar loggar in → auto-matchas mot inbjudan → klar
+   - Kunden (org-admin) bjuder in teammedlemmar via `/org`
+   - Kopierbara inbjudningslänkar skickas vidare
+   - Teammedlemmar loggar in → auto-matchas mot inbjudan
 
 ### 7.2 Skapa ny organisation (enbart)
 
@@ -198,69 +225,97 @@ Detta är det vanligaste flödet som plattformsadmin:
 5. Klicka **Skapa**
 6. Expandera kortet → aktivera/avaktivera features vid behov
 
-### 7.3 Bjuda in en användare
+### 7.3 Redigera en organisation
+
+1. Gå till `/admin`
+2. Expandera organisationens kort
+3. Klicka **"Redigera organisation"**
+4. Ändra namn och/eller plan
+5. Klicka **Spara**
+6. Features justeras automatiskt vid planbyte
+
+### 7.4 Radera en organisation
+
+1. Gå till `/admin`
+2. Expandera organisationens kort
+3. Klicka **"Radera organisation"**
+4. Bekräfta i dialogen — **OBS: Permanent borttagning!**
+5. Alla relaterade data raderas (medlemmar, case, features, inbjudningar)
+
+### 7.5 Bjuda in en användare
 
 1. Gå till `/org`
 2. Under **Inbjudningar**, fyll i email
 3. Välj roll: admin, member eller viewer
 4. Klicka **Bjud in**
-5. **Kopiera inbjudningslänken** som visas (eller använd "Kopiera länk"-knappen)
+5. **Kopiera inbjudningslänken** som visas
 6. Inbjudan gäller i 7 dagar
 7. Om användaren redan har ett Clerk-konto med samma e-post matchas hen automatiskt vid nästa inloggning
 
-### 7.4 Ta bort en medlem
+### 7.6 Ta bort en medlem (via /org)
 
 1. Gå till `/org`
 2. Hitta medlemmen i listan
 3. Klicka **X** (visas bara om du är admin)
 4. Medlemmen förlorar åtkomst till organisationens case
 
-### 7.5 Synka användare från Clerk
+### 7.7 Ta bort en medlem (via /admin — plattformsadmin)
+
+1. Gå till `/admin`
+2. Expandera organisationens kort
+3. Klicka **X** bredvid medlemmen
+4. Välj alternativ:
+   - **Ta bort från organisationen** — medlemmen förlorar åtkomst men kontot behålls
+   - **Ta bort + radera från Clerk** — kontot raderas helt (från Clerk och lokal DB)
+5. Bekräfta i dialogen
+
+### 7.8 Synka användare från Clerk
 
 1. Gå till `/admin`
 2. Klicka **"Synka från Clerk"**
 3. Alla Clerk-användare upsertas i databasen
-4. Nya användare får default-features (alla aktiverade)
-5. Admin-status sätts baserat på email-matchning
+4. Admin-status sätts baserat på email-matchning mot `PLATFORM_ADMIN_EMAILS`
 
-### 7.6 Ändra en organisations plan
-
-1. Gå till `/admin`
-2. Expandera organisationens kort
-3. Ändra plan via PATCH-anropet (eller via framtida UI)
-4. Features justeras automatiskt efter den nya planen
-
-### 7.7 Stänga av en feature för en organisation
+### 7.9 Stänga av en feature för en organisation
 
 1. Gå till `/admin`
 2. Expandera organisationens kort
 3. Toggla av önskad feature
-4. Ändringen sparas direkt (optimistisk uppdatering)
-5. Sidebar och dashboard uppdateras nästa sidladdning
+4. Ändringen sparas direkt och löses via `resolveOrgFeatures()`
+5. Sidebar uppdateras — avaktiverade features visas gråtonade
+
+### 7.10 Skapa ny upphandling
+
+1. Gå till `/cases` → Klicka **"Ny upphandling"**
+2. Steg 1 — Grunduppgifter: namn, organisation, typ (nyanskaffning/byte/utökning), uppskattat värde, ansvarig
+3. Steg 2 — Mål & avgränsning: mål, scope in/out
+4. Steg 3 — Organisation: styrgrupp, projektgrupp, beslutsforum
+5. Steg 4 — Tidplan: startdatum, planerad tilldelning, planerad avtalsstart
+6. Klicka **"Skapa upphandling"**
+7. Upphandlingen skapas med Generisk LOU-profil som standard
 
 ---
 
 ## 8. API-referens för admin
 
-### Plattformsadmin-endpoints (kräver `isAdmin`)
+### Plattformsadmin-endpoints (kräver plattformsadmin)
 
 | Metod | Endpoint | Beskrivning |
 |-------|----------|-------------|
 | `GET` | `/api/admin/organizations` | Lista alla organisationer |
 | `POST` | `/api/admin/organizations` | Skapa organisation |
-| `GET` | `/api/admin/organizations/[orgId]` | Hämta org med medlemmar & features |
+| `GET` | `/api/admin/organizations/[orgId]` | Hämta org med medlemmar & resolved features |
 | `PATCH` | `/api/admin/organizations/[orgId]` | Uppdatera org (namn, plan, features) |
 | `DELETE` | `/api/admin/organizations/[orgId]` | Ta bort organisation (kaskad) |
+| `POST` | `/api/admin/organizations/[orgId]` | Ta bort medlem (body: `{ userId, remove: true, deleteFromClerk?: true }`) |
 | `GET` | `/api/admin/users` | Lista alla användare |
 | `POST` | `/api/admin/sync-users` | Synka användare från Clerk |
-| `GET` | `/api/admin/users/[userId]/features` | Hämta per-user features |
-| `PATCH` | `/api/admin/users/[userId]/features` | Uppdatera per-user features |
 
 ### Organisationsadmin-endpoints (kräver org-admin)
 
 | Metod | Endpoint | Beskrivning |
 |-------|----------|-------------|
-| `GET` | `/api/org` | Hämta org-info, medlemmar, inbjudningar (inkl. tokens) |
+| `GET` | `/api/org` | Hämta org-info, medlemmar, inbjudningar |
 | `POST` | `/api/org/invitations` | Skapa inbjudan (email + roll) → returnerar `inviteLink` |
 | `DELETE` | `/api/org/invitations` | Återkalla inbjudan |
 | `DELETE` | `/api/org/members` | Ta bort medlem |
@@ -272,12 +327,11 @@ Detta är det vanligaste flödet som plattformsadmin:
 | `GET` | `/api/invite/[token]` | Validera inbjudningstoken (visar org-namn, roll, utgångsdatum) |
 | `POST` | `/api/invite/[token]` | Acceptera inbjudan (kräver inloggad användare) |
 
-### Feature-endpoints (alla autentiserade)
+### Feature-endpoints
 
 | Metod | Endpoint | Beskrivning |
 |-------|----------|-------------|
-| `GET` | `/api/features` | Hämta effektiva features för aktuell org |
-| `PATCH` | `/api/features` | Uppdatera org-level feature-overrides |
+| `GET` | `/api/features` | Hämta resolved features för aktuell org |
 
 ### Dashboard
 
@@ -300,7 +354,7 @@ Varje mutation loggas automatiskt i `AuditLog`-tabellen:
 | `changes` | JSON-diff med före/efter (vid uppdateringar) |
 | `createdAt` | Tidsstämpel |
 
-Loggen visas i dashboardens **"Senaste aktivitet"**-sektion (de 10 senaste posterna).
+Loggen visas i dashboardens **"Senaste aktivitet"**-sektion.
 
 ---
 
@@ -312,14 +366,19 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 CLERK_WEBHOOK_SECRET=whsec_...
 
-# Plattformsadmin (email som matchar → isAdmin=true)
-ADMIN_EMAIL=par.levander@criteroconsulting.se
+# Plattformsadmin (kommaseparerade emails)
+PLATFORM_ADMIN_EMAILS=admin@criteroconsulting.se
 
-# Databas
+# Databas (Turso i prod, SQLite i dev)
 DATABASE_URL=libsql://...
+TURSO_DATABASE_URL=libsql://...turso.io
+TURSO_AUTH_TOKEN=...
 
 # App-URL
-NEXT_PUBLIC_APP_URL=https://...
+NEXT_PUBLIC_APP_URL=https://app.criteroconsulting.se
+
+# AI (Anthropic)
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 **Utan Clerk-variabler** → dev-läge aktiveras automatiskt.
@@ -330,13 +389,16 @@ NEXT_PUBLIC_APP_URL=https://...
 
 | Problem | Orsak | Lösning |
 |---------|-------|---------|
-| Kan inte nå `/admin` | Inte plattformsadmin | Kontrollera `isAdmin` i User-tabellen |
+| Kan inte nå `/admin` | Inte plattformsadmin | Kontrollera att email finns i `PLATFORM_ADMIN_EMAILS` |
 | "Synka från Clerk" misslyckas | `CLERK_SECRET_KEY` saknas | Lägg till i `.env` |
 | Inbjudan har gått ut | 7-dagars TTL | Återkalla och skicka ny |
 | Användare kopplas inte till org | E-post i Clerk matchar inte inbjudan | Kontrollera att exakt samma e-post används |
 | Inbjudningslänk fungerar inte | Token ogiltigt/utgånget | Skapa ny inbjudan via `/org` |
 | Kund kan inte bjuda in | Inte org-admin | Kontrollera att kunden har rollen `admin` i organisationen |
-| Features uppdateras inte i sidebar | Cache | Ladda om sidan (sidebar hämtar `/api/features`) |
+| Features "återställs" | Cache i klienten | Ladda om sidan — features löses via `resolveOrgFeatures()` |
+| Avaktiverade features syns inte | Förväntat beteende | De visas gråtonade/transparenta i sidebaren |
 | Viewer kan inte redigera | Korrekt beteende | Byt roll till member eller admin |
 | "403 Forbidden" på org-endpoints | Inte medlem i organisationen | Kontrollera OrgMembership |
 | Webhook-fel från Clerk | `CLERK_WEBHOOK_SECRET` felaktig | Verifiera att hemligheten matchar Clerk Dashboard |
+| Plattformsadmin blev medlem i ny org | Ska inte hända | Kontrollera att auto-add är borttaget i POST-handler |
+| Medlem borttagen men kan fortfarande logga in | Clerk-konto finns kvar | Välj "Ta bort + radera från Clerk" vid borttagning |
