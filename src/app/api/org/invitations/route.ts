@@ -39,12 +39,8 @@ export async function POST(req: NextRequest) {
 
     await logAudit(ctx, "create", "invitation", invitation.id);
 
-    // Build invite link
-    const baseUrl = req.headers.get("x-forwarded-host")
-      ? `https://${req.headers.get("x-forwarded-host")}`
-      : req.headers.get("host")
-        ? `${req.headers.get("x-forwarded-proto") ?? "https"}://${req.headers.get("host")}`
-        : "";
+    // Build invite link — use env var to prevent Host Header Injection
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
     const inviteLink = baseUrl ? `${baseUrl}/invite/${invitation.token}` : `/invite/${invitation.token}`;
 
     return NextResponse.json({ invitation, inviteLink }, { status: 201 });

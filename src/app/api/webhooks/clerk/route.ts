@@ -9,7 +9,9 @@ export const dynamic = "force-dynamic";
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const ADMIN_EMAIL = "par.levander@criteroconsulting.se";
+const PLATFORM_ADMIN_EMAILS = (
+  process.env.PLATFORM_ADMIN_EMAILS ?? ""
+).split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 /* ------------------------------------------------------------------ */
 /*  Clerk webhook event types (subset we handle)                       */
@@ -88,7 +90,7 @@ export async function POST(req: Request) {
           email_addresses[0]?.email_address ??
           "";
 
-        const isAdmin = primaryEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        const isAdmin = !!primaryEmail && PLATFORM_ADMIN_EMAILS.includes(primaryEmail.toLowerCase());
 
         await prisma.user.upsert({
           where: { id },

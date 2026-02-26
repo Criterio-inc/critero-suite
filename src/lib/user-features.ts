@@ -96,9 +96,9 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
   }
 }
 
-/** Comma-separated platform admin emails from env, with default fallback */
+/** Comma-separated platform admin emails from env (no hardcoded fallback) */
 const PLATFORM_ADMIN_EMAILS = (
-  process.env.PLATFORM_ADMIN_EMAILS ?? "par.levander@criteroconsulting.se"
+  process.env.PLATFORM_ADMIN_EMAILS ?? ""
 ).split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
 /**
