@@ -206,18 +206,35 @@ export default function InviteAcceptPage() {
               <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
             )}
 
-            {/* Not logged in — show sign-in button directly (no confusing error first) */}
+            {/* Not logged in — show sign-in and sign-up options */}
             {needsLogin && !error && (
               <div className="space-y-3">
                 <Link
-                  href={`/sign-in?redirect_url=${encodeURIComponent(`/invite/${token}`)}`}
+                  href={`/sign-up?invite_token=${token}`}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
+                  <Icon name="user-plus" size={16} />
+                  Skapa konto och gå med
+                </Link>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border/60" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-card px-3 text-muted-foreground/60">
+                      eller
+                    </span>
+                  </div>
+                </div>
+                <Link
+                  href={`/sign-in?redirect_url=${encodeURIComponent(`/invite/${token}`)}`}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border/60 px-5 py-3 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                >
                   <Icon name="log-in" size={16} />
-                  Logga in och gå med
+                  Har redan konto? Logga in
                 </Link>
                 <p className="text-[11px] text-muted-foreground text-center">
-                  Du loggas in och kopplas automatiskt till {invite.org.name}.
+                  Du kopplas automatiskt till {invite.org.name} efter inloggning.
                 </p>
               </div>
             )}
