@@ -135,22 +135,48 @@ export default function TermsPage() {
 
             <h3 className="text-sm font-semibold text-foreground pt-1">Underbiträden</h3>
             <p>
-              Följande tredjepartstjänster används för att driva Tjänsten:
+              Följande tredjepartstjänster används för att driva Tjänsten. Personuppgiftsbiträdesavtal
+              (DPA) har tecknats med samtliga underbiträden i enlighet med GDPR art. 28.
             </p>
             <div className="grid gap-2">
               <div className="rounded-xl border border-border/60 p-3">
-                <p className="text-xs font-semibold text-foreground">Clerk</p>
-                <p className="text-xs">Autentisering och användarhantering. Lagrar e-post och namn. USA-baserat, EU-dataöverföring enligt standardavtalsklausuler (SCC).</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-foreground">Clerk</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 font-medium">USA + SCC</span>
+                </div>
+                <p className="text-xs mt-1">Autentisering och användarhantering. Behandlar e-postadress, namn och sessionsinformation. USA-baserat med dataöverföring enligt EU:s standardavtalsklausuler (SCC, 2021/914). DPA tillgängligt via clerk.com/legal/dpa.</p>
               </div>
               <div className="rounded-xl border border-border/60 p-3">
-                <p className="text-xs font-semibold text-foreground">Vercel</p>
-                <p className="text-xs">Hosting och infrastruktur. Bearbetar serverförfrågningar. USA-baserat, SCC-avtal.</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-foreground">Vercel</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-medium">EU (Stockholm)</span>
+                </div>
+                <p className="text-xs mt-1">Hosting och serverless-funktioner. Bearbetar HTTP-förfrågningar. Servrar konfigurerade i Stockholm (arn1). DPA tillgängligt via vercel.com/legal/dpa. SOC 2 Type II-certifierad.</p>
               </div>
               <div className="rounded-xl border border-border/60 p-3">
-                <p className="text-xs font-semibold text-foreground">Turso (LibSQL)</p>
-                <p className="text-xs">Databaslagring av upphandlingsdata. Krypterad lagring.</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-foreground">Turso (LibSQL)</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-medium">EU</span>
+                </div>
+                <p className="text-xs mt-1">Databaslagring av all verksamhetsdata (upphandlingar, behov, krav, risker, etc.). Data lagras krypterat i EU-region. Kryptering i vila (AES-256) och under transport (TLS 1.2+).</p>
+              </div>
+              <div className="rounded-xl border border-border/60 p-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-foreground">Anthropic (Claude AI)</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 font-medium">USA + SCC</span>
+                </div>
+                <p className="text-xs mt-1">AI-analys och mognadsmätning. Behandlar anonymiserade frågesvar — inga personuppgifter skickas till AI-tjänsten. USA-baserat. Data som skickas via API:et lagras inte och används inte för träning. SOC 2 Type II-certifierad.</p>
               </div>
             </div>
+
+            <h3 className="text-sm font-semibold text-foreground pt-1">Tredjelandsöverföring</h3>
+            <p>
+              Vissa underbiträden (Clerk, Anthropic) är baserade i USA. Dataöverföring
+              till USA sker med stöd av EU:s standardavtalsklausuler (SCC, kommissionens
+              genomförandebeslut 2021/914) samt kompletterande tekniska skyddsåtgärder
+              (kryptering, åtkomstkontroll). Verksamhetsdata (upphandlingar, krav, risker)
+              lagras uteslutande inom EU.
+            </p>
             <p>
               Inga personuppgifter eller upphandlingsdata säljs, delas eller
               överförs till andra parter utöver ovan nämnda underbiträden.
@@ -158,9 +184,41 @@ export default function TermsPage() {
 
             <h3 className="text-sm font-semibold text-foreground pt-1">Cookies</h3>
             <p>
-              Tjänsten använder enbart tekniskt nödvändiga cookies
-              (sessionscookie för inloggning). Inga spårningscookies, analytics
-              eller marknadsföringscookies från tredje part används.
+              Tjänsten använder enbart tekniskt nödvändiga cookies (art. 6.1 f GDPR)
+              för sessionhantering och autentisering. Följande cookies sätts:
+            </p>
+            <div className="rounded-xl border border-border/60 overflow-hidden">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border/40 bg-muted/30">
+                    <th className="text-left p-2 font-semibold text-foreground">Cookie</th>
+                    <th className="text-left p-2 font-semibold text-foreground">Syfte</th>
+                    <th className="text-left p-2 font-semibold text-foreground">Livslängd</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-border/20">
+                    <td className="p-2 font-mono text-[10px]">__session</td>
+                    <td className="p-2">Autentisering (Clerk)</td>
+                    <td className="p-2">Session</td>
+                  </tr>
+                  <tr className="border-b border-border/20">
+                    <td className="p-2 font-mono text-[10px]">__client_uat</td>
+                    <td className="p-2">Sessionsstatus (Clerk)</td>
+                    <td className="p-2">1 år</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 font-mono text-[10px]">theme</td>
+                    <td className="p-2">Temaval (ljust/mörkt)</td>
+                    <td className="p-2">1 år</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              Inga spårningscookies, analyscookies eller marknadsföringscookies
+              från tredje part används. Samtliga cookies klassas som strikt
+              nödvändiga och kräver inte samtycke enligt ePrivacy-direktivet.
             </p>
 
             <h3 className="text-sm font-semibold text-foreground pt-1">Dataexport och radering</h3>
@@ -194,7 +252,7 @@ export default function TermsPage() {
             <p>
               Critero Consulting AB ansvarar inte för eventuella förluster,
               direkta eller indirekta, som uppstår till följd av användning av
-              Tjänsten, inklusive men inte begränsat till datavförlust, driftstopp
+              Tjänsten, inklusive men inte begränsat till dataförlust, driftstopp
               eller felaktiga upphandlingsunderlag.
             </p>
           </div>
