@@ -136,6 +136,11 @@ const FEATURE_DEFS: FeatureDef[] = [
   { key: "verktyg.timeline-planner", label: "Tidslinjeplanerare", description: "Planering och visualisering av upphandlingstidslinje", icon: "clock", appKey: "verktyg" },
   { key: "verktyg.stakeholder-map", label: "Intressentanalys", description: "Kartläggning av intressenter och deras påverkan", icon: "users", appKey: "verktyg" },
   { key: "verktyg.kunskapsbank", label: "Reflektionsstöd", description: "Domäner, resonemang och AI-samtalsstöd", icon: "book-open", appKey: "verktyg" },
+  { key: "verktyg.root-cause", label: "Orsaksanalys", description: "Fishbone/Ishikawa-diagram för rotorsaksanalys", icon: "search", appKey: "verktyg" },
+  { key: "verktyg.benefit-effort", label: "Nytto-insats", description: "Prioriteringsmatris med nytto- och insatsaxlar", icon: "target", appKey: "verktyg" },
+  { key: "verktyg.process-flow", label: "Processflöde", description: "Visuell processmodellering med steg och beslutspunkter", icon: "git-branch", appKey: "verktyg" },
+  { key: "verktyg.adkar", label: "ADKAR Förändring", description: "Förändringsledning enligt ADKAR-modellen", icon: "refresh-cw", appKey: "verktyg" },
+  { key: "verktyg.force-field", label: "Kraftfältsanalys", description: "Analysera drivkrafter och motstånd vid förändring", icon: "git-merge", appKey: "verktyg" },
   // Mognadsmätning
   { key: "mognadmatning.survey", label: "Ny mätning", description: "Starta en ny digital mognadsmätning", icon: "plus-circle", appKey: "mognadmatning" },
   { key: "mognadmatning.results", label: "Projekt & resultat", description: "Visa och jämför mätresultat", icon: "folder", appKey: "mognadmatning" },
