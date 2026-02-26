@@ -49,9 +49,12 @@ export default function InviteAcceptPage() {
 
   const [needsLogin, setNeedsLogin] = useState(false);
 
+  const [emailMismatch, setEmailMismatch] = useState(false);
+
   const accept = async () => {
     setAccepting(true);
     setError("");
+    setEmailMismatch(false);
     try {
       const res = await fetch(`/api/invite/${token}`, { method: "POST" });
       const data = await res.json();
@@ -60,6 +63,9 @@ export default function InviteAcceptPage() {
         setTimeout(() => router.push("/"), 1500);
       } else if (res.status === 401 || data.code === "NOT_AUTHENTICATED") {
         setNeedsLogin(true);
+      } else if (data.code === "EMAIL_MISMATCH") {
+        setEmailMismatch(true);
+        setError(data.error ?? "E-postadressen matchar inte inbjudan");
       } else {
         setError(data.error ?? "Kunde inte acceptera inbjudan");
       }
@@ -158,11 +164,26 @@ export default function InviteAcceptPage() {
               </div>
             </div>
 
-            {error && (
+            {error && !emailMismatch && (
               <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
             )}
 
-            {needsLogin ? (
+            {emailMismatch ? (
+              <div className="space-y-3">
+                <div className="rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-3">
+                  <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
+                    {error}
+                  </p>
+                </div>
+                <Link
+                  href={`/sign-in?redirect_url=/invite/${token}`}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  <Icon name="log-in" size={16} />
+                  Logga in med rätt konto
+                </Link>
+              </div>
+            ) : needsLogin ? (
               <div className="space-y-3">
                 <p className="text-sm text-amber-700 dark:text-amber-300 text-center">
                   Du måste logga in eller skapa ett konto först.

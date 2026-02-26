@@ -1,8 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getClerkUserId } from "@/lib/auth-guard";
+import { ensureTables } from "@/lib/ensure-tables";
 
 export const dynamic = "force-dynamic";
+
+/* ------------------------------------------------------------------ */
+/*  Sync Clerk user → local DB (ensures User row exists for FK)        */
+/* ------------------------------------------------------------------ */
+
+async function syncClerkUserToDB(userId: string): Promise<string> {
+  const { currentUser } = await import("@clerk/nextjs/server");
+  const user = await currentUser();
+  if (!user) throw new Error("Clerk session saknas");
+
+  const primaryEmail =
+    user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)
+      ?.emailAddress ??
+    user.emailAddresses[0]?.emailAddress ??
+    "";
+
+  await ensureTables();
+  await prisma.user.upsert({
+    where: { id: userId },
+    update: {
+      email: primaryEmail,
+      firstName: user.firstName ?? "",
+      lastName: user.lastName ?? "",
+      imageUrl: user.imageUrl ?? "",
+    },
+    create: {
+      id: userId,
+      email: primaryEmail,
+      firstName: user.firstName ?? "",
+      lastName: user.lastName ?? "",
+      imageUrl: user.imageUrl ?? "",
+    },
+  });
+
+  return primaryEmail.toLowerCase();
+}
 
 /* ------------------------------------------------------------------ */
 /*  GET /api/invite/[token] — validate invitation token                */
@@ -63,7 +100,7 @@ export async function POST(
 ) {
   const { token } = await params;
 
-  // Require logged-in user
+  // 1. Require logged-in user
   const userId = await getClerkUserId();
   if (!userId) {
     return NextResponse.json(
@@ -72,6 +109,19 @@ export async function POST(
     );
   }
 
+  // 2. Sync Clerk user → local DB (ensures User row exists before FK insert)
+  let userEmail: string;
+  try {
+    userEmail = await syncClerkUserToDB(userId);
+  } catch (err) {
+    console.error("syncClerkUserToDB failed during invite accept:", err);
+    return NextResponse.json(
+      { error: "Kunde inte verifiera din användare. Försök igen.", code: "SYNC_FAILED" },
+      { status: 500 },
+    );
+  }
+
+  // 3. Load & validate invitation
   const invitation = await prisma.invitation.findUnique({
     where: { token },
     include: {
@@ -100,7 +150,18 @@ export async function POST(
     );
   }
 
-  // Check max users limit
+  // 4. Verify e-mail matches invitation
+  if (userEmail !== invitation.email.toLowerCase()) {
+    return NextResponse.json(
+      {
+        error: `Inbjudan skickades till ${invitation.email} men du är inloggad med ${userEmail}. Logga in med rätt e-postadress.`,
+        code: "EMAIL_MISMATCH",
+      },
+      { status: 403 },
+    );
+  }
+
+  // 5. Check max users limit
   const memberCount = await prisma.orgMembership.count({
     where: { orgId: invitation.orgId },
   });
@@ -111,7 +172,7 @@ export async function POST(
     );
   }
 
-  // Check if user already is a member
+  // 6. Check if user already is a member
   const existing = await prisma.orgMembership.findUnique({
     where: { orgId_userId: { orgId: invitation.orgId, userId } },
   });
@@ -129,7 +190,7 @@ export async function POST(
     });
   }
 
-  // Create membership + mark invitation used in a transaction
+  // 7. Create membership + mark invitation used in a transaction
   await prisma.$transaction([
     prisma.orgMembership.create({
       data: {

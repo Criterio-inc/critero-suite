@@ -59,15 +59,17 @@ async function autoSyncClerkUser(userId: string): Promise<boolean> {
     const user = await currentUser();
     if (!user) return false;
 
-    const primaryEmail =
+    const rawEmail =
       user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)
         ?.emailAddress ??
       user.emailAddresses[0]?.emailAddress ??
       "";
+    // Store email as lowercase for consistent matching with invitations
+    const primaryEmail = rawEmail.toLowerCase();
 
     const isAdmin =
       !!primaryEmail &&
-      PLATFORM_ADMIN_EMAILS.includes(primaryEmail.toLowerCase());
+      PLATFORM_ADMIN_EMAILS.includes(primaryEmail);
 
     await ensureTables();
     await prisma.user.upsert({
