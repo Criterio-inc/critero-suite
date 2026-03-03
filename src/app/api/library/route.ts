@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAuth, requireWriteAccess, ApiError } from "@/lib/auth-guard";
+import { requireAuth, requireWriteAccess, requireFeature, ApiError } from "@/lib/auth-guard";
 
 export async function GET(req: NextRequest) {
   try {
-    await requireAuth();
+    const ctx = await requireAuth();
+    await requireFeature("upphandling.library", ctx);
 
     const searchParams = req.nextUrl.searchParams;
     const type = searchParams.get("type");
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
   try {
     const ctx = await requireAuth();
     requireWriteAccess(ctx);
+    await requireFeature("upphandling.library", ctx);
 
     const body = await req.json();
 

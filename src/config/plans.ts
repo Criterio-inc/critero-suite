@@ -133,3 +133,16 @@ export function isAtCaseLimit(plan: PlanDef, currentCases: number): boolean {
   if (plan.maxCases === -1) return false;
   return currentCases >= plan.maxCases;
 }
+
+/** Check if org has reached its assessment session limit */
+export function isAtAssessmentLimit(plan: PlanDef, currentAssessments: number): boolean {
+  if (plan.maxAssessments === -1) return false;
+  return currentAssessments >= plan.maxAssessments;
+}
+
+/** Check if a trial org has expired based on createdAt + durationDays */
+export function isTrialExpired(plan: PlanDef, orgCreatedAt: Date): boolean {
+  if (plan.durationDays === -1) return false;
+  const expiresAt = new Date(orgCreatedAt.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
+  return new Date() > expiresAt;
+}

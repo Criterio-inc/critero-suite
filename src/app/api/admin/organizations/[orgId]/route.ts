@@ -115,8 +115,24 @@ export async function PATCH(
     }
 
     // Handle feature overrides via setOrgFeatures
+    let featureWarnings: string[] | undefined;
     if (body.features && typeof body.features === "object") {
       const { setOrgFeatures } = await import("@/lib/org-features");
+      const { getPlanFeatures } = await import("@/config/plans");
+
+      // Determine effective plan (may have been updated above)
+      const effectivePlan = (body.plan as string) ?? (await prisma.organization.findUnique({ where: { id: orgId }, select: { plan: true } }))?.plan ?? "trial";
+      const planFeatures = getPlanFeatures(effectivePlan);
+
+      // Warn about features enabled outside the plan
+      const outsidePlan = Object.entries(body.features as Record<string, boolean>)
+        .filter(([key, enabled]) => enabled && !planFeatures.has(key as never))
+        .map(([key]) => key);
+
+      if (outsidePlan.length > 0) {
+        featureWarnings = outsidePlan.map((k) => `"${k}" ingår inte i planen "${effectivePlan}"`);
+      }
+
       await setOrgFeatures(orgId, body.features as Record<string, boolean>);
     }
 
@@ -133,6 +149,7 @@ export async function PATCH(
         ...updated,
         features: resolvedFeatures,
       },
+      ...(featureWarnings?.length ? { warnings: featureWarnings } : {}),
     });
   } catch (e) {
     if (e instanceof ApiError) return e.toResponse();

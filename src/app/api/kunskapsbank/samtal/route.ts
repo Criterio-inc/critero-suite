@@ -1,5 +1,5 @@
 import { buildKnowledgeBaseText } from "@/config/kunskapsbank/content";
-import { requireAuth, ApiError } from "@/lib/auth-guard";
+import { requireAuth, requireFeature, ApiError } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -41,7 +41,8 @@ Du har tillgång till kunskapsbankens innehåll nedan. Referera gärna till rele
 
 export async function POST(req: Request) {
   try {
-    await requireAuth();
+    const ctx = await requireAuth();
+    await requireFeature("verktyg.kunskapsbank", ctx);
 
     const { messages } = await req.json();
 

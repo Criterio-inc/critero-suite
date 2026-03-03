@@ -151,6 +151,20 @@ export default function OrgPage() {
     fetchOrg();
   };
 
+  const changeMemberRole = async (userId: string, role: string) => {
+    const res = await fetch("/api/org/members", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, role }),
+    });
+    if (res.ok) {
+      fetchOrg();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error ?? "Kunde inte ändra roll");
+    }
+  };
+
   const removeMember = async (userId: string) => {
     await fetch("/api/org/members", {
       method: "DELETE",
@@ -391,7 +405,19 @@ export default function OrgPage() {
                   </p>
                   <p className="text-xs text-muted-foreground truncate">{m.email}</p>
                 </div>
-                <span className="text-xs text-muted-foreground">{ROLE_LABELS[m.role] ?? m.role}</span>
+                {isAdmin && m.userId !== org.members[0]?.userId ? (
+                  <select
+                    value={m.role}
+                    onChange={(e) => changeMemberRole(m.userId, e.target.value)}
+                    className="rounded-lg border border-border/60 bg-card px-2 py-1 text-xs text-muted-foreground"
+                  >
+                    <option value="admin">Administratör</option>
+                    <option value="member">Medlem</option>
+                    <option value="viewer">Läsbehörighet</option>
+                  </select>
+                ) : (
+                  <span className="text-xs text-muted-foreground">{ROLE_LABELS[m.role] ?? m.role}</span>
+                )}
                 {isAdmin && m.userId !== org.members.find((x) => x.role === "admin")?.userId && (
                   <button onClick={() => removeMember(m.userId)} className="text-xs text-red-500 hover:text-red-700 cursor-pointer">
                     <Icon name="x" size={14} />

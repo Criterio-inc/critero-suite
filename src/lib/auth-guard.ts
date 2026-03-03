@@ -273,6 +273,48 @@ export async function requireAuth(): Promise<AuthContext> {
 }
 
 /* ------------------------------------------------------------------ */
+/*  requireFeature — check that a feature is enabled for the org       */
+/* ------------------------------------------------------------------ */
+
+export async function requireFeature(
+  featureKey: string,
+  ctx: AuthContext,
+): Promise<void> {
+  if (ctx.isPlatformAdmin) return;
+  if (!ctx.orgId) return;
+
+  const { resolveOrgFeatures } = await import("@/lib/org-features");
+  const { features } = await resolveOrgFeatures(ctx.orgId);
+
+  if (features[featureKey as keyof typeof features] === false) {
+    throw new ApiError(403, "Funktionen ingår inte i din organisations plan");
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  requireActivePlan — block expired trial orgs                       */
+/* ------------------------------------------------------------------ */
+
+export async function requireActivePlan(ctx: AuthContext): Promise<void> {
+  if (ctx.isPlatformAdmin) return;
+  if (!ctx.orgId || !ctx.orgPlan) return;
+
+  const { getPlan, isTrialExpired } = await import("@/config/plans");
+  const plan = getPlan(ctx.orgPlan);
+  if (plan.durationDays === -1) return; // No expiration
+
+  const org = await prisma.organization.findUnique({
+    where: { id: ctx.orgId },
+    select: { createdAt: true },
+  });
+  if (!org) return;
+
+  if (isTrialExpired(plan, org.createdAt)) {
+    throw new ApiError(403, "Din trial-period har löpt ut. Uppgradera din plan för att fortsätta.");
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  requireCaseAccess — verify case belongs to user's org              */
 /* ------------------------------------------------------------------ */
 
