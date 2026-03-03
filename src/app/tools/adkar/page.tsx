@@ -17,7 +17,7 @@ import { FeatureGate } from "@/components/feature-gate";
 
 type Dimension = "awareness" | "desire" | "knowledge" | "ability" | "reinforcement";
 type ActionStatus = "Ej påbörjad" | "Pågående" | "Klar";
-type TabKey = "overview" | "assessment" | "actionplan";
+type TabKey = "overview" | "assessment" | "actionplan" | "guide";
 
 interface Stakeholder {
   id: string;
@@ -103,26 +103,124 @@ const DIMENSIONS: { key: Dimension; letter: string; label: string; description: 
   { key: "reinforcement", letter: "R", label: "Förstärkning", description: "Mekanismer för att upprätthålla förändringen" },
 ];
 
-const DIMENSION_GUIDANCE: Record<Dimension, { title: string; text: string }> = {
+interface DimensionGuide {
+  title: string;
+  subtitle: string;
+  goal: string;
+  keyQuestions: string[];
+  practicalActions: string[];
+  tips: string[];
+  barrierFix: string;
+  chasmWarning?: string;
+}
+
+const DIMENSION_GUIDANCE: Record<Dimension, DimensionGuide> = {
   awareness: {
     title: "Medvetenhet",
-    text: "Har personen förstått varför förändringen behövs? Nyckelfrågor: Vad förändras? Varför nu? Vad händer om vi inte förändrar?",
+    subtitle: "Awareness",
+    goal: "Säkerställa att varje individ förstår varför organisationen genomför förändringen, vilka affärsdrivkrafter som ligger bakom, och risken med att inte förändras.",
+    keyQuestions: [
+      "Varför behöver vi denna förändring just nu? Hur ligger det i linje med vår vision?",
+      "Vilka specifika problem löser det, eller vilka möjligheter öppnar det upp?",
+      "Vad är risken om vi ignorerar denna utveckling?",
+    ],
+    practicalActions: [
+      "Kommunikation från ledningen: Toppledare måste tydligt och upprepat (5\u20137 gånger) kommunicera visionen.",
+      "Transparens: Var öppen med vad som är känt och okänt.",
+      "Fokusera på \"behovet\": Målet är medvetenhet om behovet av förändring, inte detaljerna i lösningen.",
+    ],
+    tips: [
+      "Kommunicera skälen bakom förändringen tydligt och konsekvent. Dela data, berättelser eller trender som belyser förändringens brådskande karaktär.",
+      "Adressera missförstånd och farhågor tidigt i processen.",
+      "Använd medarbetarundersökningar för att mäta om ni uppnått tillräcklig medvetenhet.",
+    ],
+    barrierFix: "Förstärk kommunikationen om \"varför\" \u2014 upprepa budskapet via flera kanaler.",
+    chasmWarning: "Från Medvetenhet till Vilja: Medarbetare kan förstå behovet men sakna motivation. Adressera personliga och professionella fördelar.",
   },
   desire: {
     title: "Vilja",
-    text: "Vill personen aktivt delta i förändringen? Nyckelfrågor: Vad vinner jag? Vilka risker ser jag? Litar jag på ledarskapet?",
+    subtitle: "Desire",
+    goal: "Skapa en personlig vilja hos individer att aktivt delta i och stötta förändringen. Detta är ett personligt val som vi kan influera, men inte tvinga fram.",
+    keyQuestions: [
+      "\"What's In It For Me?\" \u2014 Hur gör förändringen mitt arbete enklare eller mer meningsfullt?",
+      "Hur adresserar vi rädslor kring jobbsäkerhet och nya kompetenskrav?",
+      "Vilka personliga drivkrafter kan vi koppla förändringen till?",
+    ],
+    practicalActions: [
+      "Aktivt sponsorskap: Ledare måste vara synliga och agera förebilder.",
+      "Coachande chefer: Närmaste chef är nyckelpersonen \u2014 ge dem stöd och verktyg.",
+      "Involvering: Ge medarbetare en roll i utformningen av förändringen.",
+    ],
+    tips: [
+      "Förklara hur förändringen gynnar medarbetarna personligen \u2014 karriärmöjligheter, bättre verktyg, eller bättre balans.",
+      "Engagera medarbetarna tidigt genom att söka deras synpunkter och feedback. Ägarskap minskar motstånd.",
+      "Utse inflytelserika medarbetare eller chefer som förändringsagenter.",
+    ],
+    barrierFix: "Aktivera sponsorer, fokusera på WIIFM (What's In It For Me).",
   },
   knowledge: {
     title: "Kunskap",
-    text: "Vet personen hur förändringen ska genomföras? Nyckelfrågor: Vilka nya färdigheter behövs? Vilken utbildning ges? Var hittar jag stöd?",
+    subtitle: "Knowledge",
+    goal: "Ge individer den information och utbildning som krävs för att förstå hur de ska arbeta på nya sätt.",
+    keyQuestions: [
+      "Vilka konkreta färdigheter behövs? (t.ex. nya processer, nya verktyg)",
+      "Vilka nya ansvarsområden introduceras?",
+      "Hur ser \"bra\" ut? Vilka är våra riktlinjer?",
+    ],
+    practicalActions: [
+      "Rätt tajming: Planera utbildning nära inpå \"go-live\" för maximal effekt.",
+      "Varierade lärometoder: Kombinera formell utbildning med checklistor, coachning och peer-to-peer-lärande.",
+      "Tydliga riktlinjer: Dokumentera \"hur det ska se ut\" med konkreta exempel.",
+    ],
+    tips: [
+      "Lärande sker inte i ett vakuum \u2014 skapa möjligheter att dela reflektioner och erfarenheter.",
+      "Anpassa utbildningen efter målgrupp \u2014 chefer, specialister och medarbetare behöver olika saker.",
+      "Kombinera teori med praktiska övningar för snabbare kunskapsöverföring.",
+    ],
+    barrierFix: "Erbjud riktad utbildning och coachning anpassad efter rollens behov.",
+    chasmWarning: "Från Kunskap till Förmåga: Även med utbildning kan medarbetare ha svårt att tillämpa nya färdigheter. Praktiskt stöd och trygg experimenteringsmiljö är avgörande.",
   },
   ability: {
     title: "Förmåga",
-    text: "Kan personen faktiskt genomföra förändringen? Nyckelfrågor: Har jag rätt verktyg? Finns tid? Fungerar det i praktiken?",
+    subtitle: "Ability",
+    goal: "Omvandla kunskap till praktisk förmåga. Individer ska kunna prestera med de nya verktygen och arbetssätten på den nivå som krävs.",
+    keyQuestions: [
+      "Hur skapar vi en trygg miljö där medarbetare kan öva och göra misstag?",
+      "Vilket stöd finns när de kör fast? (experter, helpdesk, mentorer)",
+      "Hur mäter vi och ger feedback på prestation?",
+    ],
+    practicalActions: [
+      "Praktisk övning: Inkludera hands-on övningar och simuleringar.",
+      "Coachning: Chefer och experter måste vara tillgängliga under övergångsfasen.",
+      "Tålamod: Förvänta er en initial produktivitetsdipp \u2014 det är normalt.",
+    ],
+    tips: [
+      "Även med träning kan medarbetare ha svårt att tillämpa nya färdigheter p.g.a. rädsla att misslyckas.",
+      "Skapa en trygg miljö för experimenterande \u2014 \"det är OK att göra fel\".",
+      "Ge praktiskt stöd nära arbetet, inte bara i klassrummet.",
+    ],
+    barrierFix: "Skapa möjligheter för säker övning med tillgängligt stöd.",
   },
   reinforcement: {
     title: "Förstärkning",
-    text: "Finns mekanismer för att bibehålla förändringen? Nyckelfrågor: Firas framgångar? Mäts resultaten? Justeras vid behov?",
+    subtitle: "Reinforcement",
+    goal: "Säkerställa att förändringen blir bestående genom att aktivt förstärka nya beteenden och förhindra att medarbetare återgår till gamla vanor.",
+    keyQuestions: [
+      "Hur firar vi framgångar och uppmärksammar förebilder?",
+      "Är våra mätsystem och bonusmodeller i linje med nya arbetssätt?",
+      "Vilka mekanismer finns för kontinuerlig förbättring?",
+    ],
+    practicalActions: [
+      "Erkännande: Redan ett enkelt \"tack\" kan vara meningsfullt.",
+      "Mätning: Använd dashboards för att visa framsteg och resultat.",
+      "Ansvarsskyldighet: Integrera förväntningar i daglig styrning.",
+    ],
+    tips: [
+      "Det tar i median 59 dagar att bilda en ny vana \u2014 ju mer komplex aktiviteten är, desto längre tid.",
+      "Förstärkning kan komma i form av erkännande, belöningar, prestationsmätningar och positiv feedback.",
+      "Bibehåll momentum \u2014 konsekvent erkännande och integration i dagliga arbetsflöden förhindrar att entusiasmen avtar.",
+    ],
+    barrierFix: "Uppmärksamma framsteg, fira framgångar och integrera i daglig styrning.",
   },
 };
 
@@ -141,6 +239,7 @@ const TAB_ITEMS: { key: TabKey; label: string; icon: string }[] = [
   { key: "overview", label: "Översikt", icon: "layout-dashboard" },
   { key: "assessment", label: "Bedömning", icon: "clipboard-list" },
   { key: "actionplan", label: "Åtgärdsplan", icon: "flag" },
+  { key: "guide", label: "Process & Guide", icon: "book-open" },
 ];
 
 /* ================================================================== */
@@ -961,7 +1060,10 @@ function DimensionGuidance({
                 )}>
                   {dim.letter}
                 </span>
-                <span className="flex-1 font-medium">{guidance.title}</span>
+                <div className="flex-1">
+                  <span className="font-medium">{guidance.title}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">({guidance.subtitle})</span>
+                </div>
                 <Icon
                   name={isExpanded ? "chevron-up" : "chevron-down"}
                   size={14}
@@ -969,8 +1071,66 @@ function DimensionGuidance({
                 />
               </button>
               {isExpanded && (
-                <div className="border-t border-border/40 bg-muted/20 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
-                  {guidance.text}
+                <div className="border-t border-border/40 bg-muted/20 px-4 py-4 space-y-3">
+                  {/* Goal */}
+                  <p className="text-xs text-foreground leading-relaxed">
+                    <strong>Mål:</strong> {guidance.goal}
+                  </p>
+
+                  {/* Key questions */}
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Nyckelfrågor:</p>
+                    <ul className="space-y-1">
+                      {guidance.keyQuestions.map((q, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                          <Icon name="help-circle" size={12} className="mt-0.5 shrink-0 text-primary/60" />
+                          {q}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Practical actions */}
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Praktiska åtgärder:</p>
+                    <ul className="space-y-1">
+                      {guidance.practicalActions.map((a, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                          <Icon name="check-circle" size={12} className="mt-0.5 shrink-0 text-emerald-500" />
+                          {a}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Tips */}
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">Tips:</p>
+                    <ul className="space-y-1">
+                      {guidance.tips.map((t, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                          <Icon name="lightbulb" size={12} className="mt-0.5 shrink-0 text-amber-500" />
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Barrier fix */}
+                  <div className="rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 px-3 py-2">
+                    <p className="text-xs text-red-700 dark:text-red-400">
+                      <strong>Vid barriärpunkt:</strong> {guidance.barrierFix}
+                    </p>
+                  </div>
+
+                  {/* Chasm warning */}
+                  {guidance.chasmWarning && (
+                    <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 px-3 py-2">
+                      <p className="text-xs text-amber-700 dark:text-amber-400">
+                        <strong>Vanlig klyfta:</strong> {guidance.chasmWarning}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1398,6 +1558,358 @@ function NewProjectForm({
         </div>
       </form>
     </Card>
+  );
+}
+
+/* ---- ADKAR Blocks SVG Illustration ---- */
+
+const BLOCK_COLORS: Record<Dimension, { fill: string; dark: string }> = {
+  awareness: { fill: "#8B4513", dark: "#A0522D" },
+  desire: { fill: "#6B8E6B", dark: "#7BA17B" },
+  knowledge: { fill: "#4A6A7A", dark: "#5A7A8A" },
+  ability: { fill: "#6B8E6B", dark: "#7BA17B" },
+  reinforcement: { fill: "#8B6B5A", dark: "#9B7B6A" },
+};
+
+function AdkarBlocksIllustration() {
+  const blocks = DIMENSIONS.slice().reverse(); // R at bottom, A at top
+
+  return (
+    <svg viewBox="0 0 480 400" className="w-full max-w-[480px] mx-auto" role="img" aria-label="ADKAR-modellens fem steg visualiserade som staplade block">
+      {/* Background circles (connecting rings) */}
+      {[80, 160, 240, 320].map((cy, i) => (
+        <ellipse
+          key={i}
+          cx={140}
+          cy={cy}
+          rx={90}
+          ry={50}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          className="text-border"
+          opacity={0.4}
+        />
+      ))}
+
+      {/* Stacked blocks */}
+      {blocks.map((dim, i) => {
+        const y = 20 + i * 76;
+        const colors = BLOCK_COLORS[dim.key];
+
+        return (
+          <g key={dim.key}>
+            {/* 3D block effect */}
+            <rect x={70} y={y + 6} width={130} height={60} rx={6} fill={colors.fill} opacity={0.3} />
+            <rect x={65} y={y} width={130} height={60} rx={6} fill={colors.fill} opacity={0.85} />
+
+            {/* Letter on block */}
+            <text
+              x={130}
+              y={y + 38}
+              textAnchor="middle"
+              className="fill-white text-[24px] font-bold"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              {dim.letter}
+            </text>
+
+            {/* Label and description to the right */}
+            <text
+              x={220}
+              y={y + 22}
+              className="fill-foreground text-[13px] font-semibold"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              {dim.letter} – {DIMENSION_GUIDANCE[dim.key].title} ({DIMENSION_GUIDANCE[dim.key].subtitle})
+            </text>
+            <text
+              x={220}
+              y={y + 42}
+              className="fill-muted-foreground text-[11px]"
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              {dim.description.length > 55 ? dim.description.slice(0, 55) + "..." : dim.description}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* ---- Process Guide Tab ---- */
+
+const CORNERSTONES: { icon: string; title: string; text: string }[] = [
+  {
+    icon: "target",
+    title: "Aktivt & Synligt Sponsorskap",
+    text: "Den enskilt viktigaste faktorn. Ledare måste vara närvarande, kommunicera och agera förebilder.",
+  },
+  {
+    icon: "megaphone",
+    title: "Strukturerad Kommunikation",
+    text: "Rätt budskap, från rätt avsändare, vid rätt tidpunkt. Upprepa, anpassa och skapa dialog.",
+  },
+  {
+    icon: "users",
+    title: "Coachande Chefer",
+    text: "Närmaste chefen gör förändringen verklig. De måste få stöd och verktyg för att coacha sina team.",
+  },
+  {
+    icon: "zap",
+    title: "Proaktivt Hantera Motstånd",
+    text: "Motstånd är naturligt. En bra plan handlar om att förstå och adressera grundorsaker i tid.",
+  },
+];
+
+const ENGAGEMENT_TIPS: string[] = [
+  "Rätt ordning! Börja med varför (Awareness) innan ni fokuserar på hur (Knowledge).",
+  "Verka genom cheferna. De är er viktigaste kanal för att nå ut och skapa dialog.",
+  "Hjälp cheferna att fokusera. Ge dem tydliga budskap och verktyg.",
+  "Gör det konkret. Medarbetare vill veta i detalj hur deras vardag påverkas.",
+  "Satsa på dialog. Envägskommunikation skapar inte engagemang.",
+  "Se medarbetare som medskapare. De bästa lösningarna kommer från de som gör jobbet.",
+  "Testa och mät. Kör piloter och mät engagemangsnivån löpande för att justera kursen.",
+];
+
+function ProcessGuideTab() {
+  const [openStep, setOpenStep] = useState<Dimension | null>(null);
+
+  return (
+    <div className="space-y-8">
+      {/* Intro section */}
+      <Card className="p-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 space-y-3">
+            <h2 className="text-lg font-bold tracking-tight">
+              Från osäkerhet till möjlighet
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Förändring är inte ett teknikprojekt &mdash; det är en mänsklig transformation. Den
+              verkliga utmaningen ligger i att guida varje enskild medarbetare genom förändringen.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              ADKAR-modellen, utvecklad av <strong>Prosci</strong> efter att ha studerat
+              förändringsmönster i över 700 organisationer, är ett ramverk som fokuserar på de fem
+              resultat en individ måste uppnå för att en förändring ska bli framgångsrik.
+            </p>
+            <div className="rounded-xl bg-primary/5 border border-primary/20 px-4 py-3">
+              <p className="text-xs text-primary font-medium flex items-start gap-2">
+                <Icon name="zap" size={14} className="mt-0.5 shrink-0" />
+                <span>
+                  Varje steg bygger på det föregående. Man kan inte effektivt bygga kunskap hos
+                  någon som saknar medvetenhet om varför förändringen behövs, eller viljan att delta.
+                  Att hoppa över steg är den vanligaste orsaken till att förändringsinitiativ misslyckas.
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="lg:w-[320px] shrink-0">
+            <AdkarBlocksIllustration />
+          </div>
+        </div>
+      </Card>
+
+      {/* Spelbok per steg */}
+      <div>
+        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+          <Icon name="map" size={16} className="text-primary" />
+          Spelbok för varje ADKAR-steg
+        </h3>
+        <div className="space-y-2">
+          {DIMENSIONS.map((dim) => {
+            const guide = DIMENSION_GUIDANCE[dim.key];
+            const isOpen = openStep === dim.key;
+
+            return (
+              <Card key={dim.key} className={cn("overflow-hidden transition-all", isOpen && "ring-1 ring-primary/30")}>
+                <button
+                  onClick={() => setOpenStep(isOpen ? null : dim.key)}
+                  className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-accent/50"
+                >
+                  <span className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold text-white"
+                  )} style={{ backgroundColor: BLOCK_COLORS[dim.key].fill }}>
+                    {dim.letter}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm">{guide.title} <span className="font-normal text-muted-foreground">({guide.subtitle})</span></div>
+                    <p className="text-xs text-muted-foreground truncate">{guide.goal}</p>
+                  </div>
+                  <Icon
+                    name={isOpen ? "chevron-up" : "chevron-down"}
+                    size={16}
+                    className="text-muted-foreground shrink-0"
+                  />
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-border/40 px-5 py-5 space-y-5 bg-muted/10">
+                    {/* Goal */}
+                    <div className="rounded-xl bg-card border border-border/60 p-4">
+                      <h4 className="text-xs font-semibold text-primary mb-1 flex items-center gap-1.5">
+                        <Icon name="target" size={12} />
+                        Mål
+                      </h4>
+                      <p className="text-sm text-foreground leading-relaxed">{guide.goal}</p>
+                    </div>
+
+                    {/* Key questions */}
+                    <div>
+                      <h4 className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                        <Icon name="help-circle" size={12} className="text-primary/60" />
+                        Nyckelfrågor
+                      </h4>
+                      <div className="space-y-2">
+                        {guide.keyQuestions.map((q, i) => (
+                          <div key={i} className="flex items-start gap-3 rounded-lg bg-card border border-border/40 px-4 py-3">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-bold mt-0.5">
+                              {i + 1}
+                            </span>
+                            <p className="text-xs text-foreground leading-relaxed">{q}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Practical actions */}
+                    <div>
+                      <h4 className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                        <Icon name="check-circle" size={12} className="text-emerald-500" />
+                        Praktiska åtgärder
+                      </h4>
+                      <div className="space-y-1.5">
+                        {guide.practicalActions.map((a, i) => (
+                          <div key={i} className="flex items-start gap-2 text-xs text-foreground leading-relaxed">
+                            <Icon name="arrow-right" size={12} className="mt-0.5 shrink-0 text-emerald-500" />
+                            {a}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Tips */}
+                    <div>
+                      <h4 className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                        <Icon name="lightbulb" size={12} className="text-amber-500" />
+                        Tips
+                      </h4>
+                      <div className="space-y-1.5">
+                        {guide.tips.map((t, i) => (
+                          <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                            <Icon name="lightbulb" size={12} className="mt-0.5 shrink-0 text-amber-400" />
+                            {t}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Barrier fix */}
+                    <div className="rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 px-4 py-3 flex items-start gap-3">
+                      <Icon name="alert-triangle" size={14} className="text-red-500 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-0.5">Vid barriärpunkt</p>
+                        <p className="text-xs text-red-600 dark:text-red-400/80">{guide.barrierFix}</p>
+                      </div>
+                    </div>
+
+                    {/* Chasm */}
+                    {guide.chasmWarning && (
+                      <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 px-4 py-3 flex items-start gap-3">
+                        <Icon name="alert-circle" size={14} className="text-amber-500 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-0.5">Vanlig klyfta till nästa steg</p>
+                          <p className="text-xs text-amber-600 dark:text-amber-400/80">{guide.chasmWarning}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ADKAR as diagnostic tool */}
+      <Card className="p-5">
+        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+          <Icon name="search" size={16} className="text-primary" />
+          ADKAR som diagnosverktyg
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+          ADKAR är inte bara en checklista för planering, utan ett kraftfullt verktyg för att
+          identifiera <strong>&quot;barriärpunkten&quot;</strong> &mdash; den första ADKAR-komponenten
+          som inte är uppfylld och som hindrar framsteg.
+        </p>
+        <div className="space-y-2">
+          {DIMENSIONS.map((dim) => {
+            const guide = DIMENSION_GUIDANCE[dim.key];
+            return (
+              <div key={dim.key} className="flex items-start gap-3 rounded-lg border border-border/60 px-4 py-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white" style={{ backgroundColor: BLOCK_COLORS[dim.key].fill }}>
+                  {dim.letter}
+                </span>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="font-semibold text-foreground whitespace-nowrap">{guide.title.toUpperCase()}</span>
+                  <Icon name="arrow-right" size={12} className="text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">{guide.barrierFix}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      {/* 4 Cornerstones */}
+      <div>
+        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+          <Icon name="layout-grid" size={16} className="text-primary" />
+          Fyra hörnstenar för framgångsrik transformation
+        </h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {CORNERSTONES.map((cs, i) => (
+            <Card key={i} className="p-5">
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon name={cs.icon} size={18} />
+                </span>
+                <div>
+                  <h4 className="text-sm font-semibold">{cs.title}</h4>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{cs.text}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* 7 Tips */}
+      <Card className="p-5">
+        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+          <Icon name="lightbulb" size={16} className="text-amber-500" />
+          7 praktiska tips för att skapa engagemang
+        </h3>
+        <div className="space-y-3">
+          {ENGAGEMENT_TIPS.map((tip, i) => (
+            <div key={i} className="flex items-start gap-4">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+                {i + 1}
+              </span>
+              <p className="text-sm text-foreground leading-relaxed pt-0.5">{tip}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Reference */}
+      <div className="text-center">
+        <p className="text-xs text-muted-foreground">
+          Baserat på Proscis ADKAR-modell (Jeff Hiatt). Studier av förändringsmönster i 700+ organisationer.
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -1967,7 +2479,7 @@ export default function AdkarPage() {
             )}
 
             {/* Empty state */}
-            {state.projects.length === 0 && !state.showNewProject && (
+            {state.projects.length === 0 && !state.showNewProject && state.activeTab !== "guide" && (
               <Card className="p-8">
                 <div className="flex flex-col items-center justify-center text-center">
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
@@ -1981,35 +2493,42 @@ export default function AdkarPage() {
                     intressenter genom fem dimensioner: Medvetenhet, Vilja, Kunskap, Förmåga och
                     Förstärkning.
                   </p>
-                  <Button onClick={() => dispatch({ type: "TOGGLE_NEW_PROJECT" })}>
-                    <Icon name="plus" size={14} /> Skapa ditt första projekt
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button onClick={() => dispatch({ type: "TOGGLE_NEW_PROJECT" })}>
+                      <Icon name="plus" size={14} /> Skapa ditt första projekt
+                    </Button>
+                    <Button variant="outline" onClick={() => dispatch({ type: "SET_TAB", tab: "guide" })}>
+                      <Icon name="book-open" size={14} /> Läs guiden
+                    </Button>
+                  </div>
                 </div>
               </Card>
+            )}
+
+            {/* Tab bar — always shown when there's a project OR guide tab is active */}
+            {(activeProject || state.activeTab === "guide") && (
+              <div className="flex items-center gap-1 border-b border-border/60 pb-0">
+                {TAB_ITEMS.filter((tab) => activeProject || tab.key === "guide").map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => dispatch({ type: "SET_TAB", tab: tab.key })}
+                    className={cn(
+                      "flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors",
+                      state.activeTab === tab.key
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                    )}
+                  >
+                    <Icon name={tab.icon} size={14} />
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             )}
 
             {/* Active project content */}
             {activeProject && (
               <>
-                {/* Tab bar */}
-                <div className="flex items-center gap-1 border-b border-border/60 pb-0">
-                  {TAB_ITEMS.map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => dispatch({ type: "SET_TAB", tab: tab.key })}
-                      className={cn(
-                        "flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors",
-                        state.activeTab === tab.key
-                          ? "border-primary text-primary"
-                          : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-                      )}
-                    >
-                      <Icon name={tab.icon} size={14} />
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-
                 {/* Add stakeholder form (assessment tab) */}
                 {state.showAddStakeholder && state.activeTab === "assessment" && (
                   <AddStakeholderForm projectId={activeProject.id} dispatch={dispatch} />
@@ -2037,6 +2556,11 @@ export default function AdkarPage() {
                   <ActionPlanTab project={activeProject} dispatch={dispatch} />
                 )}
               </>
+            )}
+
+            {/* Guide tab — always accessible */}
+            {state.activeTab === "guide" && (
+              <ProcessGuideTab />
             )}
           </div>
         </div>
