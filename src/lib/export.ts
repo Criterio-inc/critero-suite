@@ -45,6 +45,15 @@ export async function exportCaseJson(caseId: string) {
 }
 
 /**
+ * Sanitize a string value to prevent CSV formula injection.
+ * Prefixes values starting with formula characters (=, @, +, -) with a single quote.
+ */
+function sanitizeCsvValue(str: string): string {
+  if (/^[=@+\-]/.test(str)) return `'${str}`;
+  return str;
+}
+
+/**
  * Export entity data as CSV string.
  */
 export function toCsv(items: Record<string, unknown>[], columns: string[]): string {
@@ -53,7 +62,7 @@ export function toCsv(items: Record<string, unknown>[], columns: string[]): stri
     columns.map((col) => {
       const val = item[col];
       if (val === null || val === undefined) return "";
-      const str = String(val).replace(/"/g, '""');
+      const str = sanitizeCsvValue(String(val).replace(/"/g, '""'));
       return str.includes(";") || str.includes('"') || str.includes("\n") ? `"${str}"` : str;
     }).join(";")
   );

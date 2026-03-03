@@ -43,14 +43,19 @@ export async function PATCH(
     const { caseId, sessionId } = params;
     await requireCaseAccess(caseId, ctx);
 
-    const body = await req.json();
+    const rawBody = await req.json();
+
+    // Whitelist allowed fields to prevent mass assignment
+    const ALLOWED = ["name", "status", "respondentEmail", "respondentRole", "startedAt", "completedAt"];
+    const data: Record<string, unknown> = {};
+    for (const key of ALLOWED) {
+      if (rawBody[key] !== undefined) data[key] = rawBody[key];
+    }
+    data.updatedAt = new Date();
 
     const session = await db.maturitySession.update({
       where: { id: sessionId },
-      data: {
-        ...body,
-        updatedAt: new Date(),
-      },
+      data,
     });
 
     return NextResponse.json(session);
