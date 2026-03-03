@@ -785,6 +785,16 @@ export default function AdminContent() {
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [usersError, setUsersError] = useState("");
 
+  // Feedback
+  const [feedbacks, setFeedbacks] = useState<{
+    id: string; userId: string; userName: string; userEmail: string;
+    type: string; message: string; page: string; status: string;
+    createdAt: string; updatedAt: string;
+  }[]>([]);
+  const [feedbacksLoaded, setFeedbacksLoaded] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState<string | null>(null);
+  const [feedbackStatusSaving, setFeedbackStatusSaving] = useState<string | null>(null);
+
   // Verify admin status via API
   useEffect(() => {
     if (!user?.id) return;
@@ -987,6 +997,54 @@ export default function AdminContent() {
   useEffect(() => {
     if (isAdminVerified) fetchUsers();
   }, [isAdminVerified, fetchUsers]);
+
+  // Fetch feedbacks
+  const fetchFeedbacks = useCallback(() => {
+    fetch("/api/admin/feedback")
+      .then((r) => r.json())
+      .then((data) => {
+        setFeedbacks(data.feedbacks ?? []);
+        setFeedbacksLoaded(true);
+      })
+      .catch(() => setFeedbacksLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    if (isAdminVerified) fetchFeedbacks();
+  }, [isAdminVerified, fetchFeedbacks]);
+
+  // Update feedback status
+  const updateFeedbackStatus = useCallback(async (id: string, status: string) => {
+    setFeedbackStatusSaving(id);
+    try {
+      const res = await fetch(`/api/admin/feedback/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        setFeedbacks((prev) => prev.map((f) => f.id === id ? { ...f, status } : f));
+      }
+    } catch (e) {
+      console.error("Failed to update feedback status:", e);
+    } finally {
+      setFeedbackStatusSaving(null);
+    }
+  }, []);
+
+  // Delete feedback
+  const deleteFeedback = useCallback(async (id: string) => {
+    if (!confirm("Vill du ta bort denna feedback permanent?")) return;
+    try {
+      const res = await fetch(`/api/admin/feedback/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+        if (selectedFeedback === id) setSelectedFeedback(null);
+      }
+    } catch {
+      alert("Kunde inte ta bort feedback.");
+    }
+  }, [selectedFeedback]);
 
   // Sync users from Clerk
   const syncUsers = useCallback(async () => {
@@ -1896,6 +1954,149 @@ export default function AdminContent() {
                           >
                             <Icon name="trash-2" size={12} />
                             Ta bort användare
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* ============================================================ */}
+        {/*  BETA-FEEDBACK                                                */}
+        {/* ============================================================ */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-500/10">
+                <Icon name="message-square-plus" size={18} className="text-amber-600 dark:text-amber-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Beta-feedback</h2>
+                <p className="text-xs text-muted-foreground">
+                  Buggar, förbättringsförslag och frågor från testare
+                </p>
+              </div>
+            </div>
+            {feedbacksLoaded && (
+              <span className="text-xs text-muted-foreground">{feedbacks.length} totalt</span>
+            )}
+          </div>
+
+          {!feedbacksLoaded ? (
+            <p className="text-sm text-muted-foreground">Laddar feedback...</p>
+          ) : feedbacks.length === 0 ? (
+            <div className="rounded-2xl border border-border/60 bg-card p-8 text-center">
+              <p className="text-sm text-muted-foreground">Ingen feedback ännu</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {feedbacks.map((fb) => {
+                const isSelected = selectedFeedback === fb.id;
+                const typeConfig = {
+                  bugg: { label: "Bugg", icon: "bug", color: "bg-red-500/10 text-red-600 dark:text-red-400" },
+                  forbattring: { label: "Förbättring", icon: "lightbulb", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+                  fraga: { label: "Fråga", icon: "help-circle", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
+                }[fb.type] ?? { label: fb.type, icon: "info", color: "bg-muted text-muted-foreground" };
+
+                const statusConfig = {
+                  ny: { label: "Ny", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+                  granskad: { label: "Granskad", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
+                  klar: { label: "Klar", color: "bg-green-500/10 text-green-600 dark:text-green-400" },
+                }[fb.status] ?? { label: fb.status, color: "bg-muted text-muted-foreground" };
+
+                const timeAgo = (() => {
+                  const diff = Date.now() - new Date(fb.createdAt).getTime();
+                  const mins = Math.floor(diff / 60000);
+                  if (mins < 1) return "Just nu";
+                  if (mins < 60) return `${mins} min sedan`;
+                  const hours = Math.floor(mins / 60);
+                  if (hours < 24) return `${hours} tim sedan`;
+                  const days = Math.floor(hours / 24);
+                  if (days === 0) return "Idag";
+                  if (days === 1) return "Igår";
+                  return `${days} dagar sedan`;
+                })();
+
+                return (
+                  <div key={fb.id} className="rounded-2xl border border-border/60 bg-card shadow-sm overflow-hidden">
+                    {/* Summary row */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFeedback(isSelected ? null : fb.id)}
+                      className="w-full flex items-center gap-3 px-5 py-3 text-left hover:bg-accent/30 transition-colors cursor-pointer"
+                    >
+                      <div className={`flex h-7 w-7 items-center justify-center rounded-lg shrink-0 ${typeConfig.color}`}>
+                        <Icon name={typeConfig.icon} size={14} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground truncate">{fb.message}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {fb.userName} &middot; {fb.page} &middot; {timeAgo}
+                        </p>
+                      </div>
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold shrink-0 ${statusConfig.color}`}>
+                        {statusConfig.label}
+                      </span>
+                      <Icon name={isSelected ? "chevron-up" : "chevron-down"} size={14} className="text-muted-foreground shrink-0" />
+                    </button>
+
+                    {/* Detail panel */}
+                    {isSelected && (
+                      <div className="border-t border-border/40 px-5 py-4 space-y-4 bg-muted/10">
+                        <div className="flex items-start gap-3">
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-xl shrink-0 ${typeConfig.color}`}>
+                            <Icon name={typeConfig.icon} size={16} />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-xs font-semibold text-foreground">{typeConfig.label}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Från {fb.userName}{fb.userEmail ? ` (${fb.userEmail})` : ""} &middot;{" "}
+                              {new Date(fb.createdAt).toLocaleDateString("sv-SE", { year: "numeric", month: "long", day: "numeric" })} &middot;{" "}
+                              sida: {fb.page || "(okänd)"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-border/40 bg-card p-4">
+                          <p className="text-sm text-foreground whitespace-pre-wrap">{fb.message}</p>
+                        </div>
+
+                        {/* Status buttons */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground mr-1">Status:</span>
+                          {(["ny", "granskad", "klar"] as const).map((s) => {
+                            const sConf = {
+                              ny: { label: "Ny" },
+                              granskad: { label: "Granskad" },
+                              klar: { label: "Klar" },
+                            }[s];
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => updateFeedbackStatus(fb.id, s)}
+                                disabled={feedbackStatusSaving === fb.id}
+                                className={`rounded-lg px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
+                                  fb.status === s
+                                    ? "bg-primary text-primary-foreground shadow-sm"
+                                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                                }`}
+                              >
+                                {sConf.label}
+                              </button>
+                            );
+                          })}
+                          <div className="flex-1" />
+                          <button
+                            type="button"
+                            onClick={() => deleteFeedback(fb.id)}
+                            className="rounded-lg px-2 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                          >
+                            <Icon name="trash-2" size={14} />
                           </button>
                         </div>
                       </div>
