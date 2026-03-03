@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
+import { FeatureGate } from "@/components/feature-gate";
 
 // ============================================================
 // Glossary terms
@@ -318,6 +319,7 @@ export default function HelpPage() {
     : GLOSSARY;
 
   return (
+    <FeatureGate featureKey="upphandling.help">
     <div>
       <Header
         title="Hjälpcenter"
@@ -709,5 +711,6 @@ export default function HelpPage() {
         )}
       </div>
     </div>
+    </FeatureGate>
   );
 }

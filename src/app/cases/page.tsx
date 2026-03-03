@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDate } from "@/lib/utils";
 import { Icon } from "@/components/ui/icon";
+import { requireAuth, requireFeature } from "@/lib/auth-guard";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = "force-dynamic";
@@ -49,6 +51,13 @@ async function ensureDemoPrefix() {
 }
 
 export default async function CasesPage() {
+  try {
+    const ctx = await requireAuth();
+    await requireFeature("upphandling.cases", ctx);
+  } catch {
+    redirect("/");
+  }
+
   await ensureDemoPrefix();
 
   const cases: any[] = await prisma.case.findMany({

@@ -14,6 +14,24 @@ export async function POST(req: NextRequest) {
     if (!validated.success) return validated.response;
     const { email, role } = validated.data;
 
+    // Check maxUsers limit (members + pending invitations)
+    const org = await prisma.organization.findUnique({
+      where: { id: ctx.orgId },
+      select: { maxUsers: true, plan: true },
+    });
+    if (org && org.maxUsers > 0) {
+      const [memberCount, pendingInvites] = await Promise.all([
+        prisma.orgMembership.count({ where: { orgId: ctx.orgId } }),
+        prisma.invitation.count({ where: { orgId: ctx.orgId, usedAt: null, expiresAt: { gt: new Date() } } }),
+      ]);
+      if (memberCount + pendingInvites >= org.maxUsers) {
+        return NextResponse.json(
+          { error: `Organisationen har nått maxgränsen (${org.maxUsers} användare). Uppgradera planen eller ta bort befintliga medlemmar/inbjudningar.` },
+          { status: 403 },
+        );
+      }
+    }
+
     // Check if user already is a member
     const existingMember = await prisma.orgMembership.findFirst({
       where: {

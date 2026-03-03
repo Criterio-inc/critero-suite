@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ensureTables } from "@/lib/ensure-tables";
 import { getAssessmentConfig } from "@/config/assessments";
-import { requireAuth, ApiError } from "@/lib/auth-guard";
+import { requireAuth, requireActivePlan, requireFeature, ApiError } from "@/lib/auth-guard";
 import { validateBody, createAssessmentSchema } from "@/lib/api-validation";
+import { getPlan, isAtAssessmentLimit } from "@/config/plans";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +86,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const ctx = await requireAuth();
+    await requireActivePlan(ctx);
 
     await ensureTables();
 
@@ -92,6 +94,24 @@ export async function POST(request: NextRequest) {
     const validated = validateBody(createAssessmentSchema, rawBody);
     if (!validated.success) return validated.response;
     const { assessmentTypeSlug, name, description, organizationName } = validated.data;
+
+    // Feature gate based on assessment type
+    const featureKey = assessmentTypeSlug === "ai-mognad" ? "ai-mognadmatning" : "mognadmatning";
+    await requireFeature(featureKey, ctx);
+
+    // Enforce maxAssessments limit
+    if (ctx.orgId) {
+      const plan = getPlan(ctx.orgPlan);
+      const currentSessions = await prisma.assessmentSession.count({
+        where: { project: { orgId: ctx.orgId } },
+      });
+      if (isAtAssessmentLimit(plan, currentSessions)) {
+        return NextResponse.json(
+          { error: `Planen "${plan.label}" tillåter max ${plan.maxAssessments} mätningar` },
+          { status: 403 },
+        );
+      }
+    }
 
     // Get config for this assessment type
     const config = getAssessmentConfig(assessmentTypeSlug);

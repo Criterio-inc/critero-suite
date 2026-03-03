@@ -1,12 +1,21 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
+import { requireAuth, requireFeature } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 
 export default async function LibraryPage() {
+  try {
+    const ctx = await requireAuth();
+    await requireFeature("upphandling.library", ctx);
+  } catch {
+    redirect("/");
+  }
+
   const [reqBlocks, riskTemplates, workshopTemplates] = await Promise.all([
     prisma.libraryItem.count({ where: { type: "requirement_block" } }),
     prisma.libraryItem.count({ where: { type: "risk_template" } }),

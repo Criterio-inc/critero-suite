@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateId } from "@/lib/id-generator";
-import { requireAuth, requireWriteAccess, logAudit, ApiError } from "@/lib/auth-guard";
+import { requireAuth, requireWriteAccess, requireActivePlan, requireFeature, logAudit, ApiError } from "@/lib/auth-guard";
 import { validateBody, createCaseSchema } from "@/lib/api-validation";
+import { getPlan, isAtCaseLimit } from "@/config/plans";
 
 export async function GET(req: NextRequest) {
   try {
     const ctx = await requireAuth();
+    await requireFeature("upphandling.cases", ctx);
 
     const { searchParams } = new URL(req.url);
     const take = Math.min(Number(searchParams.get("limit") ?? 50), 200);
@@ -38,6 +40,20 @@ export async function POST(req: NextRequest) {
   try {
     const ctx = await requireAuth();
     requireWriteAccess(ctx);
+    await requireFeature("upphandling.cases", ctx);
+    await requireActivePlan(ctx);
+
+    // Enforce maxCases limit
+    if (ctx.orgId) {
+      const plan = getPlan(ctx.orgPlan);
+      const currentCases = await prisma.case.count({ where: { orgId: ctx.orgId } });
+      if (isAtCaseLimit(plan, currentCases)) {
+        return NextResponse.json(
+          { error: `Planen "${plan.label}" tillåter max ${plan.maxCases} upphandlingar` },
+          { status: 403 },
+        );
+      }
+    }
 
     const rawBody = await req.json();
     const v = validateBody(createCaseSchema, rawBody);
