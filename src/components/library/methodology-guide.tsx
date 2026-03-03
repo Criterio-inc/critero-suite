@@ -49,7 +49,7 @@ const GUIDES: Record<GuideType, { title: string; icon: string; steps: { label: s
     tips: [
       "SKA-krav som ingen leverantör uppfyller = misslyckad upphandling",
       "Marknadsdialog (RFI) hjälper kalibrera kravnivån",
-      "Max 40-60 krav totalt — fler gör utvärdering ohantlerlig",
+      "Max 40-60 krav totalt — fler gör utvärdering ohanterlig",
       "Skriv krav som beskriver VAD, inte HUR",
     ],
   },

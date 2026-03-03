@@ -3,6 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { ToastProvider } from "@/components/ui/toast-provider";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function RootLayout({
               <div className="flex h-screen">
                 <AppSidebar />
                 <main className="flex-1 overflow-auto">{children}</main>
+                <FeedbackDialog />
               </div>
             </ToastProvider>
           </ThemeProvider>

@@ -78,6 +78,8 @@ import {
   CheckSquare,
   ClipboardEdit,
   Building,
+  MessageSquarePlus,
+  Bug,
   type LucideProps,
 } from "lucide-react";
 
@@ -159,6 +161,8 @@ const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
   "check-square": CheckSquare,
   "clipboard-edit": ClipboardEdit,
   building: Building,
+  "message-square-plus": MessageSquarePlus,
+  bug: Bug,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {
