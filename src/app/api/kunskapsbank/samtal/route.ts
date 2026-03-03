@@ -1,4 +1,5 @@
 import { buildKnowledgeBaseText } from "@/config/kunskapsbank/content";
+import { requireAuth, ApiError } from "@/lib/auth-guard";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -40,6 +41,8 @@ Du har tillgång till kunskapsbankens innehåll nedan. Referera gärna till rele
 
 export async function POST(req: Request) {
   try {
+    await requireAuth();
+
     const { messages } = await req.json();
 
     // Determine which AI provider to use
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
 
     if (!openaiKey && !anthropicKey) {
       return Response.json(
-        { error: "Ingen AI-nyckel konfigurerad. Lägg till OPENAI_API_KEY eller ANTHROPIC_API_KEY." },
+        { error: "AI-tjänsten är inte konfigurerad. Kontakta administratören." },
         { status: 500 }
       );
     }
@@ -115,9 +118,10 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
     console.error("samtal route error:", e);
     return Response.json(
-      { error: e instanceof Error ? e.message : "Unknown error" },
+      { error: "Ett oväntat fel uppstod." },
       { status: 500 }
     );
   }

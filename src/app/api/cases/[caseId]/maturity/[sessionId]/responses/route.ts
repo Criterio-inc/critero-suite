@@ -17,6 +17,19 @@ export async function POST(
     const body = await req.json();
     const { responses } = body; // Array of { dimensionKey, score, notes, evidence }
 
+    // Validate responses array
+    if (!Array.isArray(responses) || responses.length === 0) {
+      return NextResponse.json({ error: "Responses array krävs" }, { status: 400 });
+    }
+    for (const r of responses) {
+      if (typeof r.score !== "number" || r.score < 0 || r.score > 5) {
+        return NextResponse.json({ error: "Score måste vara mellan 0 och 5" }, { status: 400 });
+      }
+      if (!r.dimensionKey || typeof r.dimensionKey !== "string") {
+        return NextResponse.json({ error: "dimensionKey krävs" }, { status: 400 });
+      }
+    }
+
     // Validate session exists
     const session = await db.maturitySession.findUnique({
       where: { id: sessionId },

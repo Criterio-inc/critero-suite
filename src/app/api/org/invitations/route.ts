@@ -60,6 +60,12 @@ export async function DELETE(req: NextRequest) {
     if (!validated.success) return validated.response;
     const data = validated.data;
 
+    // Verify invitation belongs to user's org (prevents cross-org deletion)
+    const invitation = await prisma.invitation.findUnique({ where: { id: data.invitationId } });
+    if (!invitation || invitation.orgId !== ctx.orgId) {
+      return NextResponse.json({ error: "Inbjudan hittades inte" }, { status: 404 });
+    }
+
     await prisma.invitation.delete({ where: { id: data.invitationId } });
 
     await logAudit(ctx, "delete", "invitation", data.invitationId);

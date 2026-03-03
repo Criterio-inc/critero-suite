@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateId } from "@/lib/id-generator";
+import { requireAuth, requireCaseAccess, requireWriteAccess, ApiError } from "@/lib/auth-guard";
 
 /**
  * Import a library item into a case.
  * Creates entities from the library item's content template.
  */
 export async function POST(req: NextRequest) {
+  try {
+  const ctx = await requireAuth();
+  requireWriteAccess(ctx);
+
   const body = await req.json();
   const { libraryItemId, caseId } = body;
 
   if (!libraryItemId || !caseId) {
     return NextResponse.json({ error: "libraryItemId and caseId required" }, { status: 400 });
   }
+
+  await requireCaseAccess(caseId, ctx);
 
   const item = await prisma.libraryItem.findUnique({ where: { id: libraryItemId } });
   if (!item) return NextResponse.json({ error: "Library item not found" }, { status: 404 });
@@ -127,4 +134,8 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ created, count: created.length });
+  } catch (e) {
+    if (e instanceof ApiError) return e.toResponse();
+    throw e;
+  }
 }
